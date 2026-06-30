@@ -50,3 +50,7 @@ app.*.map.json
 **/firebase_options*.dart
 .env
 /android/key.properties
+
+# Node / Firebase Functions
+**/node_modules/
+/functions/lib/
