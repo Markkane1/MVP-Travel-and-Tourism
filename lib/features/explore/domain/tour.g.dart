@@ -28,6 +28,8 @@ _Tour _$TourFromJson(Map<String, dynamic> json) => _Tour(
   inclusions: (json['inclusions'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
+  latitude: (json['latitude'] as num).toDouble(),
+  longitude: (json['longitude'] as num).toDouble(),
 );
 
 Map<String, dynamic> _$TourToJson(_Tour instance) => <String, dynamic>{
@@ -46,4 +48,6 @@ Map<String, dynamic> _$TourToJson(_Tour instance) => <String, dynamic>{
   'overview': instance.overview,
   'itinerary': instance.itinerary,
   'inclusions': instance.inclusions,
+  'latitude': instance.latitude,
+  'longitude': instance.longitude,
 };

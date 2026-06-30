@@ -56,7 +56,7 @@ Future<void> main() async {
     headers['Authorization'] = 'Bearer $idToken';
   }
 
-  // 3. Define Seed Data
+  // 3. Define Seed Data (including latitude and longitude)
   final sampleTours = [
     {
       'id': 'paris-getaway',
@@ -80,6 +80,8 @@ Future<void> main() async {
         {'day': 2, 'title': 'Louvre Museum Tour', 'description': 'Skip the line for a private guided walk through the world\'s largest art museum.'},
       ],
       'inclusions': ['Boutique hotel stay', 'Daily breakfast', 'Seine river cruise', 'Private museum guides'],
+      'latitude': 48.8566,
+      'longitude': 2.3522,
       'reviews': [
         {
           'userName': 'James Wilson',
@@ -112,6 +114,8 @@ Future<void> main() async {
         {'day': 2, 'title': 'Game Drive & Wilderness Camp', 'description': 'Begin tracking lions, leopards, and elephant herds.'},
       ],
       'inclusions': ['Luxury lodge accommodation', 'All meals included', 'Private 4x4 game vehicles', 'National park entry passes'],
+      'latitude': -2.1540,
+      'longitude': 34.6857,
       'reviews': [
         {
           'userName': 'Emily Davis',
@@ -140,6 +144,8 @@ Future<void> main() async {
       'rating': 4.9,
       'overview': 'Escape to your private overwater bungalow. Swim in turquoise lagoons, indulge in couples spa treatments, and enjoy candlelight dinners on private sandbanks.',
       'inclusions': ['Overwater villa accommodation', 'All-inclusive premium dining', 'Spa credit', 'Private catamaran charter'],
+      'latitude': -16.5004,
+      'longitude': -151.7415,
       'reviews': [
         {
           'userName': 'Arthur Pendragon',
@@ -167,6 +173,8 @@ Future<void> main() async {
       'rating': 4.7,
       'overview': 'Sail between the outer Yasawa islands on a luxury motor yacht. Snorkel pristine reefs and picnic on untouched coral keys.',
       'inclusions': ['Private yacht cabins', 'Chef service on board', 'Snorkeling equipment', 'Custom island tours'],
+      'latitude': -17.7134,
+      'longitude': 178.0650,
       'reviews': [
         {
           'userName': 'Sarah Jenkins',
@@ -194,6 +202,8 @@ Future<void> main() async {
       'rating': 4.9,
       'overview': 'Relax on the sugar-white sandbanks of Zanzibar. Swim alongside wild dolphins and experience sunset dhow cruises with fresh seafood.',
       'inclusions': ['Boutique beachfront resort', 'Seafood dinners', 'Dolphin cruise', 'Local spice tour'],
+      'latitude': -6.1659,
+      'longitude': 39.2026,
       'reviews': [
         {
           'userName': 'Michael Chang',
@@ -221,6 +231,8 @@ Future<void> main() async {
       'rating': 4.9,
       'overview': 'Soak up the sun on private villa terraces. Includes glass-bottom lounges, premium scuba dives, and sunset massage treatments.',
       'inclusions': ['Glass bottom villa stays', 'Private scuba guide', 'Couples massage session', 'Champagne breakfast'],
+      'latitude': 3.2028,
+      'longitude': 73.2207,
       'reviews': [
         {
           'userName': 'Sophia Lauren',
@@ -248,6 +260,8 @@ Future<void> main() async {
       'rating': 4.8,
       'overview': 'Hike and ski under the mighty Matterhorn. Rest in cozy luxury ski lodges, warm up with traditional cheese fondue, and travel on panoramic high-altitude trains.',
       'inclusions': ['Luxury ski lodge chalet', 'Ski lift passes', 'Daily gourmet dinners', 'Glacier Express train ticket'],
+      'latitude': 46.0207,
+      'longitude': 7.7491,
       'reviews': [
         {
           'userName': 'Hans Mueller',
@@ -275,6 +289,8 @@ Future<void> main() async {
       'rating': 4.9,
       'overview': 'Immerse yourself in Zen gardens, bamboo groves, and ancient tea ceremonies. Tour stunning shrines and rest at traditional hot-spring ryokans.',
       'inclusions': ['Traditional Ryokan stay', 'Kaiseki dinners', 'Private tea master', 'Hot spring (onsen) access'],
+      'latitude': 35.0116,
+      'longitude': 135.7681,
       'reviews': [
         {
           'userName': 'Kenji Sato',

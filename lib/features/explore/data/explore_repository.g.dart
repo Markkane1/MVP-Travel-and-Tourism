@@ -54,7 +54,7 @@ final class ExploreRepositoryProvider
   }
 }
 
-String _$exploreRepositoryHash() => r'df1be5d9b0aa6d2dd56d6a9a905c999ac3145160';
+String _$exploreRepositoryHash() => r'fdd29d80b87b82b178759b47e2a7e22683139df1';
 
 @ProviderFor(heroPromotions)
 final heroPromotionsProvider = HeroPromotionsProvider._();
@@ -92,7 +92,7 @@ final class HeroPromotionsProvider
   }
 }
 
-String _$heroPromotionsHash() => r'7cb51d4c829dc6ed5db3e9e893a9ec2cb79d01c6';
+String _$heroPromotionsHash() => r'05c463facdae992f538b0dd4191f6f637cded7dd';
 
 @ProviderFor(featuredTours)
 final featuredToursProvider = FeaturedToursProvider._();
@@ -130,7 +130,7 @@ final class FeaturedToursProvider
   }
 }
 
-String _$featuredToursHash() => r'936187ae46af8e0248c1a712cc52e73da71795ea';
+String _$featuredToursHash() => r'cb7c6d8853249a5b375ed3ac5be2516a351a821b';
 
 @ProviderFor(popularDestinations)
 final popularDestinationsProvider = PopularDestinationsProvider._();
@@ -169,7 +169,7 @@ final class PopularDestinationsProvider
 }
 
 String _$popularDestinationsHash() =>
-    r'2dd1fcdf306ff6d7f097650a899a604c3a4ce090';
+    r'bb73a1b6659593860b65809f3e34b2a0de7266c9';
 
 @ProviderFor(recentReviews)
 final recentReviewsProvider = RecentReviewsProvider._();
@@ -208,4 +208,4 @@ final class RecentReviewsProvider
   }
 }
 
-String _$recentReviewsHash() => r'25825e0f358419a1e62d7658e6a9f894ccf476d4';
+String _$recentReviewsHash() => r'e46b71c05b4afad0217e6d338b5b2da8830d362c';

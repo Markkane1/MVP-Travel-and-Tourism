@@ -1,0 +1,142 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'saved_tours_repository.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(savedToursRepository)
+final savedToursRepositoryProvider = SavedToursRepositoryProvider._();
+
+final class SavedToursRepositoryProvider
+    extends
+        $FunctionalProvider<
+          SavedToursRepository,
+          SavedToursRepository,
+          SavedToursRepository
+        >
+    with $Provider<SavedToursRepository> {
+  SavedToursRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'savedToursRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$savedToursRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<SavedToursRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  SavedToursRepository create(Ref ref) {
+    return savedToursRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SavedToursRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SavedToursRepository>(value),
+    );
+  }
+}
+
+String _$savedToursRepositoryHash() =>
+    r'2cbcf28082285258c9207612edba08c299851d11';
+
+@ProviderFor(savedTourIds)
+final savedTourIdsProvider = SavedTourIdsProvider._();
+
+final class SavedTourIdsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<String>>,
+          List<String>,
+          Stream<List<String>>
+        >
+    with $FutureModifier<List<String>>, $StreamProvider<List<String>> {
+  SavedTourIdsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'savedTourIdsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$savedTourIdsHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<String>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<String>> create(Ref ref) {
+    return savedTourIds(ref);
+  }
+}
+
+String _$savedTourIdsHash() => r'd22e74b8884c2a5506b2e963ecf3a7d656d40139';
+
+@ProviderFor(OptimisticSavedTours)
+final optimisticSavedToursProvider = OptimisticSavedToursProvider._();
+
+final class OptimisticSavedToursProvider
+    extends $AsyncNotifierProvider<OptimisticSavedTours, Set<String>> {
+  OptimisticSavedToursProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'optimisticSavedToursProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$optimisticSavedToursHash();
+
+  @$internal
+  @override
+  OptimisticSavedTours create() => OptimisticSavedTours();
+}
+
+String _$optimisticSavedToursHash() =>
+    r'c21f9d2a601d452d0a6aa9950057f298fa830672';
+
+abstract class _$OptimisticSavedTours extends $AsyncNotifier<Set<String>> {
+  FutureOr<Set<String>> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<Set<String>>, Set<String>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<Set<String>>, Set<String>>,
+              AsyncValue<Set<String>>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
