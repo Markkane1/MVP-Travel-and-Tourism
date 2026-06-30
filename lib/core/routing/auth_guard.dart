@@ -15,8 +15,10 @@ class AuthGuard {
     final isLoggingIn = state.matchedLocation == RoutePaths.auth;
 
     if (!signedIn) {
-      // Allow legal terms and privacy access without sign-in
-      if (state.matchedLocation == RoutePaths.legalTerms || state.matchedLocation == RoutePaths.legalPrivacy) {
+      // Allow legal terms, privacy, and password reset access without sign-in
+      if (state.matchedLocation == RoutePaths.legalTerms ||
+          state.matchedLocation == RoutePaths.legalPrivacy ||
+          state.matchedLocation == RoutePaths.forgotPassword) {
         return null;
       }
       // Force sign in

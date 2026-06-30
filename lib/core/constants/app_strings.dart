@@ -33,12 +33,23 @@ class _AuthStrings {
   final String emailLabel = 'Email Address';
   final String passwordLabel = 'Password';
   final String confirmPasswordLabel = 'Confirm Password';
+  final String fullNameLabel = 'Full Name';
   final String forgotPasswordButton = 'Forgot Password?';
+  final String sendResetLinkButton = 'Send Reset Link';
+  final String orContinueWith = 'OR CONTINUE WITH';
+  final String googleButton = 'Google';
+  final String appleButton = 'Apple ID';
+  final String agreeCheckbox = 'I agree to the Terms of Use and Privacy Policy';
+  final String footnotePrefix = 'By continuing, you agree to MVP Travel\'s premium ';
+  final String termsOfUseLink = 'terms of use';
+  final String footnoteAnd = ' and ';
+  final String privacyStandardsLink = 'global privacy standards';
+  final String footnoteSuffix = '.';
 
   final String userNotFound = 'No user found with this email.';
   final String wrongPassword = 'Incorrect password. Please try again.';
   final String emailAlreadyInUse = 'This email is already registered.';
-  final String weakPassword = 'The password is too weak (minimum 6 characters).';
+  final String weakPassword = 'The password is too weak (minimum 8 characters with at least one number).';
   final String networkRequestFailed = 'Network connection failed. Please check your internet.';
   final String invalidEmail = 'The email address is invalid.';
   final String operationNotAllowed = 'This authentication method is not enabled.';

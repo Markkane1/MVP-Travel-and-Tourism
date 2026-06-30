@@ -3,6 +3,7 @@ class RoutePaths {
   RoutePaths._();
 
   static const String auth = '/auth';
+  static const String forgotPassword = '/auth/forgot-password';
   
   // Bottom Navigation Shell Tabs
   static const String explore = '/explore';

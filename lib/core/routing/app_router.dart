@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
 import '../widgets/app_bottom_nav.dart';
 import '../../features/widgets_catalog_screen.dart';
+import '../../features/auth/presentation/screens/login_register_screen.dart';
+import '../../features/auth/presentation/screens/forgot_password_screen.dart';
+import '../../features/auth/presentation/screens/legal_placeholder_screen.dart';
 import 'auth_guard.dart';
 import 'route_paths.dart';
 
@@ -33,7 +36,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.auth,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Authentication Screen'),
+        builder: (context, state) => const LoginRegisterScreen(),
+      ),
+
+      // Forgot Password screen
+      GoRoute(
+        path: RoutePaths.forgotPassword,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
 
       // Persistent Bottom-Nav Shell
@@ -49,7 +59,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RoutePaths.explore,
-                builder: (context, state) => const WidgetsCatalogScreen(),
+                builder: (context, state) => const _PlaceholderScreen(title: 'Explore (Home)'),
               ),
             ],
           ),
@@ -183,12 +193,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.legalTerms,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Terms of Use'),
+        builder: (context, state) => const TermsOfUseScreen(),
       ),
       GoRoute(
         path: RoutePaths.legalPrivacy,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Privacy Policy'),
+        builder: (context, state) => const PrivacyPolicyScreen(),
+      ),
+      // Widgets Catalog Preview Debug Route
+      GoRoute(
+        path: '/catalog',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const WidgetsCatalogScreen(),
       ),
     ],
   );
