@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../../features/widgets_catalog_screen.dart';
 import 'auth_guard.dart';
 import 'route_paths.dart';
 
@@ -48,7 +49,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RoutePaths.explore,
-                builder: (context, state) => const _PlaceholderScreen(title: 'Explore (Home)'),
+                builder: (context, state) => const WidgetsCatalogScreen(),
               ),
             ],
           ),
