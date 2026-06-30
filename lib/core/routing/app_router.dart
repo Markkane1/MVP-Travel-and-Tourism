@@ -8,6 +8,7 @@ import '../../features/widgets_catalog_screen.dart';
 import '../../features/auth/presentation/screens/login_register_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/legal_placeholder_screen.dart';
+import '../../features/explore/presentation/screens/explore_screen.dart';
 import 'auth_guard.dart';
 import 'route_paths.dart';
 
@@ -59,7 +60,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RoutePaths.explore,
-                builder: (context, state) => const _PlaceholderScreen(title: 'Explore (Home)'),
+                builder: (context, state) => const ExploreScreen(),
               ),
             ],
           ),

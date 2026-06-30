@@ -1,0 +1,49 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'tour.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_Tour _$TourFromJson(Map<String, dynamic> json) => _Tour(
+  id: json['id'] as String,
+  title: json['title'] as String,
+  destination: json['destination'] as String,
+  category: json['category'] as String,
+  badges: (json['badges'] as List<dynamic>).map((e) => e as String).toList(),
+  heroImageUrl: json['heroImageUrl'] as String,
+  galleryImageUrls: (json['galleryImageUrls'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
+  pricePerPerson: (json['pricePerPerson'] as num).toDouble(),
+  currency: json['currency'] as String,
+  durationDays: (json['durationDays'] as num).toInt(),
+  maxParticipants: (json['maxParticipants'] as num).toInt(),
+  rating: (json['rating'] as num).toDouble(),
+  overview: json['overview'] as String,
+  itinerary: (json['itinerary'] as List<dynamic>)
+      .map((e) => e as Map<String, dynamic>)
+      .toList(),
+  inclusions: (json['inclusions'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
+);
+
+Map<String, dynamic> _$TourToJson(_Tour instance) => <String, dynamic>{
+  'id': instance.id,
+  'title': instance.title,
+  'destination': instance.destination,
+  'category': instance.category,
+  'badges': instance.badges,
+  'heroImageUrl': instance.heroImageUrl,
+  'galleryImageUrls': instance.galleryImageUrls,
+  'pricePerPerson': instance.pricePerPerson,
+  'currency': instance.currency,
+  'durationDays': instance.durationDays,
+  'maxParticipants': instance.maxParticipants,
+  'rating': instance.rating,
+  'overview': instance.overview,
+  'itinerary': instance.itinerary,
+  'inclusions': instance.inclusions,
+};
