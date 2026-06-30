@@ -116,86 +116,122 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Display Header Wordmark
-                Text(
-                  AppStrings.common.appDisplayName,
-                  style: theme.textTheme.displayLarge?.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -1.0,
-                  ),
+        child: Stack(
+          children: [
+            // Close dismiss button top-left
+            Positioned(
+              top: AppSpacing.sm,
+              left: AppSpacing.sm,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.close,
+                  color: AppColors.onSurface,
+                  size: 24.0,
                 ),
-                AppSpacing.gapLg,
-
-                // Main Form Card
-                AppCard(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Segmented Selector Header
-                      Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: _isLoading
-                                  ? null
-                                  : () => setState(() {
-                                        _isLogin = true;
-                                        _errorMessage = null;
-                                      }),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    AppStrings.auth.signInButton,
-                                    style: theme.textTheme.titleMedium?.copyWith(
-                                      fontWeight: _isLogin ? FontWeight.bold : FontWeight.w500,
-                                      color: _isLogin ? AppColors.primary : AppColors.outline,
-                                    ),
-                                  ),
-                                  AppSpacing.gapBase,
-                                  Container(
-                                    height: 3.0,
-                                    color: _isLogin ? AppColors.primary : Colors.transparent,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: _isLoading
-                                  ? null
-                                  : () => setState(() {
-                                        _isLogin = false;
-                                        _errorMessage = null;
-                                      }),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    'Register',
-                                    style: theme.textTheme.titleMedium?.copyWith(
-                                      fontWeight: !_isLogin ? FontWeight.bold : FontWeight.w500,
-                                      color: !_isLogin ? AppColors.primary : AppColors.outline,
-                                    ),
-                                  ),
-                                  AppSpacing.gapBase,
-                                  Container(
-                                    height: 3.0,
-                                    color: !_isLogin ? AppColors.primary : Colors.transparent,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                onPressed: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  } else {
+                    context.go('/explore');
+                  }
+                },
+              ),
+            ),
+            Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 48.0),
+                    // Display Header Wordmark (two-line stacked to match Horizon Elite)
+                    Text(
+                      'MVP\nTravel',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.displayLarge?.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                        height: 1.1,
+                        letterSpacing: -1.0,
                       ),
-                      AppSpacing.gapLg,
+                    ),
+                    AppSpacing.gapLg,
+
+                    // Main Form Card
+                    AppCard(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Segmented Selector Header with bottom border divider
+                          Container(
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: AppColors.outlineVariant,
+                                  width: 1.0,
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: _isLoading
+                                        ? null
+                                        : () => setState(() {
+                                              _isLogin = true;
+                                              _errorMessage = null;
+                                            }),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          AppStrings.auth.signInButton,
+                                          style: theme.textTheme.titleMedium?.copyWith(
+                                            fontWeight: _isLogin ? FontWeight.bold : FontWeight.w500,
+                                            color: _isLogin ? AppColors.primary : AppColors.outline,
+                                          ),
+                                        ),
+                                        AppSpacing.gapBase,
+                                        Container(
+                                          height: 3.0,
+                                          color: _isLogin ? AppColors.primary : Colors.transparent,
+                                          margin: const EdgeInsets.only(bottom: -1.0),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: _isLoading
+                                        ? null
+                                        : () => setState(() {
+                                              _isLogin = false;
+                                              _errorMessage = null;
+                                            }),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          'Register',
+                                          style: theme.textTheme.titleMedium?.copyWith(
+                                            fontWeight: !_isLogin ? FontWeight.bold : FontWeight.w500,
+                                            color: !_isLogin ? AppColors.primary : AppColors.outline,
+                                          ),
+                                        ),
+                                        AppSpacing.gapBase,
+                                        Container(
+                                          height: 3.0,
+                                          color: !_isLogin ? AppColors.primary : Colors.transparent,
+                                          margin: const EdgeInsets.only(bottom: -1.0),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          AppSpacing.gapLg,
 
                       // Error feedback block
                       if (_errorMessage != null) ...[
@@ -304,8 +340,10 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
             ),
           ),
         ),
-      ),
-    );
+      ],
+    ),
+  ),
+);
   }
 
   Widget _buildLoginForm() {
