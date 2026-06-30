@@ -34,6 +34,15 @@ class _AuthStrings {
   final String passwordLabel = 'Password';
   final String confirmPasswordLabel = 'Confirm Password';
   final String forgotPasswordButton = 'Forgot Password?';
+
+  final String userNotFound = 'No user found with this email.';
+  final String wrongPassword = 'Incorrect password. Please try again.';
+  final String emailAlreadyInUse = 'This email is already registered.';
+  final String weakPassword = 'The password is too weak (minimum 6 characters).';
+  final String networkRequestFailed = 'Network connection failed. Please check your internet.';
+  final String invalidEmail = 'The email address is invalid.';
+  final String operationNotAllowed = 'This authentication method is not enabled.';
+  final String userDisabled = 'This user account has been disabled.';
 }
 
 class _ExploreStrings {

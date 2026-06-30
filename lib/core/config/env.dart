@@ -1,3 +1,7 @@
+import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+import 'firebase_options_dev.dart';
+import 'firebase_options_prod.dart';
+
 /// Environment configuration manager reading compilation definitions.
 class Env {
   Env._();
@@ -10,6 +14,14 @@ class Env {
 
   /// True if running in development flavor.
   static bool get isDev => flavor == 'dev';
+
+  /// Firebase Options selection based on active flavor.
+  static FirebaseOptions get firebaseOptions {
+    if (isProd) {
+      return DefaultFirebaseOptionsProd.currentPlatform;
+    }
+    return DefaultFirebaseOptionsDev.currentPlatform;
+  }
 
   /// Stripe Publishable Key mapped per environment.
   static String get stripePublishableKey {

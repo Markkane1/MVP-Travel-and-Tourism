@@ -1,0 +1,84 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for authentication checks
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // User Profile Subtree: read/write permitted only to the authenticated profile owner.
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /savedTours/{tourId} {
+        allow read, write: if isOwner(uid);
+      }
+
+      match /paymentMethods/{paymentMethodId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // Bookings collection: read restricted to the booking owner.
+    // Client can only create bookings in 'pending' status, and cannot set functions-managed fields.
+    match /bookings/{bookingId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && !request.resource.data.keys().hasAny(['stripePaymentIntentId', 'bookingReferenceCode']);
+        
+      // Client updates cannot modify status, payment tokens, or reference codes.
+      allow update: if isAuthenticated()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'stripePaymentIntentId', 'bookingReferenceCode']);
+        
+      allow delete: if false;
+    }
+
+    // Tours catalog: publicly readable, writable only by admin SDK/backend.
+    match /tours/{tourId} {
+      allow read: if true;
+      allow write: if false;
+
+      // Reviews: publicly readable, writable only by the owner of a 'completed' booking for this tour.
+      match /reviews/{reviewId} {
+        allow read: if true;
+        
+        allow create: if isAuthenticated()
+          && request.resource.data.userId == request.auth.uid
+          && exists(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId))
+          && get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.userId == request.auth.uid
+          && get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.tourId == tourId
+          && get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.status == 'completed';
+          
+        allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      }
+    }
+
+    // Travel Concierge chat threads: user-scoped read/write.
+    match /concierge_threads/{uid} {
+      allow read, write: if isOwner(uid);
+      
+      match /messages/{messageId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // User Notification center: user-scoped read/write.
+    match /notifications/{uid} {
+      allow read, write: if isOwner(uid);
+      
+      match /items/{notificationId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+  }
+}

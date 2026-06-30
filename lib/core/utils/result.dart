@@ -5,6 +5,9 @@ import '../errors/app_exception.dart';
 sealed class Result<T> {
   const Result();
 
+  const factory Result.success(T value) = Success<T>;
+  const factory Result.failure(AppException exception) = Failure<T>;
+
   /// Executes [onSuccess] if success, or [onFailure] if failure.
   R when<R>({
     required R Function(T value) onSuccess,

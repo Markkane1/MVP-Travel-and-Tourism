@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/widgets/primary_button.dart';
 import '../core/widgets/secondary_button.dart';
 import '../core/widgets/gold_accent_button.dart';
@@ -25,6 +27,75 @@ class WidgetsCatalogScreen extends StatefulWidget {
 class _WidgetsCatalogScreenState extends State<WidgetsCatalogScreen> {
   double _userRating = 3.0;
   bool _isChipActive = false;
+  String _firebaseStatus = 'Not Signed In';
+  String _firebaseLog = 'Ready to test...';
+
+  Future<void> _signInAnonymously() async {
+    try {
+      setState(() {
+        _firebaseStatus = 'Signing in...';
+        _firebaseLog = 'Auth.signInAnonymously()...';
+      });
+      final creds = await FirebaseAuth.instance.signInAnonymously();
+      setState(() {
+        _firebaseStatus = 'Signed In: ${creds.user?.uid}';
+        _firebaseLog = 'Successfully signed in anonymously!';
+      });
+    } catch (e) {
+      setState(() {
+        _firebaseStatus = 'Sign In Failed';
+        _firebaseLog = 'Error: $e';
+      });
+    }
+  }
+
+  Future<void> _writeOwnDoc() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      setState(() {
+        _firebaseLog = 'Error: Please sign in anonymously first!';
+      });
+      return;
+    }
+    try {
+      setState(() {
+        _firebaseLog = 'Writing to users/${user.uid}...';
+      });
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'displayName': 'Anonymous Test User',
+        'email': 'anonymous@mvptravel.com',
+        'tier': 'Standard',
+        'loyaltyPoints': 0,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      setState(() {
+        _firebaseLog = 'Success! Wrote own document successfully.';
+      });
+    } catch (e) {
+      setState(() {
+        _firebaseLog = 'Error: $e';
+      });
+    }
+  }
+
+  Future<void> _writeOtherDoc() async {
+    try {
+      setState(() {
+        _firebaseLog = 'Writing to users/some-other-uid-123 (should fail)...';
+      });
+      await FirebaseFirestore.instance.collection('users').doc('some-other-uid-123').set({
+        'displayName': 'Malicious Hacker',
+        'tier': 'Elite Horizon',
+      });
+      setState(() {
+        _firebaseLog = 'Error: Write succeeded! Security rules did not block it.';
+      });
+    } catch (e) {
+      setState(() {
+        _firebaseLog = 'Success! Blocked by security rules:\n$e';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +298,59 @@ class _WidgetsCatalogScreenState extends State<WidgetsCatalogScreen> {
                   label: 'Trips',
                 ),
               ],
+            ),
+            AppSpacing.gapXl,
+
+            const SectionHeader(title: 'Firebase Integration & Security Rules Test'),
+            AppSpacing.gapMd,
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Status: $_firebaseStatus',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  AppSpacing.gapMd,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: PrimaryButton(
+                          label: '1. Sign In Anon',
+                          onPressed: _signInAnonymously,
+                        ),
+                      ),
+                      const SizedBox(width: 8.0),
+                      Expanded(
+                        child: PrimaryButton(
+                          label: '2. Write Own Doc',
+                          onPressed: _writeOwnDoc,
+                        ),
+                      ),
+                    ],
+                  ),
+                  AppSpacing.gapBase,
+                  PrimaryButton(
+                    label: '3. Write Other Doc (Should Fail)',
+                    onPressed: _writeOtherDoc,
+                  ),
+                  AppSpacing.gapMd,
+                  const Text('Log Output:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  AppSpacing.gapBase,
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Text(
+                      _firebaseLog,
+                      style: const TextStyle(fontFamily: 'monospace', fontSize: 12.0),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 48.0),
           ],
