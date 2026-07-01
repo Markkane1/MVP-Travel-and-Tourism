@@ -125,3 +125,78 @@ final class BookingDetailsFamily extends $Family
   @override
   String toString() => r'bookingDetailsProvider';
 }
+
+@ProviderFor(userBookings)
+final userBookingsProvider = UserBookingsFamily._();
+
+final class UserBookingsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Booking>>,
+          List<Booking>,
+          Stream<List<Booking>>
+        >
+    with $FutureModifier<List<Booking>>, $StreamProvider<List<Booking>> {
+  UserBookingsProvider._({
+    required UserBookingsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'userBookingsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$userBookingsHash();
+
+  @override
+  String toString() {
+    return r'userBookingsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<List<Booking>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<Booking>> create(Ref ref) {
+    final argument = this.argument as String;
+    return userBookings(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is UserBookingsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$userBookingsHash() => r'badaaf7c16c7db236a36300759a25430754f0dc1';
+
+final class UserBookingsFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<List<Booking>>, String> {
+  UserBookingsFamily._()
+    : super(
+        retry: null,
+        name: r'userBookingsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  UserBookingsProvider call(String userId) =>
+      UserBookingsProvider._(argument: userId, from: this);
+
+  @override
+  String toString() => r'userBookingsProvider';
+}

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../auth/presentation/controllers/auth_controller.dart';
+import '../../explore/domain/tour.dart';
+import 'search_repository.dart';
 
 part 'saved_tours_repository.g.dart';
 
@@ -100,4 +102,24 @@ class OptimisticSavedTours extends _$OptimisticSavedTours {
       rethrow;
     }
   }
+}
+
+@riverpod
+AsyncValue<List<Tour>> savedToursList(Ref ref) {
+  final savedIdsState = ref.watch(savedTourIdsProvider);
+  final allToursState = ref.watch(searchResultsProvider(const SearchFilters()));
+
+  if (savedIdsState.isLoading || allToursState.isLoading) {
+    return const AsyncValue.loading();
+  }
+  if (savedIdsState.hasError) {
+    return AsyncValue.error(savedIdsState.error!, savedIdsState.stackTrace!);
+  }
+  if (allToursState.hasError) {
+    return AsyncValue.error(allToursState.error!, allToursState.stackTrace!);
+  }
+
+  final ids = savedIdsState.value ?? [];
+  final tours = allToursState.value ?? [];
+  return AsyncValue.data(tours.where((tour) => ids.contains(tour.id)).toList());
 }

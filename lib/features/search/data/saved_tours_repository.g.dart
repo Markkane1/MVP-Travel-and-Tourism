@@ -140,3 +140,50 @@ abstract class _$OptimisticSavedTours extends $AsyncNotifier<Set<String>> {
     return element.handleCreate(ref, build);
   }
 }
+
+@ProviderFor(savedToursList)
+final savedToursListProvider = SavedToursListProvider._();
+
+final class SavedToursListProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Tour>>,
+          AsyncValue<List<Tour>>,
+          AsyncValue<List<Tour>>
+        >
+    with $Provider<AsyncValue<List<Tour>>> {
+  SavedToursListProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'savedToursListProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$savedToursListHash();
+
+  @$internal
+  @override
+  $ProviderElement<AsyncValue<List<Tour>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  AsyncValue<List<Tour>> create(Ref ref) {
+    return savedToursList(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<List<Tour>> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<List<Tour>>>(value),
+    );
+  }
+}
+
+String _$savedToursListHash() => r'4a8d26ae9d55ebbac10873f2cce43dd91f2c948d';

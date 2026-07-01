@@ -47,6 +47,30 @@ class BookingRepository {
       return Booking.fromJson(data);
     });
   }
+
+  /// Streams all bookings for a specific user from Firestore.
+  Stream<List<Booking>> watchUserBookings(String userId) {
+    return _firestore
+        .collection('bookings')
+        .where('userId', isEqualTo: userId)
+        .orderBy('tourDate', descending: false)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+
+        if (data['tourDate'] is Timestamp) {
+          data['tourDate'] = (data['tourDate'] as Timestamp).toDate().toIso8601String();
+        }
+        if (data['createdAt'] is Timestamp) {
+          data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
+        }
+
+        return Booking.fromJson(data);
+      }).toList();
+    });
+  }
 }
 
 @riverpod
@@ -57,4 +81,9 @@ BookingRepository bookingRepository(Ref ref) {
 @riverpod
 Stream<Booking?> bookingDetails(Ref ref, String bookingId) {
   return ref.watch(bookingRepositoryProvider).watchBooking(bookingId);
+}
+
+@riverpod
+Stream<List<Booking>> userBookings(Ref ref, String userId) {
+  return ref.watch(bookingRepositoryProvider).watchUserBookings(userId);
 }

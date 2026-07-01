@@ -16,6 +16,8 @@ import '../../features/booking/presentation/screens/booking_screen.dart';
 import '../../features/checkout/presentation/screens/checkout_screen.dart';
 import '../../features/checkout/presentation/screens/bank_transfer_screen.dart';
 import '../../features/checkout/presentation/screens/payment_success_screen.dart';
+import '../../features/trips/presentation/screens/booking_confirmation_screen.dart';
+import '../../features/trips/presentation/screens/trips_screen.dart';
 import 'auth_guard.dart';
 import 'route_paths.dart';
 
@@ -97,10 +99,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RoutePaths.trips,
-                builder: (context, state) => const _PlaceholderScreen(
-                  title: 'Trips (Upcoming / History / Saved)',
-                  showTripsSubnavigation: true,
-                ),
+                builder: (context, state) => const TripsScreen(),
               ),
             ],
           ),
@@ -187,7 +186,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final bookingId = state.pathParameters['bookingId'] ?? 'unknown';
-          return _PlaceholderScreen(title: 'Booking Confirmation ($bookingId)');
+          return BookingConfirmationScreen(bookingId: bookingId);
         },
       ),
       GoRoute(
@@ -294,11 +293,9 @@ class _ShellScaffold extends StatelessWidget {
 /// Simple placeholder screen reusable stub.
 class _PlaceholderScreen extends StatelessWidget {
   final String title;
-  final bool showTripsSubnavigation;
 
   const _PlaceholderScreen({
     required this.title,
-    this.showTripsSubnavigation = false,
   });
 
   @override
@@ -316,18 +313,6 @@ class _PlaceholderScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16.0),
-            if (showTripsSubnavigation) ...[
-              ElevatedButton(
-                onPressed: () => context.push(RoutePaths.bookingConfirmationPath('booking-123')),
-                child: const Text('Go to Booking Itinerary'),
-              ),
-              const SizedBox(height: 8.0),
-              ElevatedButton(
-                onPressed: () => context.push(RoutePaths.reviewTripPath('booking-123')),
-                child: const Text('Leave a Review'),
-              ),
-            ],
           ],
         ),
       ),

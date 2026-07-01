@@ -128,6 +128,43 @@ class _CheckoutStrings {
 
 class _TripsStrings {
   const _TripsStrings();
+
+  final String title = 'Trips';
+  final String confirmationTitle = 'Booking Confirmed';
+  final String confirmationSubtitle = 'Your expedition is secured and ready for departure.';
+  final String confirmedExperienceBadge = 'CONFIRMED EXPERIENCE';
+  final String logisticsSection = 'Logistics';
+  final String pickupLocationLabel = 'PICKUP LOCATION';
+  final String viewInMapsButton = 'View in Maps';
+  final String whatsNextHeader = 'What\'s Next';
+  final String whatsNextStep1 = '1 — Confirmation Details: Check your email for full itinerary and digital tickets.';
+  final String whatsNextStep2 = '2 — Concierge Outreach: A travel concierge will reach out within 24 hours to customize your gear.';
+  final String addToCalendarButton = 'Add to Calendar';
+  final String downloadPdfReceiptButton = 'Download PDF Receipt';
+  final String backToHomeButton = 'Back to Home';
+  
+  // Segmented control
+  final String segmentUpcoming = 'Upcoming Bookings';
+  final String segmentHistory = 'History';
+  final String segmentSaved = 'Saved Tours';
+  
+  // Cancellation dialog
+  final String cancelDialogTitle = 'Cancel Booking';
+  final String cancelDialogBody = 'Cancel this booking? This may be subject to the tour\'s cancellation policy.';
+  final String cancelConfirmText = 'Yes, Cancel';
+  final String cancelDismissText = 'Keep Booking';
+  final String cancelSuccessMessage = 'Booking cancelled successfully.';
+
+  // Empty States
+  final String emptyUpcomingTitle = 'New Adventure?';
+  final String emptyUpcomingBody = 'Your next world-class experience is just a click away.';
+  final String exploreToursButton = 'Explore Tours';
+  final String emptyHistory = 'No past trips found.';
+  final String emptySaved = 'No saved tours yet.';
+
+  // History & Reviews Actions
+  final String leaveReviewButton = 'Leave a Review';
+  final String reviewedIndicator = '★ Reviewed';
 }
 
 class _ProfileStrings {
