@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -18,6 +17,7 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/storage_service.dart';
 import 'dart:async' show unawaited;
+import '../../../../core/widgets/notification_bell_button.dart';
 import '../../../profile/data/profile_repository.dart';
 
 /// Representation model of a concierge agent.
@@ -254,11 +254,8 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none, color: AppColors.onSurface),
-            onPressed: () => context.push('/notifications'),
-          ),
+        actions: const [
+          NotificationBellButton(),
         ],
       ),
       body: firestoreState.when(

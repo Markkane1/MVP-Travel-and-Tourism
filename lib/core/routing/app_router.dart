@@ -30,6 +30,8 @@ import '../../features/profile/presentation/screens/travel_map_screen.dart';
 import '../../features/profile/presentation/screens/security_privacy_screen.dart';
 import '../../features/profile/presentation/screens/notification_settings_screen.dart';
 import '../../features/profile/presentation/screens/help_support_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
+import '../services/notification_service.dart';
 import 'auth_guard.dart';
 import 'route_paths.dart';
 
@@ -263,7 +265,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.notifications,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Notifications List'),
+        builder: (context, state) => const NotificationsScreen(),
       ),
       GoRoute(
         path: RoutePaths.legalTerms,
@@ -286,21 +288,37 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 /// Scaffold container for the persistent bottom navigation shell.
-class _ShellScaffold extends StatelessWidget {
+class _ShellScaffold extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
 
   const _ShellScaffold({required this.navigationShell});
 
   @override
+  ConsumerState<_ShellScaffold> createState() => _ShellScaffoldState();
+}
+
+class _ShellScaffoldState extends ConsumerState<_ShellScaffold> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = ref.read(authServiceProvider).currentUser;
+      if (user != null) {
+        ref.read(notificationServiceProvider).setupNotifications(user.uid);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: widget.navigationShell,
       bottomNavigationBar: AppBottomNav(
-        currentIndex: navigationShell.currentIndex,
+        currentIndex: widget.navigationShell.currentIndex,
         onTap: (index) {
-          navigationShell.goBranch(
+          widget.navigationShell.goBranch(
             index,
-            initialLocation: index == navigationShell.currentIndex,
+            initialLocation: index == widget.navigationShell.currentIndex,
           );
         },
         items: const [

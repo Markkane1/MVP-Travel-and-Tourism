@@ -14,6 +14,7 @@ import '../../../../core/services/auth_service.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../booking/data/booking_repository.dart';
 import '../../../search/data/saved_tours_repository.dart';
+import '../../../../core/widgets/notification_bell_button.dart';
 import '../../data/profile_repository.dart';
 
 /// Defined Map of benefits per tier status.
@@ -60,11 +61,8 @@ class ProfileScreen extends ConsumerWidget {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none, color: AppColors.onSurface),
-            onPressed: () => context.push('/notifications'),
-          ),
+        actions: const [
+          NotificationBellButton(),
         ],
       ),
       body: firestoreState.when(
