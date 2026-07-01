@@ -1,0 +1,16 @@
+flutter_launcher_icons:
+  # Android adaptive icon: navy background, gold compass foreground
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+
+  # Android adaptive icon layers
+  adaptive_icon_background: "#000D22"
+  adaptive_icon_foreground: "assets/icons/app_icon.png"
+
+  # Minimum SDK for adaptive icons (API 26+)
+  min_sdk_android: 21
+
+  # Web PWA icon — disabled (mobile-only app, no web target)
+  # web:
+  #   generate: true

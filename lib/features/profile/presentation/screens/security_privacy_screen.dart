@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -9,7 +8,8 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/constants/app_strings.dart';
-import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../auth/auth.dart';
+import '../../data/profile_repository.dart';
 
 class SecurityPrivacyScreen extends ConsumerStatefulWidget {
   const SecurityPrivacyScreen({super.key});
@@ -93,26 +93,36 @@ class _SecurityPrivacyScreenState extends ConsumerState<SecurityPrivacyScreen> {
 
     try {
       // 1. Call Cloud Function to delete user-related Firestore data
-      final functions = FirebaseFunctions.instance;
-      await functions.httpsCallable('cleanupUserData').call();
+      final cleanupRes = await ref.read(profileRepositoryProvider).cleanupUserData();
 
-      // 2. Delete user account from Firebase Auth
-      final auth = ref.read(authServiceProvider);
-      final deleteResult = await auth.deleteUserAccount();
-
-      await deleteResult.when(
+      await cleanupRes.when(
         onSuccess: (_) async {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Account permanently deleted.')),
-            );
-            context.go('/auth');
-          }
+          // 2. Delete user account from Firebase Auth
+          final auth = ref.read(authServiceProvider);
+          final deleteResult = await auth.deleteUserAccount();
+
+          await deleteResult.when(
+            onSuccess: (_) async {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Account permanently deleted.')),
+                );
+                context.go('/auth');
+              }
+            },
+            onFailure: (exception) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Auth account deletion failed: ${exception.message}')),
+                );
+              }
+            },
+          );
         },
         onFailure: (exception) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Auth account deletion failed: ${exception.message}')),
+              SnackBar(content: Text(exception.message)),
             );
           }
         },

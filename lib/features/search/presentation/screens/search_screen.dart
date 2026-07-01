@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../explore/data/explore_repository.dart';
+import '../../../explore/explore.dart';
 
 /// Default Search panel dashboard screen.
 class SearchScreen extends ConsumerStatefulWidget {

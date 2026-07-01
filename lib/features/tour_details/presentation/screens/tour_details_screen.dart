@@ -9,7 +9,7 @@ import '../../../../core/widgets/rating_stars.dart';
 import '../../../../core/widgets/section_header.dart';
 
 import '../../../explore/domain/review.dart';
-import '../../../search/data/saved_tours_repository.dart';
+import '../../../search/search.dart';
 
 
 import '../../data/tour_details_repository.dart';
@@ -273,34 +273,44 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                     CircleAvatar(
                       backgroundColor: Colors.black.withValues(alpha: 0.4),
                       radius: 20.0,
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20.0),
-                        onPressed: () => context.pop(),
+                      child: Semantics(
+                        label: 'Go back',
+                        button: true,
+                        child: IconButton(
+                          tooltip: 'Go back',
+                          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20.0),
+                          onPressed: () => context.pop(),
+                        ),
                       ),
                     ),
                     // Bookmark toggle in translucent circle
                     CircleAvatar(
                       backgroundColor: Colors.black.withValues(alpha: 0.4),
                       radius: 20.0,
-                      child: IconButton(
-                        icon: Icon(
-                          isSaved ? Icons.favorite : Icons.favorite_border,
-                          color: isSaved ? Colors.red : Colors.white,
-                          size: 20.0,
-                        ),
-                        onPressed: () async {
-                          try {
-                            await ref
-                                .read(optimisticSavedToursProvider.notifier)
-                                .toggleSave(widget.tourId);
-                          } catch (e) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Bookmark sync error: $e')),
-                              );
+                      child: Semantics(
+                        label: isSaved ? 'Remove from saved' : 'Save tour',
+                        button: true,
+                        child: IconButton(
+                          tooltip: isSaved ? 'Remove from saved' : 'Save tour',
+                          icon: Icon(
+                            isSaved ? Icons.favorite : Icons.favorite_border,
+                            color: isSaved ? Colors.red : Colors.white,
+                            size: 20.0,
+                          ),
+                          onPressed: () async {
+                            try {
+                              await ref
+                                  .read(optimisticSavedToursProvider.notifier)
+                                  .toggleSave(widget.tourId);
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Bookmark sync error: $e')),
+                                );
+                              }
                             }
-                          }
-                        },
+                          },
+                        ),
                       ),
                     ),
                   ],

@@ -14,10 +14,12 @@ class NotificationBellButton extends ConsumerWidget {
 
     return unreadCountState.when(
       loading: () => IconButton(
+        tooltip: 'Notifications',
         icon: const Icon(Icons.notifications_none, color: AppColors.onSurface),
         onPressed: () => context.push('/notifications'),
       ),
       error: (e, s) => IconButton(
+        tooltip: 'Notifications',
         icon: const Icon(Icons.notifications_none, color: AppColors.onSurface),
         onPressed: () => context.push('/notifications'),
       ),
@@ -26,6 +28,7 @@ class NotificationBellButton extends ConsumerWidget {
           alignment: Alignment.center,
           children: [
             IconButton(
+              tooltip: 'Notifications',
               icon: const Icon(Icons.notifications_none, color: AppColors.onSurface),
               onPressed: () => context.push('/notifications'),
             ),

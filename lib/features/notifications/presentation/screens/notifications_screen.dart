@@ -1,59 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_radii.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/services/auth_service.dart';
-import '../../../../core/services/notification_service.dart';
-
-class NotificationItem {
-  final String id;
-  final String title;
-  final String body;
-  final String type;
-  final String deepLink;
-  final bool read;
-  final DateTime createdAt;
-
-  const NotificationItem({
-    required this.id,
-    required this.title,
-    required this.body,
-    required this.type,
-    required this.deepLink,
-    required this.read,
-    required this.createdAt,
-  });
-
-  factory NotificationItem.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    final timestamp = data['createdAt'] as Timestamp?;
-    return NotificationItem(
-      id: doc.id,
-      title: data['title'] ?? '',
-      body: data['body'] ?? '',
-      type: data['type'] ?? 'system',
-      deepLink: data['deepLink'] ?? '',
-      read: data['read'] ?? false,
-      createdAt: timestamp?.toDate() ?? DateTime.now(),
-    );
-  }
-}
-
-/// Provider to stream the user's notification list.
-final notificationsStreamProvider = StreamProvider.family<List<NotificationItem>, String>((ref, uid) {
-  return FirebaseFirestore.instance
-      .collection('notifications')
-      .doc(uid)
-      .collection('items')
-      .orderBy('createdAt', descending: true)
-      .snapshots()
-      .map((snap) => snap.docs.map((doc) => NotificationItem.fromFirestore(doc)).toList());
-});
+import '../../domain/notification_item.dart';
+import '../../data/notifications_repository.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
@@ -92,7 +47,7 @@ class NotificationsScreen extends ConsumerWidget {
 
   void _onNotificationTap(BuildContext context, WidgetRef ref, String uid, NotificationItem item) {
     // 1. Mark as read
-    ref.read(notificationServiceProvider).markAsRead(uid, item.id);
+    ref.read(notificationsRepositoryProvider).markAsRead(uid, item.id);
 
     // 2. Deep link if present
     if (item.deepLink.isNotEmpty) {
@@ -108,7 +63,6 @@ class NotificationsScreen extends ConsumerWidget {
     }
 
     final notificationsState = ref.watch(notificationsStreamProvider(user.uid));
-    final service = ref.read(notificationServiceProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -127,7 +81,7 @@ class NotificationsScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => service.markAllAsRead(user.uid),
+            onPressed: () => ref.read(notificationsRepositoryProvider).markAllAsRead(user.uid),
             child: const Text(
               'Mark all read',
               style: TextStyle(

@@ -447,32 +447,37 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                       ),
                     ),
                   // Right-heart: translucent dark circle
-                  Positioned(
+                   Positioned(
                     top: AppSpacing.md,
                     right: AppSpacing.md,
                     child: CircleAvatar(
                       backgroundColor: Colors.black.withValues(alpha: 0.4),
                       radius: 20.0,
-                      child: IconButton(
-                        icon: Icon(
-                          isSaved ? Icons.favorite : Icons.favorite_border,
-                          color: isSaved ? Colors.red : Colors.white,
-                          size: 20.0,
-                        ),
-                        onPressed: () async {
-                          // Heart toggle updates state optimistically instantly
-                          try {
-                            await ref
-                                .read(optimisticSavedToursProvider.notifier)
-                                .toggleSave(tour.id);
-                          } catch (e) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Failed to update bookmark: $e')),
-                              );
+                      child: Semantics(
+                        label: isSaved ? 'Remove from saved' : 'Save tour',
+                        button: true,
+                        child: IconButton(
+                          tooltip: isSaved ? 'Remove from saved' : 'Save tour',
+                          icon: Icon(
+                            isSaved ? Icons.favorite : Icons.favorite_border,
+                            color: isSaved ? Colors.red : Colors.white,
+                            size: 20.0,
+                          ),
+                          onPressed: () async {
+                            // Heart toggle updates state optimistically instantly
+                            try {
+                              await ref
+                                  .read(optimisticSavedToursProvider.notifier)
+                                  .toggleSave(tour.id);
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Failed to update bookmark: $e')),
+                                );
+                              }
                             }
-                          }
-                        },
+                          },
+                        ),
                       ),
                     ),
                   ),

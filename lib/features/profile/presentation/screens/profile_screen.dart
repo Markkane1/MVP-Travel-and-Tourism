@@ -11,9 +11,9 @@ import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_state_view.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/services/auth_service.dart';
-import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../../../booking/data/booking_repository.dart';
-import '../../../search/data/saved_tours_repository.dart';
+import '../../../auth/auth.dart';
+import '../../../booking/booking.dart';
+import '../../../search/search.dart';
 import '../../../../core/widgets/notification_bell_button.dart';
 import '../../data/profile_repository.dart';
 

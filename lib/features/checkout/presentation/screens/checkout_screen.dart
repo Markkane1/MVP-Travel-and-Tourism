@@ -4,8 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cloud_functions/cloud_functions.dart' hide Result;
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../data/checkout_repository.dart';
 import '../../../../core/services/auth_service.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -19,8 +18,7 @@ import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_state_view.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/result.dart';
-import '../../../booking/data/booking_repository.dart';
-import '../../../booking/domain/booking.dart';
+import '../../../booking/booking.dart';
 import '../../domain/payment_service.dart';
 import '../../data/mock_payment_service.dart';
 
@@ -69,62 +67,51 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
       await paymentResult.when(
         onSuccess: (outcome) async {
-          // Trigger the Cloud Function to confirm the booking in Firestore
-          try {
-            final functions = FirebaseFunctions.instance;
-            final response = await functions
-                .httpsCallable('confirmBooking')
-                .call({'bookingId': booking.id});
+          final checkoutRepo = ref.read(checkoutRepositoryProvider);
+          final confirmResult = await checkoutRepo.confirmBooking(booking.id);
 
-            // If the user selected to save the card for future bookings, save display-only details
-            if (_saveCard) {
-              final authUser = ref.read(authServiceProvider).currentUser;
-              if (authUser != null) {
-                String brand = 'Visa';
-                final cardNo = _cardNumberController.text.trim();
-                if (cardNo.startsWith('3')) {
-                  brand = 'Amex';
-                } else if (cardNo.startsWith('5')) {
-                  brand = 'Mastercard';
-                } else if (cardNo.startsWith('4')) {
-                  brand = 'Visa';
-                } else {
-                  brand = 'Other';
-                }
-
-                final cleanNo = cardNo.replaceAll(RegExp(r'\s+'), '');
-                final last4 = cleanNo.length >= 4 ? cleanNo.substring(cleanNo.length - 4) : '9999';
-
-                try {
-                  await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(authUser.uid)
-                      .collection('paymentMethods')
-                      .add({
-                    'cardBrand': brand,
-                    'last4': last4,
-                    'isDefault': false,
-                    'createdAt': FieldValue.serverTimestamp(),
-                  });
-                } catch (e) {
-                  if (kDebugMode) {
-                    print('Warning: Failed to save payment method: $e');
+          await confirmResult.when(
+            onSuccess: (data) async {
+              // If the user selected to save the card for future bookings, save display-only details
+              if (_saveCard) {
+                final authUser = ref.read(authServiceProvider).currentUser;
+                if (authUser != null) {
+                  String brand = 'Visa';
+                  final cardNo = _cardNumberController.text.trim();
+                  if (cardNo.startsWith('3')) {
+                    brand = 'Amex';
+                  } else if (cardNo.startsWith('5')) {
+                    brand = 'Mastercard';
+                  } else if (cardNo.startsWith('4')) {
+                    brand = 'Visa';
+                  } else {
+                    brand = 'Other';
                   }
+
+                  final cleanNo = cardNo.replaceAll(RegExp(r'\s+'), '');
+                  final last4 = cleanNo.length >= 4 ? cleanNo.substring(cleanNo.length - 4) : '9999';
+
+                  await checkoutRepo.savePaymentMethod(
+                    uid: authUser.uid,
+                    cardBrand: brand,
+                    last4: last4,
+                  );
                 }
               }
-            }
 
-            if (mounted) {
-              context.go('/booking/${booking.id}/success', extra: response.data);
-            }
-          } catch (e) {
-            if (mounted) {
-              setState(() {
-                _isProcessing = false;
-                _errorMessage = 'Booking confirmation failed: ${e.toString()}';
-              });
-            }
-          }
+              if (mounted) {
+                context.go('/booking/${booking.id}/success', extra: data);
+              }
+            },
+            onFailure: (exception) {
+              if (mounted) {
+                setState(() {
+                  _isProcessing = false;
+                  _errorMessage = exception.message;
+                });
+              }
+            },
+          );
         },
         onFailure: (exception) {
           if (mounted) {

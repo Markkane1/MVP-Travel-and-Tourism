@@ -805,9 +805,14 @@ class _InlineCalendarState extends State<_InlineCalendar> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            IconButton(
-              icon: const Icon(Icons.chevron_left, color: AppColors.onSurface),
-              onPressed: _prevMonth,
+            Semantics(
+              label: 'Previous month',
+              button: true,
+              child: IconButton(
+                tooltip: 'Previous month',
+                icon: const Icon(Icons.chevron_left, color: AppColors.onSurface),
+                onPressed: _prevMonth,
+              ),
             ),
             Text(
               '$monthName $year',
@@ -816,9 +821,14 @@ class _InlineCalendarState extends State<_InlineCalendar> {
                     color: AppColors.onSurface,
                   ),
             ),
-            IconButton(
-              icon: const Icon(Icons.chevron_right, color: AppColors.onSurface),
-              onPressed: _nextMonth,
+            Semantics(
+              label: 'Next month',
+              button: true,
+              child: IconButton(
+                tooltip: 'Next month',
+                icon: const Icon(Icons.chevron_right, color: AppColors.onSurface),
+                onPressed: _nextMonth,
+              ),
             ),
           ],
         ),

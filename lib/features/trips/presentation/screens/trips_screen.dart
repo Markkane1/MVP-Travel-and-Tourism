@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cloud_functions/cloud_functions.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../data/trips_repository.dart';
+import '../../../reviews/data/reviews_repository.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -18,19 +18,6 @@ import '../../../booking/data/booking_repository.dart';
 import '../../../booking/domain/booking.dart';
 import '../../../search/data/saved_tours_repository.dart';
 import '../../../explore/domain/tour.dart';
-
-/// Provider to check reactively if a tour has been reviewed by the current user.
-final tourReviewedProvider = StreamProvider.family<bool, String>((ref, tourId) {
-  final user = ref.watch(authServiceProvider).currentUser;
-  if (user == null) return Stream.value(false);
-  return FirebaseFirestore.instance
-      .collection('tours')
-      .doc(tourId)
-      .collection('reviews')
-      .where('userId', isEqualTo: user.uid)
-      .snapshots()
-      .map((snap) => snap.docs.isNotEmpty);
-});
 
 /// Screen representing the user's trips list dashboard.
 class TripsScreen extends ConsumerStatefulWidget {
@@ -94,14 +81,23 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
     if (confirm != true) return;
 
     try {
-      final functions = FirebaseFunctions.instance;
-      await functions.httpsCallable('cancelBooking').call({'bookingId': bookingId});
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.trips.cancelSuccessMessage)),
-        );
-      }
+      final res = await ref.read(tripsRepositoryProvider).cancelBooking(bookingId);
+      res.when(
+        onSuccess: (_) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(AppStrings.trips.cancelSuccessMessage)),
+            );
+          }
+        },
+        onFailure: (exception) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(exception.message)),
+            );
+          }
+        },
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

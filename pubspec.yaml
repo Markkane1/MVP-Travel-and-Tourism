@@ -67,6 +67,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
   test: ^1.25.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -81,6 +83,8 @@ dev_dependencies:
   json_serializable: ^6.14.0
   mocktail: ^1.0.5
   golden_toolkit: ^0.15.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -94,9 +98,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/google_fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

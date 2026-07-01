@@ -1,0 +1,22 @@
+flutter_native_splash:
+  # Background matches the app's surface token (#F6FAFF — calm airy blue-white)
+  color: "#F6FAFF"
+
+  # Centered compass icon mark (same asset as the launcher icon)
+  image: assets/icons/app_icon.png
+
+  # Keep the splash visible until Flutter's first frame is drawn
+  android_12:
+    # Android 12+ uses a new SplashScreen API; set icon + background
+    color: "#F6FAFF"
+    image: assets/icons/app_icon.png
+    icon_background_color: "#000D22"
+
+  # iOS: splash image centered, white/light background
+  ios: true
+  color_ios: "#F6FAFF"
+  image_ios: assets/icons/app_icon.png
+  fullscreen: false
+
+  # Web
+  web: false

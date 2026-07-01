@@ -8,7 +8,7 @@ import '../../../../core/theme/app_radii.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/services/auth_service.dart';
-import '../../../profile/data/profile_repository.dart';
+import '../../../profile/profile.dart';
 
 class ReviewSuccessScreen extends ConsumerWidget {
   final Map<String, dynamic> extraData;

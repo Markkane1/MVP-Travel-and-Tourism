@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -13,54 +12,18 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/services/auth_service.dart';
-
-/// Representation model for a display-only payment method card item.
-class PaymentMethodItem {
-  final String id;
-  final String cardBrand;
-  final String last4;
-  final bool isDefault;
-
-  const PaymentMethodItem({
-    required this.id,
-    required this.cardBrand,
-    required this.last4,
-    required this.isDefault,
-  });
-
-  factory PaymentMethodItem.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return PaymentMethodItem(
-      id: doc.id,
-      cardBrand: data['cardBrand'] ?? 'Visa',
-      last4: data['last4'] ?? '0000',
-      isDefault: data['isDefault'] ?? false,
-    );
-  }
-}
-
-/// Provider to watch the user's saved payment methods.
-final paymentMethodsStreamProvider = StreamProvider.family<List<PaymentMethodItem>, String>((ref, uid) {
-  return FirebaseFirestore.instance
-      .collection('users')
-      .doc(uid)
-      .collection('paymentMethods')
-      .orderBy('createdAt', descending: true)
-      .snapshots()
-      .map((snap) => snap.docs.map((doc) => PaymentMethodItem.fromFirestore(doc)).toList());
-});
+import '../../domain/payment_method_item.dart';
+import '../../data/profile_repository.dart';
 
 class PaymentMethodsScreen extends ConsumerWidget {
   const PaymentMethodsScreen({super.key});
 
-  Future<void> _deletePaymentMethod(BuildContext context, String uid, String methodId) async {
+  Future<void> _deletePaymentMethod(BuildContext context, WidgetRef ref, String uid, String methodId) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .collection('paymentMethods')
-          .doc(methodId)
-          .delete();
+      await ref.read(profileRepositoryProvider).deletePaymentMethod(
+            uid: uid,
+            methodId: methodId,
+          );
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -140,7 +103,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
                   itemCount: methods.length,
                   itemBuilder: (context, index) {
                     final item = methods[index];
-                    return _buildCardItem(context, user.uid, item);
+                    return _buildCardItem(context, ref, user.uid, item);
                   },
                 );
               },
@@ -160,7 +123,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCardItem(BuildContext context, String uid, PaymentMethodItem item) {
+  Widget _buildCardItem(BuildContext context, WidgetRef ref, String uid, PaymentMethodItem item) {
     IconData cardIcon = Icons.credit_card;
     if (item.cardBrand.toLowerCase() == 'visa') {
       cardIcon = Icons.payment;
@@ -209,9 +172,14 @@ class PaymentMethodsScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.close, color: AppColors.onSurfaceVariant),
-              onPressed: () => _deletePaymentMethod(context, uid, item.id),
+            Semantics(
+              label: 'Remove payment method',
+              button: true,
+              child: IconButton(
+                tooltip: 'Remove payment method',
+                icon: const Icon(Icons.close, color: AppColors.onSurfaceVariant),
+                onPressed: () => _deletePaymentMethod(context, ref, uid, item.id),
+              ),
             ),
           ],
         ),
@@ -220,16 +188,16 @@ class PaymentMethodsScreen extends ConsumerWidget {
   }
 }
 
-class _AddPaymentMethodForm extends StatefulWidget {
+class _AddPaymentMethodForm extends ConsumerStatefulWidget {
   final String uid;
 
   const _AddPaymentMethodForm({required this.uid});
 
   @override
-  State<_AddPaymentMethodForm> createState() => _AddPaymentMethodFormState();
+  ConsumerState<_AddPaymentMethodForm> createState() => _AddPaymentMethodFormState();
 }
 
-class _AddPaymentMethodFormState extends State<_AddPaymentMethodForm> {
+class _AddPaymentMethodFormState extends ConsumerState<_AddPaymentMethodForm> {
   final _last4Controller = TextEditingController();
   String _selectedBrand = 'Visa';
   bool _isDefault = false;
@@ -255,31 +223,12 @@ class _AddPaymentMethodFormState extends State<_AddPaymentMethodForm> {
     });
 
     try {
-      // If setting as default, first unset other defaults in Firestore
-      if (_isDefault) {
-        final collection = FirebaseFirestore.instance
-            .collection('users')
-            .doc(widget.uid)
-            .collection('paymentMethods');
-
-        final defaults = await collection.where('isDefault', isEqualTo: true).get();
-        final batch = FirebaseFirestore.instance.batch();
-        for (var doc in defaults.docs) {
-          batch.update(doc.reference, {'isDefault': false});
-        }
-        await batch.commit();
-      }
-
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.uid)
-          .collection('paymentMethods')
-          .add({
-        'cardBrand': _selectedBrand,
-        'last4': cleanL4,
-        'isDefault': _isDefault,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+      await ref.read(profileRepositoryProvider).savePaymentMethod(
+            uid: widget.uid,
+            cardBrand: _selectedBrand,
+            last4: cleanL4,
+            isDefault: _isDefault,
+          );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

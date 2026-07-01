@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/services/auth_service.dart';
-import '../../../booking/data/booking_repository.dart';
-import '../../../search/data/search_repository.dart';
+import '../../../booking/booking.dart';
+import '../../../search/search.dart';
 
 class TravelMapScreen extends ConsumerStatefulWidget {
   const TravelMapScreen({super.key});

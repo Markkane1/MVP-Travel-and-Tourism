@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- ============================================================
+         Apple Pay (In-App Payments)
+         TODO: Replace the merchant ID below with your real Apple Pay
+         merchant identifier once your Apple Developer account is set up
+         and the merchant ID is registered at:
+         https://developer.apple.com/account/resources/identifiers/merchant/add/
+         Format: merchant.com.yourdomain.yourapp
+         ============================================================ -->
+    <key>com.apple.developer.in-app-payments</key>
+    <array>
+        <string>merchant.TODO_REPLACE_WITH_REAL_MERCHANT_ID</string>
+    </array>
+
+    <!-- ============================================================
+         Sign in with Apple
+         This entry declares the capability. Xcode must also register
+         it against your Apple Developer account via the Signing &
+         Capabilities tab — the entitlements file alone is NOT sufficient.
+         See IOS_HANDOFF.md for the exact Xcode steps required.
+         ============================================================ -->
+    <key>com.apple.developer.applesignin</key>
+    <array>
+        <string>Default</string>
+    </array>
+
+    <!-- ============================================================
+         Push Notifications (APNs)
+         Declared here so firebase_messaging can receive APNs tokens.
+         The aps-environment value is set automatically by Xcode based
+         on the build type (development vs production).
+         ============================================================ -->
+    <key>aps-environment</key>
+    <string>development</string>
+</dict>
+</plist>

@@ -29,9 +29,12 @@ class AppCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: borderRadius,
-        child: Padding(
-          padding: padding,
-          child: child,
+        child: Material(
+          color: Colors.transparent,
+          child: Padding(
+            padding: padding,
+            child: child,
+          ),
         ),
       ),
     );

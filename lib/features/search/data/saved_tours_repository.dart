@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../auth/presentation/controllers/auth_controller.dart';
-import '../../explore/domain/tour.dart';
+import '../../auth/auth.dart';
+import '../../explore/explore.dart';
 import 'search_repository.dart';
 
 part 'saved_tours_repository.g.dart';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -41,9 +40,11 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     });
 
     try {
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
-        'notificationPrefs.$key': value,
-      });
+      await ref.read(profileRepositoryProvider).updateNotificationPreference(
+            uid: uid,
+            key: key,
+            value: value,
+          );
 
       // Update local state variables
       setState(() {

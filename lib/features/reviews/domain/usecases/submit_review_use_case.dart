@@ -6,9 +6,11 @@ import '../../../../core/errors/app_exception.dart';
 
 /// Sequenced multi-step use case to submit a tour review.
 class SubmitReviewUseCase {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore;
 
-  SubmitReviewUseCase();
+  /// [firestore] is injectable for testing; defaults to the live singleton.
+  SubmitReviewUseCase({FirebaseFirestore? firestore})
+      : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// Submits the review to Firestore and waits until the background Cloud Function
   /// sets `reviewed: true` on the booking document.

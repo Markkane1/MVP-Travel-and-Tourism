@@ -23,20 +23,25 @@ class SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            if (icon != null) ...[
-              Icon(icon, color: AppColors.primary, size: 24.0),
-              const SizedBox(width: 8.0),
-            ],
-            Text(
-              title,
-              style: theme.textTheme.headlineMedium?.copyWith(
-                color: AppColors.onSurface,
-                fontWeight: FontWeight.bold,
+        Expanded(
+          child: Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, color: AppColors.primary, size: 24.0),
+                const SizedBox(width: 8.0),
+              ],
+              Flexible(
+                child: Text(
+                  title,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: AppColors.onSurface,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         if (actionLabel != null && onActionPressed != null)
           TextButton(

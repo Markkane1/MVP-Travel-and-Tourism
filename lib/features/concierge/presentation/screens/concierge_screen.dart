@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -18,73 +17,10 @@ import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/storage_service.dart';
 import 'dart:async' show unawaited;
 import '../../../../core/widgets/notification_bell_button.dart';
-import '../../../profile/data/profile_repository.dart';
-
-/// Representation model of a concierge agent.
-class ConciergeProfile {
-  final String id;
-  final String name;
-  final String role;
-  final String specialty;
-  final String languages;
-  final String photoUrl;
-  final bool isOnline;
-
-  const ConciergeProfile({
-    required this.id,
-    required this.name,
-    required this.role,
-    required this.specialty,
-    required this.languages,
-    required this.photoUrl,
-    required this.isOnline,
-  });
-
-  factory ConciergeProfile.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return ConciergeProfile(
-      id: doc.id,
-      name: data['name'] ?? 'Elena',
-      role: data['role'] ?? 'Senior Travel Specialist',
-      specialty: data['specialty'] ?? 'Luxury Safaris & Lodges',
-      languages: data['languages'] ?? 'English, Spanish, French',
-      photoUrl: data['photoUrl'] ?? '',
-      isOnline: data['isOnline'] ?? true,
-    );
-  }
-}
-
-/// Representation model of a concierge message.
-class ConciergeMessage {
-  final String id;
-  final String senderId;
-  final String senderType; // 'user' or 'concierge'
-  final String text;
-  final String? attachmentUrl;
-  final DateTime createdAt;
-
-  const ConciergeMessage({
-    required this.id,
-    required this.senderId,
-    required this.senderType,
-    required this.text,
-    this.attachmentUrl,
-    required this.createdAt,
-  });
-
-  factory ConciergeMessage.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    final timestamp = data['createdAt'] as Timestamp?;
-    return ConciergeMessage(
-      id: doc.id,
-      senderId: data['senderId'] ?? '',
-      senderType: data['senderType'] ?? 'user',
-      text: data['text'] ?? '',
-      attachmentUrl: data['attachmentUrl'],
-      createdAt: timestamp?.toDate() ?? DateTime.now(),
-    );
-  }
-}
+import '../../../profile/profile.dart';
+import '../../domain/concierge_profile.dart';
+import '../../domain/concierge_message.dart';
+import '../../data/concierge_repository.dart';
 
 class ConciergeScreen extends ConsumerStatefulWidget {
   const ConciergeScreen({super.key});
@@ -124,37 +60,8 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
 
   /// Automatic concierge seeding and user profile matching logic.
   Future<void> _checkAndSeedConcierges(String uid) async {
-    final db = FirebaseFirestore.instance;
-
-    // 1. Seed collection if empty
-    final query = await db.collection('concierges').limit(1).get();
-    if (query.docs.isEmpty) {
-      await db.collection('concierges').doc('concierge-elena').set({
-        'name': 'Elena',
-        'role': 'Senior Travel Specialist',
-        'specialty': 'Luxury Safaris & Lodges',
-        'languages': 'English, Spanish, French',
-        'photoUrl': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400',
-        'isOnline': true,
-      });
-
-      await db.collection('concierges').doc('concierge-marcus').set({
-        'name': 'Marcus',
-        'role': 'Elite Cruise & Air Charter Manager',
-        'specialty': 'Private Jets & Ocean Expeditions',
-        'languages': 'English, German, Italian',
-        'photoUrl': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400',
-        'isOnline': true,
-      });
-    }
-
-    // 2. Assure user profile document maps to a valid concierge
-    final userDoc = await db.collection('users').doc(uid).get();
-    if (userDoc.exists && userDoc.data()?['conciergeId'] == null) {
-      // Assign Elena by default
-      await db.collection('users').doc(uid).update({
-        'conciergeId': 'concierge-elena',
-      });
+    final updated = await ref.read(conciergeRepositoryProvider).checkAndSeedConcierges(uid);
+    if (updated && mounted) {
       ref.invalidate(userFirestoreDataProvider);
     }
   }
@@ -170,17 +77,11 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
     // so the message is added to Firestore and immediately echoed back via stream snapshot
     // without blocking textfield entry states.
     unawaited(
-      FirebaseFirestore.instance
-          .collection('concierge_threads')
-          .doc(uid)
-          .collection('messages')
-          .add({
-        'senderId': uid,
-        'senderType': 'user',
-        'text': text,
-        'attachmentUrl': attachmentUrl,
-        'createdAt': FieldValue.serverTimestamp(),
-      }).then((_) {}, onError: (e) {
+      ref.read(conciergeRepositoryProvider).sendMessage(
+        uid: uid,
+        text: text,
+        attachmentUrl: attachmentUrl,
+      ).then((_) {}, onError: (e) {
         if (kDebugMode) {
           print('Error sending message: $e');
         }
@@ -265,29 +166,23 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
           final profile = profileDoc ?? {};
           final String conciergeId = profile['conciergeId'] ?? 'concierge-elena';
 
-          return StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance.collection('concierges').doc(conciergeId).snapshots(),
-            builder: (context, conciergeSnap) {
-              if (!conciergeSnap.hasData) return const Center(child: LoadingIndicator());
-              final concierge = ConciergeProfile.fromFirestore(conciergeSnap.data!);
+          final conciergeState = ref.watch(conciergeProfileProvider(conciergeId));
+          final messagesState = ref.watch(conciergeMessagesProvider(user.uid));
+          final threadState = ref.watch(conciergeThreadMetadataProvider(user.uid));
 
-              return StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance.collection('concierge_threads').doc(user.uid).snapshots(),
-                builder: (context, threadSnap) {
-                  final threadData = threadSnap.data?.data() as Map<String, dynamic>? ?? {};
-                  final bool isTyping = threadData['isTyping'] ?? false;
-
-                  return StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('concierge_threads')
-                        .doc(user.uid)
-                        .collection('messages')
-                        .orderBy('createdAt', descending: false)
-                        .snapshots(),
-                    builder: (context, messagesSnap) {
-                      final messages = (messagesSnap.data?.docs ?? [])
-                          .map((doc) => ConciergeMessage.fromFirestore(doc))
-                          .toList();
+          return conciergeState.when(
+            loading: () => const Center(child: LoadingIndicator()),
+            error: (err, stack) => Center(child: ErrorStateView(message: err.toString(), onRetry: () => ref.refresh(conciergeProfileProvider(conciergeId)))),
+            data: (concierge) {
+              return messagesState.when(
+                loading: () => const Center(child: LoadingIndicator()),
+                error: (err, stack) => Center(child: ErrorStateView(message: err.toString(), onRetry: () => ref.refresh(conciergeMessagesProvider(user.uid)))),
+                data: (messages) {
+                  return threadState.when(
+                    loading: () => const Center(child: LoadingIndicator()),
+                    error: (err, stack) => Center(child: ErrorStateView(message: err.toString(), onRetry: () => ref.refresh(conciergeThreadMetadataProvider(user.uid)))),
+                    data: (threadData) {
+                      final bool isTyping = threadData['isTyping'] ?? false;
 
                       // Trigger scroll to bottom on new messages
                       _scrollToBottom();
@@ -422,7 +317,9 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                 children: [
                   CircleAvatar(
                     radius: 36.0,
-                    backgroundImage: NetworkImage(concierge.photoUrl),
+                    backgroundImage: concierge.photoUrl.isNotEmpty
+                        ? NetworkImage(concierge.photoUrl)
+                        : null,
                   ),
                   if (concierge.isOnline)
                     Positioned(
@@ -677,7 +574,9 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
           if (!isMe) ...[
             CircleAvatar(
               radius: 14.0,
-              backgroundImage: NetworkImage(agentPhotoUrl),
+              backgroundImage: agentPhotoUrl.isNotEmpty
+                  ? NetworkImage(agentPhotoUrl)
+                  : null,
             ),
             const SizedBox(width: 8.0),
           ],

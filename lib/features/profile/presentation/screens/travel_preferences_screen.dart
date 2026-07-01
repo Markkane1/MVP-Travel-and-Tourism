@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -50,13 +49,12 @@ class _TravelPreferencesScreenState extends ConsumerState<TravelPreferencesScree
     });
 
     try {
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
-        'preferences': {
-          'dietary': _dietaryController.text.trim(),
-          'seat': _seatPreference,
-          'hotelClass': _hotelClassPreference,
-        }
-      });
+      await ref.read(profileRepositoryProvider).saveTravelPreferences(
+            uid: uid,
+            dietary: _dietaryController.text.trim(),
+            seat: _seatPreference,
+            hotelClass: _hotelClassPreference,
+          );
 
       if (mounted) {
         ref.invalidate(userFirestoreDataProvider);
