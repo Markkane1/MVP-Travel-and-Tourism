@@ -487,34 +487,44 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
                     ),
                   ),
                 ),
-                isReviewedState.when(
-                  loading: () => const SizedBox(width: 24.0, height: 24.0, child: CircularProgressIndicator(strokeWidth: 2.0)),
-                  error: (e, s) => const SizedBox.shrink(),
-                  data: (reviewed) {
-                    if (reviewed) {
-                      return Text(
-                        AppStrings.trips.reviewedIndicator,
-                        style: const TextStyle(
-                          color: AppColors.secondary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13.0,
+                if (booking.reviewed)
+                  Text(
+                    AppStrings.trips.reviewedIndicator,
+                    style: const TextStyle(
+                      color: AppColors.secondary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13.0,
+                    ),
+                  )
+                else
+                  isReviewedState.when(
+                    loading: () => const SizedBox(width: 24.0, height: 24.0, child: CircularProgressIndicator(strokeWidth: 2.0)),
+                    error: (e, s) => const SizedBox.shrink(),
+                    data: (reviewed) {
+                      if (reviewed) {
+                        return Text(
+                          AppStrings.trips.reviewedIndicator,
+                          style: const TextStyle(
+                            color: AppColors.secondary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13.0,
+                          ),
+                        );
+                      }
+                      return TextButton(
+                        onPressed: () => context.push('/trips/${booking.id}/review'),
+                        style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                        child: Text(
+                          AppStrings.trips.leaveReviewButton,
+                          style: const TextStyle(
+                            color: AppColors.secondary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13.0,
+                          ),
                         ),
                       );
-                    }
-                    return TextButton(
-                      onPressed: () => context.push('/trips/${booking.id}/review'),
-                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                      child: Text(
-                        AppStrings.trips.leaveReviewButton,
-                        style: const TextStyle(
-                          color: AppColors.secondary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13.0,
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                    },
+                  ),
               ],
             ),
           ],

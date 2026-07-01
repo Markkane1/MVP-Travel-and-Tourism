@@ -18,6 +18,8 @@ import '../../features/checkout/presentation/screens/bank_transfer_screen.dart';
 import '../../features/checkout/presentation/screens/payment_success_screen.dart';
 import '../../features/trips/presentation/screens/booking_confirmation_screen.dart';
 import '../../features/trips/presentation/screens/trips_screen.dart';
+import '../../features/reviews/presentation/screens/review_trip_screen.dart';
+import '../../features/reviews/presentation/screens/review_success_screen.dart';
 import '../../features/concierge/presentation/screens/concierge_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/edit_profile_screen.dart';
@@ -207,15 +209,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final bookingId = state.pathParameters['bookingId'] ?? 'unknown';
-          return _PlaceholderScreen(title: 'Review Trip ($bookingId)');
+          return ReviewTripScreen(bookingId: bookingId);
         },
       ),
       GoRoute(
         path: RoutePaths.reviewSuccess,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final bookingId = state.pathParameters['bookingId'] ?? 'unknown';
-          return _PlaceholderScreen(title: 'Review Success ($bookingId)');
+          final extraMap = (state.extra as Map?)?.cast<String, dynamic>() ?? {};
+          return ReviewSuccessScreen(extraData: extraMap);
         },
       ),
       GoRoute(

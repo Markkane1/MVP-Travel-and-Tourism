@@ -71,3 +71,4 @@ export const cleanupUserData = onCall(async (request) => {
 });
 
 export { onConciergeMessageCreated } from './concierge/onConciergeMessageCreated';
+export { onReviewSubmitted } from './reviews/onReviewSubmitted';

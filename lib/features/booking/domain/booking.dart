@@ -36,6 +36,7 @@ abstract class Booking with _$Booking {
     required String status, // 'pending' | 'confirmed' | 'cancelled' | 'completed'
     String? stripePaymentIntentId,
     String? bookingReferenceCode, // Managed by Cloud Functions
+    @Default(false) bool reviewed,
     required DateTime createdAt,
   }) = _Booking;
 

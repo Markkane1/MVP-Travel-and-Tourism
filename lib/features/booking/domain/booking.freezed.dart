@@ -284,7 +284,7 @@ as String,
 /// @nodoc
 mixin _$Booking {
 
- String get id; String get userId; String get tourId; TourSnapshot get tourSnapshot; DateTime get tourDate; int get adults; int get children; bool get privateVehicle; String get groupSizeOption; String get pickupLocation; String? get specialRequests; double get totalPrice; String get currency; String get status; String? get stripePaymentIntentId; String? get bookingReferenceCode; DateTime get createdAt;
+ String get id; String get userId; String get tourId; TourSnapshot get tourSnapshot; DateTime get tourDate; int get adults; int get children; bool get privateVehicle; String get groupSizeOption; String get pickupLocation; String? get specialRequests; double get totalPrice; String get currency; String get status; String? get stripePaymentIntentId; String? get bookingReferenceCode; bool get reviewed; DateTime get createdAt;
 /// Create a copy of Booking
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -297,16 +297,16 @@ $BookingCopyWith<Booking> get copyWith => _$BookingCopyWithImpl<Booking>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Booking&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.tourId, tourId) || other.tourId == tourId)&&(identical(other.tourSnapshot, tourSnapshot) || other.tourSnapshot == tourSnapshot)&&(identical(other.tourDate, tourDate) || other.tourDate == tourDate)&&(identical(other.adults, adults) || other.adults == adults)&&(identical(other.children, children) || other.children == children)&&(identical(other.privateVehicle, privateVehicle) || other.privateVehicle == privateVehicle)&&(identical(other.groupSizeOption, groupSizeOption) || other.groupSizeOption == groupSizeOption)&&(identical(other.pickupLocation, pickupLocation) || other.pickupLocation == pickupLocation)&&(identical(other.specialRequests, specialRequests) || other.specialRequests == specialRequests)&&(identical(other.totalPrice, totalPrice) || other.totalPrice == totalPrice)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.status, status) || other.status == status)&&(identical(other.stripePaymentIntentId, stripePaymentIntentId) || other.stripePaymentIntentId == stripePaymentIntentId)&&(identical(other.bookingReferenceCode, bookingReferenceCode) || other.bookingReferenceCode == bookingReferenceCode)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Booking&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.tourId, tourId) || other.tourId == tourId)&&(identical(other.tourSnapshot, tourSnapshot) || other.tourSnapshot == tourSnapshot)&&(identical(other.tourDate, tourDate) || other.tourDate == tourDate)&&(identical(other.adults, adults) || other.adults == adults)&&(identical(other.children, children) || other.children == children)&&(identical(other.privateVehicle, privateVehicle) || other.privateVehicle == privateVehicle)&&(identical(other.groupSizeOption, groupSizeOption) || other.groupSizeOption == groupSizeOption)&&(identical(other.pickupLocation, pickupLocation) || other.pickupLocation == pickupLocation)&&(identical(other.specialRequests, specialRequests) || other.specialRequests == specialRequests)&&(identical(other.totalPrice, totalPrice) || other.totalPrice == totalPrice)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.status, status) || other.status == status)&&(identical(other.stripePaymentIntentId, stripePaymentIntentId) || other.stripePaymentIntentId == stripePaymentIntentId)&&(identical(other.bookingReferenceCode, bookingReferenceCode) || other.bookingReferenceCode == bookingReferenceCode)&&(identical(other.reviewed, reviewed) || other.reviewed == reviewed)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,tourId,tourSnapshot,tourDate,adults,children,privateVehicle,groupSizeOption,pickupLocation,specialRequests,totalPrice,currency,status,stripePaymentIntentId,bookingReferenceCode,createdAt);
+int get hashCode => Object.hash(runtimeType,id,userId,tourId,tourSnapshot,tourDate,adults,children,privateVehicle,groupSizeOption,pickupLocation,specialRequests,totalPrice,currency,status,stripePaymentIntentId,bookingReferenceCode,reviewed,createdAt);
 
 @override
 String toString() {
-  return 'Booking(id: $id, userId: $userId, tourId: $tourId, tourSnapshot: $tourSnapshot, tourDate: $tourDate, adults: $adults, children: $children, privateVehicle: $privateVehicle, groupSizeOption: $groupSizeOption, pickupLocation: $pickupLocation, specialRequests: $specialRequests, totalPrice: $totalPrice, currency: $currency, status: $status, stripePaymentIntentId: $stripePaymentIntentId, bookingReferenceCode: $bookingReferenceCode, createdAt: $createdAt)';
+  return 'Booking(id: $id, userId: $userId, tourId: $tourId, tourSnapshot: $tourSnapshot, tourDate: $tourDate, adults: $adults, children: $children, privateVehicle: $privateVehicle, groupSizeOption: $groupSizeOption, pickupLocation: $pickupLocation, specialRequests: $specialRequests, totalPrice: $totalPrice, currency: $currency, status: $status, stripePaymentIntentId: $stripePaymentIntentId, bookingReferenceCode: $bookingReferenceCode, reviewed: $reviewed, createdAt: $createdAt)';
 }
 
 
@@ -317,7 +317,7 @@ abstract mixin class $BookingCopyWith<$Res>  {
   factory $BookingCopyWith(Booking value, $Res Function(Booking) _then) = _$BookingCopyWithImpl;
 @useResult
 $Res call({
- String id, String userId, String tourId, TourSnapshot tourSnapshot, DateTime tourDate, int adults, int children, bool privateVehicle, String groupSizeOption, String pickupLocation, String? specialRequests, double totalPrice, String currency, String status, String? stripePaymentIntentId, String? bookingReferenceCode, DateTime createdAt
+ String id, String userId, String tourId, TourSnapshot tourSnapshot, DateTime tourDate, int adults, int children, bool privateVehicle, String groupSizeOption, String pickupLocation, String? specialRequests, double totalPrice, String currency, String status, String? stripePaymentIntentId, String? bookingReferenceCode, bool reviewed, DateTime createdAt
 });
 
 
@@ -334,7 +334,7 @@ class _$BookingCopyWithImpl<$Res>
 
 /// Create a copy of Booking
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? tourId = null,Object? tourSnapshot = null,Object? tourDate = null,Object? adults = null,Object? children = null,Object? privateVehicle = null,Object? groupSizeOption = null,Object? pickupLocation = null,Object? specialRequests = freezed,Object? totalPrice = null,Object? currency = null,Object? status = null,Object? stripePaymentIntentId = freezed,Object? bookingReferenceCode = freezed,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? tourId = null,Object? tourSnapshot = null,Object? tourDate = null,Object? adults = null,Object? children = null,Object? privateVehicle = null,Object? groupSizeOption = null,Object? pickupLocation = null,Object? specialRequests = freezed,Object? totalPrice = null,Object? currency = null,Object? status = null,Object? stripePaymentIntentId = freezed,Object? bookingReferenceCode = freezed,Object? reviewed = null,Object? createdAt = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -352,7 +352,8 @@ as double,currency: null == currency ? _self.currency : currency // ignore: cast
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,stripePaymentIntentId: freezed == stripePaymentIntentId ? _self.stripePaymentIntentId : stripePaymentIntentId // ignore: cast_nullable_to_non_nullable
 as String?,bookingReferenceCode: freezed == bookingReferenceCode ? _self.bookingReferenceCode : bookingReferenceCode // ignore: cast_nullable_to_non_nullable
-as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String?,reviewed: null == reviewed ? _self.reviewed : reviewed // ignore: cast_nullable_to_non_nullable
+as bool,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
 }
@@ -447,10 +448,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String tourId,  TourSnapshot tourSnapshot,  DateTime tourDate,  int adults,  int children,  bool privateVehicle,  String groupSizeOption,  String pickupLocation,  String? specialRequests,  double totalPrice,  String currency,  String status,  String? stripePaymentIntentId,  String? bookingReferenceCode,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String tourId,  TourSnapshot tourSnapshot,  DateTime tourDate,  int adults,  int children,  bool privateVehicle,  String groupSizeOption,  String pickupLocation,  String? specialRequests,  double totalPrice,  String currency,  String status,  String? stripePaymentIntentId,  String? bookingReferenceCode,  bool reviewed,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Booking() when $default != null:
-return $default(_that.id,_that.userId,_that.tourId,_that.tourSnapshot,_that.tourDate,_that.adults,_that.children,_that.privateVehicle,_that.groupSizeOption,_that.pickupLocation,_that.specialRequests,_that.totalPrice,_that.currency,_that.status,_that.stripePaymentIntentId,_that.bookingReferenceCode,_that.createdAt);case _:
+return $default(_that.id,_that.userId,_that.tourId,_that.tourSnapshot,_that.tourDate,_that.adults,_that.children,_that.privateVehicle,_that.groupSizeOption,_that.pickupLocation,_that.specialRequests,_that.totalPrice,_that.currency,_that.status,_that.stripePaymentIntentId,_that.bookingReferenceCode,_that.reviewed,_that.createdAt);case _:
   return orElse();
 
 }
@@ -468,10 +469,10 @@ return $default(_that.id,_that.userId,_that.tourId,_that.tourSnapshot,_that.tour
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String tourId,  TourSnapshot tourSnapshot,  DateTime tourDate,  int adults,  int children,  bool privateVehicle,  String groupSizeOption,  String pickupLocation,  String? specialRequests,  double totalPrice,  String currency,  String status,  String? stripePaymentIntentId,  String? bookingReferenceCode,  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String tourId,  TourSnapshot tourSnapshot,  DateTime tourDate,  int adults,  int children,  bool privateVehicle,  String groupSizeOption,  String pickupLocation,  String? specialRequests,  double totalPrice,  String currency,  String status,  String? stripePaymentIntentId,  String? bookingReferenceCode,  bool reviewed,  DateTime createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _Booking():
-return $default(_that.id,_that.userId,_that.tourId,_that.tourSnapshot,_that.tourDate,_that.adults,_that.children,_that.privateVehicle,_that.groupSizeOption,_that.pickupLocation,_that.specialRequests,_that.totalPrice,_that.currency,_that.status,_that.stripePaymentIntentId,_that.bookingReferenceCode,_that.createdAt);case _:
+return $default(_that.id,_that.userId,_that.tourId,_that.tourSnapshot,_that.tourDate,_that.adults,_that.children,_that.privateVehicle,_that.groupSizeOption,_that.pickupLocation,_that.specialRequests,_that.totalPrice,_that.currency,_that.status,_that.stripePaymentIntentId,_that.bookingReferenceCode,_that.reviewed,_that.createdAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -488,10 +489,10 @@ return $default(_that.id,_that.userId,_that.tourId,_that.tourSnapshot,_that.tour
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String tourId,  TourSnapshot tourSnapshot,  DateTime tourDate,  int adults,  int children,  bool privateVehicle,  String groupSizeOption,  String pickupLocation,  String? specialRequests,  double totalPrice,  String currency,  String status,  String? stripePaymentIntentId,  String? bookingReferenceCode,  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String tourId,  TourSnapshot tourSnapshot,  DateTime tourDate,  int adults,  int children,  bool privateVehicle,  String groupSizeOption,  String pickupLocation,  String? specialRequests,  double totalPrice,  String currency,  String status,  String? stripePaymentIntentId,  String? bookingReferenceCode,  bool reviewed,  DateTime createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Booking() when $default != null:
-return $default(_that.id,_that.userId,_that.tourId,_that.tourSnapshot,_that.tourDate,_that.adults,_that.children,_that.privateVehicle,_that.groupSizeOption,_that.pickupLocation,_that.specialRequests,_that.totalPrice,_that.currency,_that.status,_that.stripePaymentIntentId,_that.bookingReferenceCode,_that.createdAt);case _:
+return $default(_that.id,_that.userId,_that.tourId,_that.tourSnapshot,_that.tourDate,_that.adults,_that.children,_that.privateVehicle,_that.groupSizeOption,_that.pickupLocation,_that.specialRequests,_that.totalPrice,_that.currency,_that.status,_that.stripePaymentIntentId,_that.bookingReferenceCode,_that.reviewed,_that.createdAt);case _:
   return null;
 
 }
@@ -503,7 +504,7 @@ return $default(_that.id,_that.userId,_that.tourId,_that.tourSnapshot,_that.tour
 @JsonSerializable()
 
 class _Booking implements Booking {
-  const _Booking({required this.id, required this.userId, required this.tourId, required this.tourSnapshot, required this.tourDate, required this.adults, required this.children, required this.privateVehicle, required this.groupSizeOption, required this.pickupLocation, this.specialRequests, required this.totalPrice, required this.currency, required this.status, this.stripePaymentIntentId, this.bookingReferenceCode, required this.createdAt});
+  const _Booking({required this.id, required this.userId, required this.tourId, required this.tourSnapshot, required this.tourDate, required this.adults, required this.children, required this.privateVehicle, required this.groupSizeOption, required this.pickupLocation, this.specialRequests, required this.totalPrice, required this.currency, required this.status, this.stripePaymentIntentId, this.bookingReferenceCode, this.reviewed = false, required this.createdAt});
   factory _Booking.fromJson(Map<String, dynamic> json) => _$BookingFromJson(json);
 
 @override final  String id;
@@ -522,6 +523,7 @@ class _Booking implements Booking {
 @override final  String status;
 @override final  String? stripePaymentIntentId;
 @override final  String? bookingReferenceCode;
+@override@JsonKey() final  bool reviewed;
 @override final  DateTime createdAt;
 
 /// Create a copy of Booking
@@ -537,16 +539,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Booking&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.tourId, tourId) || other.tourId == tourId)&&(identical(other.tourSnapshot, tourSnapshot) || other.tourSnapshot == tourSnapshot)&&(identical(other.tourDate, tourDate) || other.tourDate == tourDate)&&(identical(other.adults, adults) || other.adults == adults)&&(identical(other.children, children) || other.children == children)&&(identical(other.privateVehicle, privateVehicle) || other.privateVehicle == privateVehicle)&&(identical(other.groupSizeOption, groupSizeOption) || other.groupSizeOption == groupSizeOption)&&(identical(other.pickupLocation, pickupLocation) || other.pickupLocation == pickupLocation)&&(identical(other.specialRequests, specialRequests) || other.specialRequests == specialRequests)&&(identical(other.totalPrice, totalPrice) || other.totalPrice == totalPrice)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.status, status) || other.status == status)&&(identical(other.stripePaymentIntentId, stripePaymentIntentId) || other.stripePaymentIntentId == stripePaymentIntentId)&&(identical(other.bookingReferenceCode, bookingReferenceCode) || other.bookingReferenceCode == bookingReferenceCode)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Booking&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.tourId, tourId) || other.tourId == tourId)&&(identical(other.tourSnapshot, tourSnapshot) || other.tourSnapshot == tourSnapshot)&&(identical(other.tourDate, tourDate) || other.tourDate == tourDate)&&(identical(other.adults, adults) || other.adults == adults)&&(identical(other.children, children) || other.children == children)&&(identical(other.privateVehicle, privateVehicle) || other.privateVehicle == privateVehicle)&&(identical(other.groupSizeOption, groupSizeOption) || other.groupSizeOption == groupSizeOption)&&(identical(other.pickupLocation, pickupLocation) || other.pickupLocation == pickupLocation)&&(identical(other.specialRequests, specialRequests) || other.specialRequests == specialRequests)&&(identical(other.totalPrice, totalPrice) || other.totalPrice == totalPrice)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.status, status) || other.status == status)&&(identical(other.stripePaymentIntentId, stripePaymentIntentId) || other.stripePaymentIntentId == stripePaymentIntentId)&&(identical(other.bookingReferenceCode, bookingReferenceCode) || other.bookingReferenceCode == bookingReferenceCode)&&(identical(other.reviewed, reviewed) || other.reviewed == reviewed)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,tourId,tourSnapshot,tourDate,adults,children,privateVehicle,groupSizeOption,pickupLocation,specialRequests,totalPrice,currency,status,stripePaymentIntentId,bookingReferenceCode,createdAt);
+int get hashCode => Object.hash(runtimeType,id,userId,tourId,tourSnapshot,tourDate,adults,children,privateVehicle,groupSizeOption,pickupLocation,specialRequests,totalPrice,currency,status,stripePaymentIntentId,bookingReferenceCode,reviewed,createdAt);
 
 @override
 String toString() {
-  return 'Booking(id: $id, userId: $userId, tourId: $tourId, tourSnapshot: $tourSnapshot, tourDate: $tourDate, adults: $adults, children: $children, privateVehicle: $privateVehicle, groupSizeOption: $groupSizeOption, pickupLocation: $pickupLocation, specialRequests: $specialRequests, totalPrice: $totalPrice, currency: $currency, status: $status, stripePaymentIntentId: $stripePaymentIntentId, bookingReferenceCode: $bookingReferenceCode, createdAt: $createdAt)';
+  return 'Booking(id: $id, userId: $userId, tourId: $tourId, tourSnapshot: $tourSnapshot, tourDate: $tourDate, adults: $adults, children: $children, privateVehicle: $privateVehicle, groupSizeOption: $groupSizeOption, pickupLocation: $pickupLocation, specialRequests: $specialRequests, totalPrice: $totalPrice, currency: $currency, status: $status, stripePaymentIntentId: $stripePaymentIntentId, bookingReferenceCode: $bookingReferenceCode, reviewed: $reviewed, createdAt: $createdAt)';
 }
 
 
@@ -557,7 +559,7 @@ abstract mixin class _$BookingCopyWith<$Res> implements $BookingCopyWith<$Res> {
   factory _$BookingCopyWith(_Booking value, $Res Function(_Booking) _then) = __$BookingCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String userId, String tourId, TourSnapshot tourSnapshot, DateTime tourDate, int adults, int children, bool privateVehicle, String groupSizeOption, String pickupLocation, String? specialRequests, double totalPrice, String currency, String status, String? stripePaymentIntentId, String? bookingReferenceCode, DateTime createdAt
+ String id, String userId, String tourId, TourSnapshot tourSnapshot, DateTime tourDate, int adults, int children, bool privateVehicle, String groupSizeOption, String pickupLocation, String? specialRequests, double totalPrice, String currency, String status, String? stripePaymentIntentId, String? bookingReferenceCode, bool reviewed, DateTime createdAt
 });
 
 
@@ -574,7 +576,7 @@ class __$BookingCopyWithImpl<$Res>
 
 /// Create a copy of Booking
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? tourId = null,Object? tourSnapshot = null,Object? tourDate = null,Object? adults = null,Object? children = null,Object? privateVehicle = null,Object? groupSizeOption = null,Object? pickupLocation = null,Object? specialRequests = freezed,Object? totalPrice = null,Object? currency = null,Object? status = null,Object? stripePaymentIntentId = freezed,Object? bookingReferenceCode = freezed,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? tourId = null,Object? tourSnapshot = null,Object? tourDate = null,Object? adults = null,Object? children = null,Object? privateVehicle = null,Object? groupSizeOption = null,Object? pickupLocation = null,Object? specialRequests = freezed,Object? totalPrice = null,Object? currency = null,Object? status = null,Object? stripePaymentIntentId = freezed,Object? bookingReferenceCode = freezed,Object? reviewed = null,Object? createdAt = null,}) {
   return _then(_Booking(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -592,7 +594,8 @@ as double,currency: null == currency ? _self.currency : currency // ignore: cast
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,stripePaymentIntentId: freezed == stripePaymentIntentId ? _self.stripePaymentIntentId : stripePaymentIntentId // ignore: cast_nullable_to_non_nullable
 as String?,bookingReferenceCode: freezed == bookingReferenceCode ? _self.bookingReferenceCode : bookingReferenceCode // ignore: cast_nullable_to_non_nullable
-as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String?,reviewed: null == reviewed ? _self.reviewed : reviewed // ignore: cast_nullable_to_non_nullable
+as bool,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
 }

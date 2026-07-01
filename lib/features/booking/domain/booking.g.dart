@@ -39,6 +39,7 @@ _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
   status: json['status'] as String,
   stripePaymentIntentId: json['stripePaymentIntentId'] as String?,
   bookingReferenceCode: json['bookingReferenceCode'] as String?,
+  reviewed: json['reviewed'] as bool? ?? false,
   createdAt: DateTime.parse(json['createdAt'] as String),
 );
 
@@ -59,5 +60,6 @@ Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
   'status': instance.status,
   'stripePaymentIntentId': instance.stripePaymentIntentId,
   'bookingReferenceCode': instance.bookingReferenceCode,
+  'reviewed': instance.reviewed,
   'createdAt': instance.createdAt.toIso8601String(),
 };
