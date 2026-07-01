@@ -192,6 +192,44 @@ class AuthService {
     }
     return Result.failure(AppException.unknown(AppStrings.common.genericError));
   }
+
+  /// Updates the current user's display name and/or photo URL in Firebase Auth.
+  Future<Result<void>> updateProfile({String? displayName, String? photoUrl}) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        return const Result.failure(AppException.auth('No user is currently signed in.'));
+      }
+      if (displayName != null) {
+        await user.updateDisplayName(displayName);
+      }
+      if (photoUrl != null) {
+        await user.updatePhotoURL(photoUrl);
+      }
+      await user.reload();
+      return const Result.success(null);
+    } on FirebaseAuthException catch (e) {
+      return Result.failure(_handleAuthException(e));
+    } catch (e, s) {
+      return _handleGeneralError(e, s);
+    }
+  }
+
+  /// Deletes the authenticated user account from Firebase Auth.
+  Future<Result<void>> deleteUserAccount() async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        return const Result.failure(AppException.auth('No user is currently signed in.'));
+      }
+      await user.delete();
+      return const Result.success(null);
+    } on FirebaseAuthException catch (e) {
+      return Result.failure(_handleAuthException(e));
+    } catch (e, s) {
+      return _handleGeneralError(e, s);
+    }
+  }
 }
 
 /// Provider for the AuthService instance.

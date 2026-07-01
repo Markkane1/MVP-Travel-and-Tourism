@@ -169,6 +169,45 @@ class _TripsStrings {
 
 class _ProfileStrings {
   const _ProfileStrings();
+
+  final String title = 'Profile';
+  final String editProfileButton = 'Edit Profile';
+  final String verifiedBadge = 'Verified';
+  final String eliteMemberPill = 'Elite Member';
+  final String loyaltyPointsLabel = 'Loyalty Points';
+  
+  // Tiers & Milestones
+  final String currentTierLabel = 'CURRENT TIER';
+  final String nextMilestoneLabel = 'Next Milestone';
+  final String viewBenefitsButton = 'View All Benefits';
+  
+  // Account Overview
+  final String sectionOverview = 'Account Overview';
+  final String rowMyTrips = 'My Trips';
+  final String rowSavedDestinations = 'Saved Destinations';
+  final String rowPaymentMethods = 'Payment Methods';
+  final String rowPreferences = 'Travel Preferences';
+  
+  // Travel Summary
+  final String sectionSummary = 'Travel Summary';
+  final String statDestinations = 'Destinations Visited';
+  final String statMiles = 'Miles Traveled';
+  final String statBookings = 'Active Bookings';
+  final String exploreMapButton = 'Explore Travel Map';
+  
+  // Settings & Support
+  final String sectionSettings = 'Settings & Support';
+  final String rowSecurity = 'Security & Privacy';
+  final String rowNotificationPrefs = 'Notification Settings';
+  final String rowHelp = 'Help Center & Support';
+  final String rowLogout = 'Logout';
+  
+  // Logouts & Deletes dialogues
+  final String logoutTitle = 'Logout';
+  final String logoutBody = 'Are you sure you want to sign out?';
+  final String deleteAccountTitle = 'Delete Account';
+  final String deleteAccountBody = 'Warning: This action is permanent. This will delete your profile credentials and completely wipe all Firestore data records.';
+  final String deleteConfirmButton = 'Delete Permanently';
 }
 
 class _ConciergeStrings {

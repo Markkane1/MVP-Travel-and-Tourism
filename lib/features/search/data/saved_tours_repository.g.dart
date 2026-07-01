@@ -186,4 +186,4 @@ final class SavedToursListProvider
   }
 }
 
-String _$savedToursListHash() => r'4a8d26ae9d55ebbac10873f2cce43dd91f2c948d';
+String _$savedToursListHash() => r'acb61810c5e4f192ed430750ef5826af7872e8c1';

@@ -18,6 +18,15 @@ import '../../features/checkout/presentation/screens/bank_transfer_screen.dart';
 import '../../features/checkout/presentation/screens/payment_success_screen.dart';
 import '../../features/trips/presentation/screens/booking_confirmation_screen.dart';
 import '../../features/trips/presentation/screens/trips_screen.dart';
+import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/profile/presentation/screens/edit_profile_screen.dart';
+import '../../features/profile/presentation/screens/payment_methods_screen.dart';
+import '../../features/profile/presentation/screens/travel_preferences_screen.dart';
+import '../../features/profile/presentation/screens/tier_benefits_screen.dart';
+import '../../features/profile/presentation/screens/travel_map_screen.dart';
+import '../../features/profile/presentation/screens/security_privacy_screen.dart';
+import '../../features/profile/presentation/screens/notification_settings_screen.dart';
+import '../../features/profile/presentation/screens/help_support_screen.dart';
 import 'auth_guard.dart';
 import 'route_paths.dart';
 
@@ -99,7 +108,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RoutePaths.trips,
-                builder: (context, state) => const TripsScreen(),
+                builder: (context, state) {
+                  final segment = state.uri.queryParameters['segment'];
+                  return TripsScreen(initialSegment: segment);
+                },
               ),
             ],
           ),
@@ -121,7 +133,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RoutePaths.profile,
-                builder: (context, state) => const _PlaceholderScreen(title: 'Profile Dashboard'),
+                builder: (context, state) => const ProfileScreen(),
               ),
             ],
           ),
@@ -208,12 +220,42 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.editProfile,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Edit Profile'),
+        builder: (context, state) => const EditProfileScreen(),
       ),
       GoRoute(
         path: RoutePaths.paymentMethods,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Payment Methods'),
+        builder: (context, state) => const PaymentMethodsScreen(),
+      ),
+      GoRoute(
+        path: '/profile/preferences',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const TravelPreferencesScreen(),
+      ),
+      GoRoute(
+        path: '/profile/tier-benefits',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const TierBenefitsScreen(),
+      ),
+      GoRoute(
+        path: '/profile/travel-map',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const TravelMapScreen(),
+      ),
+      GoRoute(
+        path: '/profile/security',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const SecurityPrivacyScreen(),
+      ),
+      GoRoute(
+        path: '/profile/notification-settings',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const NotificationSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/profile/help',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const HelpSupportScreen(),
       ),
       GoRoute(
         path: RoutePaths.notifications,

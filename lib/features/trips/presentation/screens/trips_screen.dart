@@ -34,7 +34,9 @@ final tourReviewedProvider = StreamProvider.family<bool, String>((ref, tourId) {
 
 /// Screen representing the user's trips list dashboard.
 class TripsScreen extends ConsumerStatefulWidget {
-  const TripsScreen({super.key});
+  final String? initialSegment;
+
+  const TripsScreen({super.key, this.initialSegment});
 
   @override
   ConsumerState<TripsScreen> createState() => _TripsScreenState();
@@ -46,7 +48,13 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    int initialIndex = 0;
+    if (widget.initialSegment == 'saved') {
+      initialIndex = 2;
+    } else if (widget.initialSegment == 'history') {
+      initialIndex = 1;
+    }
+    _tabController = TabController(length: 3, vsync: this, initialIndex: initialIndex);
   }
 
   @override

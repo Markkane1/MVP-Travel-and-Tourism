@@ -50,3 +50,22 @@ export const cancelBooking = onCall(async (request) => {
     throw new HttpsError('internal', error.message || 'Unknown error occurred during booking cancellation.');
   }
 });
+
+import { cleanupUserDataLogic } from './users/cleanupUserData';
+
+/**
+ * Callable Cloud Function to delete user-related Firestore data.
+ */
+export const cleanupUserData = onCall(async (request) => {
+  // Check authorization
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
+  }
+
+  try {
+    const result = await cleanupUserDataLogic(db, request.auth.uid);
+    return result;
+  } catch (error: any) {
+    throw new HttpsError('internal', error.message || 'Unknown error occurred during user data cleanup.');
+  }
+});

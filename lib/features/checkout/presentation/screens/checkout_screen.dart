@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cloud_functions/cloud_functions.dart' hide Result;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../../core/services/auth_service.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -73,6 +75,44 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             final response = await functions
                 .httpsCallable('confirmBooking')
                 .call({'bookingId': booking.id});
+
+            // If the user selected to save the card for future bookings, save display-only details
+            if (_saveCard) {
+              final authUser = ref.read(authServiceProvider).currentUser;
+              if (authUser != null) {
+                String brand = 'Visa';
+                final cardNo = _cardNumberController.text.trim();
+                if (cardNo.startsWith('3')) {
+                  brand = 'Amex';
+                } else if (cardNo.startsWith('5')) {
+                  brand = 'Mastercard';
+                } else if (cardNo.startsWith('4')) {
+                  brand = 'Visa';
+                } else {
+                  brand = 'Other';
+                }
+
+                final cleanNo = cardNo.replaceAll(RegExp(r'\s+'), '');
+                final last4 = cleanNo.length >= 4 ? cleanNo.substring(cleanNo.length - 4) : '9999';
+
+                try {
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(authUser.uid)
+                      .collection('paymentMethods')
+                      .add({
+                    'cardBrand': brand,
+                    'last4': last4,
+                    'isDefault': false,
+                    'createdAt': FieldValue.serverTimestamp(),
+                  });
+                } catch (e) {
+                  if (kDebugMode) {
+                    print('Warning: Failed to save payment method: $e');
+                  }
+                }
+              }
+            }
 
             if (mounted) {
               context.go('/booking/${booking.id}/success', extra: response.data);
