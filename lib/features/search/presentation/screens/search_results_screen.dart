@@ -497,7 +497,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                     ),
                     const SizedBox(height: 6.0),
                     Text(
-                      '${tour.durationDays} Days • Max ${tour.maxParticipants} people • ★ ${tour.rating}',
+                      '${tour.durationDays} Days • Max ${tour.maxParticipants} people • ★ ${tour.ratingAverage}',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: AppColors.onSurfaceVariant,
                       ),

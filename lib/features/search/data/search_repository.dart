@@ -139,6 +139,17 @@ Stream<List<Tour>> searchResults(Ref ref, SearchFilters filters) {
 }
 
 Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
+  if (data['rating'] is num) {
+    data['ratingAverage'] = (data['rating'] as num).toDouble();
+  }
+  if (data['ratingAverage'] is num) {
+    data['ratingAverage'] = (data['ratingAverage'] as num).toDouble();
+  } else {
+    data['ratingAverage'] = 0.0;
+  }
+  if (data['ratingCount'] == null) {
+    data['ratingCount'] = 0;
+  }
   if (data['availableDates'] is List) {
     data['availableDates'] = (data['availableDates'] as List).map((timestamp) {
       if (timestamp is Timestamp) {

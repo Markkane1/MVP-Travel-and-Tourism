@@ -92,7 +92,7 @@ class ProfileRepository {
   /// Saves a payment method card, optionally unsetting other defaults.
   Future<void> savePaymentMethod({
     required String uid,
-    required String cardBrand,
+    required String brand,
     required String last4,
     required bool isDefault,
   }) async {
@@ -111,7 +111,7 @@ class ProfileRepository {
     }
 
     await collection.add({
-      'cardBrand': cardBrand,
+      'brand': brand,
       'last4': last4,
       'isDefault': isDefault,
       'createdAt': FieldValue.serverTimestamp(),

@@ -20,7 +20,8 @@ void main() {
       currency: 'USD',
       durationDays: 5,
       maxParticipants: 16,
-      rating: 4.9,
+      ratingAverage: 4.9,
+      ratingCount: 128,
       overview: 'Test overview description.',
       itinerary: const [
         {'day': 1, 'title': 'Arrival', 'description': 'Welcome.'}

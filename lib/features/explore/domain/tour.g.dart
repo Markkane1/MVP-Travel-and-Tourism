@@ -20,7 +20,8 @@ _Tour _$TourFromJson(Map<String, dynamic> json) => _Tour(
   currency: json['currency'] as String,
   durationDays: (json['durationDays'] as num).toInt(),
   maxParticipants: (json['maxParticipants'] as num).toInt(),
-  rating: (json['rating'] as num).toDouble(),
+  ratingAverage: (json['ratingAverage'] as num).toDouble(),
+  ratingCount: (json['ratingCount'] as num).toInt(),
   overview: json['overview'] as String,
   itinerary: (json['itinerary'] as List<dynamic>)
       .map((e) => e as Map<String, dynamic>)
@@ -51,7 +52,8 @@ Map<String, dynamic> _$TourToJson(_Tour instance) => <String, dynamic>{
   'currency': instance.currency,
   'durationDays': instance.durationDays,
   'maxParticipants': instance.maxParticipants,
-  'rating': instance.rating,
+  'ratingAverage': instance.ratingAverage,
+  'ratingCount': instance.ratingCount,
   'overview': instance.overview,
   'itinerary': instance.itinerary,
   'inclusions': instance.inclusions,

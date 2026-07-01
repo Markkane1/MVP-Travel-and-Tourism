@@ -7,6 +7,7 @@
 // To verify: `flutter test test/golden/`
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +16,7 @@ import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mvp_travel/core/theme/app_theme.dart';
+import 'package:mvp_travel/core/utils/result.dart';
 
 // Screen imports
 import 'package:mvp_travel/features/explore/presentation/screens/explore_screen.dart';
@@ -39,6 +41,77 @@ import 'package:mvp_travel/features/profile/data/profile_repository.dart';
 import 'package:mvp_travel/features/profile/domain/payment_method_item.dart';
 import 'package:mvp_travel/features/search/data/saved_tours_repository.dart';
 import 'package:mvp_travel/features/search/data/search_repository.dart';
+
+const _transparentPng = <int>[
+  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
+  0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+  0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+  0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
+  0x89, 0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41,
+  0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00,
+  0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00,
+  0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
+  0x42, 0x60, 0x82,
+];
+
+class _GoldenHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) => _GoldenHttpClient();
+}
+
+class _GoldenHttpClient implements HttpClient {
+  @override
+  bool autoUncompress = true;
+
+  @override
+  Future<HttpClientRequest> getUrl(Uri url) async => _GoldenHttpClientRequest();
+
+  @override
+  Future<HttpClientRequest> openUrl(String method, Uri url) async =>
+      _GoldenHttpClientRequest();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _GoldenHttpClientRequest implements HttpClientRequest {
+  @override
+  Future<HttpClientResponse> close() async => _GoldenHttpClientResponse();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _GoldenHttpClientResponse extends Stream<List<int>>
+    implements HttpClientResponse {
+  @override
+  int get statusCode => HttpStatus.ok;
+
+  @override
+  int get contentLength => _transparentPng.length;
+
+  @override
+  HttpClientResponseCompressionState get compressionState =>
+      HttpClientResponseCompressionState.notCompressed;
+
+  @override
+  StreamSubscription<List<int>> listen(
+    void Function(List<int> event)? onData, {
+    Function? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  }) {
+    return Stream<List<int>>.value(_transparentPng).listen(
+      onData,
+      onError: onError,
+      onDone: onDone,
+      cancelOnError: cancelOnError,
+    );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 // ---------------------------------------------------------------------------
 // Pixel 4a logical size
@@ -163,7 +236,7 @@ class _FakeProfileRepository implements ProfileRepository {
   @override
   Future<void> savePaymentMethod({
     required String uid,
-    required String cardBrand,
+    required String brand,
     required String last4,
     required bool isDefault,
   }) async {}
@@ -234,9 +307,12 @@ Widget _wrap(Widget screen) {
 // ---------------------------------------------------------------------------
 void main() {
   late void Function(FlutterErrorDetails details)? previousOnError;
+  late HttpOverrides? previousHttpOverrides;
 
   setUpAll(() async {
     previousOnError = FlutterError.onError;
+    previousHttpOverrides = HttpOverrides.current;
+    HttpOverrides.global = _GoldenHttpOverrides();
     FlutterError.onError = (details) {
       final message = details.exceptionAsString();
       if (message.contains('NetworkImageLoadException')) return;
@@ -248,6 +324,7 @@ void main() {
 
   tearDownAll(() {
     FlutterError.onError = previousOnError;
+    HttpOverrides.global = previousHttpOverrides;
   });
 
   GoldenToolkit.runWithConfiguration(

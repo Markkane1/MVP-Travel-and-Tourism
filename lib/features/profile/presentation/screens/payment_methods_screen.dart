@@ -125,11 +125,11 @@ class PaymentMethodsScreen extends ConsumerWidget {
 
   Widget _buildCardItem(BuildContext context, WidgetRef ref, String uid, PaymentMethodItem item) {
     IconData cardIcon = Icons.credit_card;
-    if (item.cardBrand.toLowerCase() == 'visa') {
+    if (item.brand.toLowerCase() == 'visa') {
       cardIcon = Icons.payment;
-    } else if (item.cardBrand.toLowerCase() == 'mastercard') {
+    } else if (item.brand.toLowerCase() == 'mastercard') {
       cardIcon = Icons.credit_card_outlined;
-    } else if (item.cardBrand.toLowerCase() == 'amex') {
+    } else if (item.brand.toLowerCase() == 'amex') {
       cardIcon = Icons.credit_card;
     }
 
@@ -145,7 +145,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${item.cardBrand} •••• ${item.last4}',
+                    '${item.brand} •••• ${item.last4}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: AppColors.onSurface,
@@ -225,7 +225,7 @@ class _AddPaymentMethodFormState extends ConsumerState<_AddPaymentMethodForm> {
     try {
       await ref.read(profileRepositoryProvider).savePaymentMethod(
             uid: widget.uid,
-            cardBrand: _selectedBrand,
+            brand: _selectedBrand,
             last4: cleanL4,
             isDefault: _isDefault,
           );

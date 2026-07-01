@@ -108,7 +108,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                               const Icon(Icons.star, color: Colors.amber, size: 18.0),
                               const SizedBox(width: 4.0),
                               Text(
-                                '${tour.rating} · ${tour.destination}',
+                                '${tour.ratingAverage} · ${tour.destination}',
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -549,7 +549,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              RatingStars(rating: review.rating, starSize: 12.0),
+                              RatingStars(rating: review.overallRating, starSize: 12.0),
                             ],
                           ),
                         ),

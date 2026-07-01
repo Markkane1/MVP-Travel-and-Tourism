@@ -19,10 +19,10 @@ class SubmitReviewUseCase {
     required String userName,
     required String bookingId,
     required String tourId,
-    required double rating,
-    required Map<String, double> aspects,
+    required double overallRating,
+    required Map<String, double> aspectRatings,
     required String comment,
-    required List<String> images,
+    required List<String> photoUrls,
   }) async {
     try {
       // 1. Submit the review document to tours/{tourId}/reviews
@@ -34,10 +34,10 @@ class SubmitReviewUseCase {
         'userId': userId,
         'userName': userName,
         'bookingId': bookingId,
-        'rating': rating,
-        'aspects': aspects,
+        'overallRating': overallRating,
+        'aspectRatings': aspectRatings,
         'comment': comment,
-        'images': images,
+        'photoUrls': photoUrls,
         'createdAt': FieldValue.serverTimestamp(),
       });
 

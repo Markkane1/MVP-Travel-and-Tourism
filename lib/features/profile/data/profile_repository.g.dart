@@ -54,7 +54,7 @@ final class ProfileRepositoryProvider
   }
 }
 
-String _$profileRepositoryHash() => r'22db562965adeed8d847088f0537e5644605a76b';
+String _$profileRepositoryHash() => r'1887db296ccf638d79d2d1ef971c502a91b4f0d8';
 
 /// Provider that reactively streams the current user's profile document from Firestore.
 

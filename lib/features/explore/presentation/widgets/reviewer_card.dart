@@ -50,7 +50,7 @@ class ReviewerCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2.0),
                     RatingStars(
-                      rating: review.rating,
+                      rating: review.overallRating,
                       starSize: 14.0,
                     ),
                   ],

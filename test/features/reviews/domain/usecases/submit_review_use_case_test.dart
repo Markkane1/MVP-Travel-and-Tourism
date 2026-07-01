@@ -76,10 +76,10 @@ void main() {
         userName: 'Alice',
         bookingId: 'booking-1',
         tourId: 'tour-1',
-        rating: 5.0,
-        aspects: {'Service': 5.0},
+        overallRating: 5.0,
+        aspectRatings: {'Service': 5.0},
         comment: 'Fantastic!',
-        images: [],
+        photoUrls: [],
       );
 
       // Assert — Result is a sealed class; check via pattern
@@ -103,10 +103,10 @@ void main() {
             userName: 'Alice',
             bookingId: 'booking-1',
             tourId: 'tour-1',
-            rating: 5.0,
-            aspects: {'Service': 5.0},
+            overallRating: 5.0,
+            aspectRatings: {'Service': 5.0},
             comment: 'Fantastic!',
-            images: [],
+            photoUrls: [],
           )
           .timeout(
             const Duration(seconds: 15),
@@ -131,10 +131,10 @@ void main() {
         userName: 'Alice',
         bookingId: 'booking-1',
         tourId: 'tour-1',
-        rating: 5.0,
-        aspects: {'Service': 5.0},
+        overallRating: 5.0,
+        aspectRatings: {'Service': 5.0},
         comment: 'Fantastic!',
-        images: [],
+        photoUrls: [],
       );
 
       expect(result, isA<Failure<void>>());

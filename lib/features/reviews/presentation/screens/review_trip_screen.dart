@@ -138,10 +138,10 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
         userName: name,
         bookingId: booking.id,
         tourId: booking.tourId,
-        rating: _overallRating,
-        aspects: _aspectRatings,
+        overallRating: _overallRating,
+        aspectRatings: _aspectRatings,
         comment: _commentController.text.trim(),
-        images: _uploadedImageUrls,
+        photoUrls: _uploadedImageUrls,
       );
 
       res.when(

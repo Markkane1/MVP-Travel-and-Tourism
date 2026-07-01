@@ -27,7 +27,7 @@ class CheckoutRepository {
   /// Adds a display-only payment method card under users/{uid}/paymentMethods.
   Future<Result<void>> savePaymentMethod({
     required String uid,
-    required String cardBrand,
+    required String brand,
     required String last4,
   }) async {
     try {
@@ -36,7 +36,7 @@ class CheckoutRepository {
           .doc(uid)
           .collection('paymentMethods')
           .add({
-        'cardBrand': cardBrand,
+        'brand': brand,
         'last4': last4,
         'isDefault': false,
         'createdAt': FieldValue.serverTimestamp(),

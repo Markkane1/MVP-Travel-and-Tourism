@@ -10,7 +10,7 @@ abstract class Review with _$Review {
     required String id,
     required String userName,
     required String userPhotoUrl,
-    required double rating,
+    required double overallRating,
     required String comment,
     required DateTime createdAt,
   }) = _Review;

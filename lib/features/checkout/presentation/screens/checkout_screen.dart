@@ -93,7 +93,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
                   await checkoutRepo.savePaymentMethod(
                     uid: authUser.uid,
-                    cardBrand: brand,
+                    brand: brand,
                     last4: last4,
                   );
                 }

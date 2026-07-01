@@ -57,7 +57,7 @@ class DestinationCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4.0),
                         Text(
-                          tour.rating.toStringAsFixed(1),
+                          tour.ratingAverage.toStringAsFixed(1),
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: AppColors.onSurface,
                             fontWeight: FontWeight.bold,
