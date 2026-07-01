@@ -70,6 +70,25 @@ class _TourDetailsStrings {
 
 class _BookingStrings {
   const _BookingStrings();
+
+  final String title = 'Configure Your Trip';
+  final String premiumBadge = 'PREMIUM EXPERIENCE';
+  final String dateSection = 'Select Tour Date';
+  final String participantsSection = 'Participants';
+  final String adultsLabel = 'Adults';
+  final String adultsSubtitle = 'Ages 13 or above';
+  final String childrenLabel = 'Children';
+  final String childrenSubtitle = 'Ages 2-12';
+  final String privateOptionsSection = 'Private Options';
+  final String privateVehicleLabel = 'Private Vehicle / Exclusive SUV & Driver';
+  final String groupSizeLimitLabel = 'Group Size Limit';
+  final String logisticsSection = 'Logistics';
+  final String pickupLocationLabel = 'Pickup Location';
+  final String pickupLocationHint = 'Enter Hotel Name or Address';
+  final String specialRequestsLabel = 'Special Requests';
+  final String specialRequestsHint = 'Dietary requirements, accessibility needs, etc...';
+  final String totalLabel = 'Total';
+  final String proceedButton = 'Proceed to Payment →';
 }
 
 class _CheckoutStrings {

@@ -24,6 +24,9 @@ abstract class Tour with _$Tour {
     required List<String> inclusions,
     required double latitude,
     required double longitude,
+    required List<DateTime> availableDates,
+    required double privateVehicleSurcharge,
+    required List<Map<String, dynamic>> groupSizeOptions,
   }) = _Tour;
 
   factory Tour.fromJson(Map<String, dynamic> json) => _$TourFromJson(json);

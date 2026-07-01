@@ -11,6 +11,8 @@ import '../../features/auth/presentation/screens/legal_placeholder_screen.dart';
 import '../../features/explore/presentation/screens/explore_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/search/presentation/screens/search_results_screen.dart';
+import '../../features/tour_details/presentation/screens/tour_details_screen.dart';
+import '../../features/booking/presentation/screens/booking_screen.dart';
 import 'auth_guard.dart';
 import 'route_paths.dart';
 
@@ -135,7 +137,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final tourId = state.pathParameters['tourId'] ?? 'unknown';
-          return _PlaceholderScreen(title: 'Tour Details ($tourId)');
+          return TourDetailsScreen(tourId: tourId);
         },
       ),
       GoRoute(
@@ -143,7 +145,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final tourId = state.pathParameters['tourId'] ?? 'unknown';
-          return _PlaceholderScreen(title: 'Booking Configuration ($tourId)');
+          return BookingScreen(tourId: tourId);
         },
       ),
       GoRoute(

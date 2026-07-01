@@ -22,7 +22,7 @@ class ExploreRepository {
       return snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
-        return Tour.fromJson(data);
+        return Tour.fromJson(_mapTourData(data));
       }).toList();
     });
   }
@@ -37,7 +37,7 @@ class ExploreRepository {
       return snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
-        return Tour.fromJson(data);
+        return Tour.fromJson(_mapTourData(data));
       }).toList();
     });
   }
@@ -52,7 +52,7 @@ class ExploreRepository {
       return snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
-        return Tour.fromJson(data);
+        return Tour.fromJson(_mapTourData(data));
       }).toList();
     });
   }
@@ -103,3 +103,34 @@ Stream<List<Tour>> popularDestinations(Ref ref) {
 Stream<List<Review>> recentReviews(Ref ref) {
   return ref.watch(exploreRepositoryProvider).watchRecentReviews();
 }
+
+Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
+  if (data['availableDates'] is List) {
+    data['availableDates'] = (data['availableDates'] as List).map((timestamp) {
+      if (timestamp is Timestamp) {
+        return timestamp.toDate().toIso8601String();
+      }
+      return timestamp;
+    }).toList();
+  }
+  if (data['pricePerPerson'] is int) {
+    data['pricePerPerson'] = (data['pricePerPerson'] as int).toDouble();
+  }
+  if (data['privateVehicleSurcharge'] is int) {
+    data['privateVehicleSurcharge'] = (data['privateVehicleSurcharge'] as int).toDouble();
+  }
+  if (data['groupSizeOptions'] is List) {
+    data['groupSizeOptions'] = (data['groupSizeOptions'] as List).map((opt) {
+      if (opt is Map) {
+        final newOpt = Map<String, dynamic>.from(opt);
+        if (newOpt['priceModifier'] is int) {
+          newOpt['priceModifier'] = (newOpt['priceModifier'] as int).toDouble();
+        }
+        return newOpt;
+      }
+      return opt;
+    }).toList();
+  }
+  return data;
+}
+

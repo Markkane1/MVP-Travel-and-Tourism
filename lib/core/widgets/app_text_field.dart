@@ -15,6 +15,7 @@ class AppTextField extends StatefulWidget {
   final TextInputAction textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
   final bool enabled;
+  final int maxLines;
 
   const AppTextField({
     super.key,
@@ -30,6 +31,7 @@ class AppTextField extends StatefulWidget {
     this.textInputAction = TextInputAction.next,
     this.onFieldSubmitted,
     this.enabled = true,
+    this.maxLines = 1,
   });
 
   @override
@@ -62,6 +64,7 @@ class _AppTextFieldState extends State<AppTextField> {
           controller: widget.controller,
           obscureText: _obscureText,
           enabled: widget.enabled,
+          maxLines: widget.maxLines,
           keyboardType: widget.keyboardType,
           textInputAction: widget.textInputAction,
           onFieldSubmitted: widget.onFieldSubmitted,

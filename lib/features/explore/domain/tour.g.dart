@@ -30,6 +30,13 @@ _Tour _$TourFromJson(Map<String, dynamic> json) => _Tour(
       .toList(),
   latitude: (json['latitude'] as num).toDouble(),
   longitude: (json['longitude'] as num).toDouble(),
+  availableDates: (json['availableDates'] as List<dynamic>)
+      .map((e) => DateTime.parse(e as String))
+      .toList(),
+  privateVehicleSurcharge: (json['privateVehicleSurcharge'] as num).toDouble(),
+  groupSizeOptions: (json['groupSizeOptions'] as List<dynamic>)
+      .map((e) => e as Map<String, dynamic>)
+      .toList(),
 );
 
 Map<String, dynamic> _$TourToJson(_Tour instance) => <String, dynamic>{
@@ -50,4 +57,9 @@ Map<String, dynamic> _$TourToJson(_Tour instance) => <String, dynamic>{
   'inclusions': instance.inclusions,
   'latitude': instance.latitude,
   'longitude': instance.longitude,
+  'availableDates': instance.availableDates
+      .map((e) => e.toIso8601String())
+      .toList(),
+  'privateVehicleSurcharge': instance.privateVehicleSurcharge,
+  'groupSizeOptions': instance.groupSizeOptions,
 };

@@ -6,12 +6,14 @@ class SectionHeader extends StatelessWidget {
   final String title;
   final String? actionLabel;
   final VoidCallback? onActionPressed;
+  final IconData? icon;
 
   const SectionHeader({
     super.key,
     required this.title,
     this.actionLabel,
     this.onActionPressed,
+    this.icon,
   });
 
   @override
@@ -21,12 +23,20 @@ class SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: theme.textTheme.headlineMedium?.copyWith(
-            color: AppColors.onSurface,
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: AppColors.primary, size: 24.0),
+              const SizedBox(width: 8.0),
+            ],
+            Text(
+              title,
+              style: theme.textTheme.headlineMedium?.copyWith(
+                color: AppColors.onSurface,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         if (actionLabel != null && onActionPressed != null)
           TextButton(

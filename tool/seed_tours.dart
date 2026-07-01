@@ -309,6 +309,25 @@ Future<void> main() async {
     final tourId = tour['id'] as String;
     final reviews = tour.remove('reviews') as List;
 
+    // Inject Prompt 8 fields dynamically
+    final now = DateTime.now();
+    tour['availableDates'] = [
+      DateTime(now.year, now.month, now.day + 2),
+      DateTime(now.year, now.month, now.day + 5),
+      DateTime(now.year, now.month, now.day + 8),
+      DateTime(now.year, now.month, now.day + 12),
+      DateTime(now.year, now.month, now.day + 15),
+      DateTime(now.year, now.month, now.day + 19),
+      DateTime(now.year, now.month, now.day + 22),
+      DateTime(now.year, now.month, now.day + 26),
+    ];
+    tour['privateVehicleSurcharge'] = 250.0;
+    tour['groupSizeOptions'] = [
+      {'label': 'Shared', 'maxSize': 16, 'priceModifier': 0.0},
+      {'label': 'Max 6', 'maxSize': 6, 'priceModifier': 500.0},
+      {'label': 'Max 12', 'maxSize': 12, 'priceModifier': 300.0},
+    ];
+
     print('Uploading tour: $tourId...');
     final docUrl = Uri.parse(
       'https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/tours?documentId=$tourId',
