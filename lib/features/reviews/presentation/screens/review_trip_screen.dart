@@ -19,6 +19,12 @@ import '../../../booking/data/booking_repository.dart';
 import '../../../booking/domain/booking.dart';
 import '../../domain/usecases/submit_review_use_case.dart';
 
+class PendingImage {
+  final File file;
+  final String tempId;
+  PendingImage({required this.file, required this.tempId});
+}
+
 class ReviewTripScreen extends ConsumerStatefulWidget {
   final String bookingId;
 
@@ -43,7 +49,7 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
   String? _expandedAspect;
 
   final List<String> _uploadedImageUrls = [];
-  final List<File> _pendingImages = [];
+  final List<PendingImage> _pendingImages = [];
   final Map<String, double> _uploadProgress = {};
   bool _isSubmitting = false;
 
@@ -54,7 +60,8 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
   }
 
   Future<void> _uploadPhoto() async {
-    if (_uploadedImageUrls.length + _pendingImages.length >= 6) {
+    final int totalCount = _uploadedImageUrls.length + _pendingImages.length;
+    if (totalCount >= 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('You can upload up to 6 photos only.')),
       );
@@ -66,9 +73,10 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
 
     final file = File(pickedFile.path);
     final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+    final pending = PendingImage(file: file, tempId: tempId);
 
     setState(() {
-      _pendingImages.add(file);
+      _pendingImages.add(pending);
       _uploadProgress[tempId] = 0.1; // Initial progress
     });
 
@@ -91,14 +99,14 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
       if (mounted) {
         setState(() {
           _uploadedImageUrls.add(url);
-          _pendingImages.remove(file);
+          _pendingImages.remove(pending);
           _uploadProgress.remove(tempId);
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _pendingImages.remove(file);
+          _pendingImages.remove(pending);
           _uploadProgress.remove(tempId);
         });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -459,7 +467,10 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
 
   Widget _buildMemoriesSection(BuildContext context) {
     final theme = Theme.of(context);
-    final totalPhotos = _uploadedImageUrls.length + _pendingImages.length;
+    final int uploadedCount = _uploadedImageUrls.length;
+    final int pendingCount = _pendingImages.length;
+    final bool showUploadButton = (uploadedCount + pendingCount) < 6;
+    final int totalItems = uploadedCount + pendingCount + (showUploadButton ? 1 : 0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -487,10 +498,74 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
           height: 80.0,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: (totalPhotos < 6) ? _uploadedImageUrls.length + 1 : _uploadedImageUrls.length,
+            itemCount: totalItems,
             itemBuilder: (context, index) {
-              if (index == _uploadedImageUrls.length && totalPhotos < 6) {
-                // Dashed Upload Button
+              if (index < uploadedCount) {
+                final url = _uploadedImageUrls[index];
+                return Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(AppRadii.md),
+                        child: Image.network(
+                          url,
+                          width: 80.0,
+                          height: 80.0,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        top: 4.0,
+                        right: 4.0,
+                        child: GestureDetector(
+                          onTap: () => _removePhoto(index),
+                          child: const CircleAvatar(
+                            radius: 10.0,
+                            backgroundColor: Colors.black54,
+                            child: Icon(Icons.close, color: Colors.white, size: 12.0),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else if (index < uploadedCount + pendingCount) {
+                final pending = _pendingImages[index - uploadedCount];
+                final progress = _uploadProgress[pending.tempId] ?? 0.0;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(AppRadii.md),
+                        child: Opacity(
+                          opacity: 0.5,
+                          child: Image.file(
+                            pending.file,
+                            width: 80.0,
+                            height: 80.0,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Center(
+                          child: SizedBox(
+                            width: 24.0,
+                            height: 24.0,
+                            child: CircularProgressIndicator(
+                              value: progress,
+                              strokeWidth: 2.5,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
                 return GestureDetector(
                   onTap: _uploadPhoto,
                   child: Container(
@@ -522,36 +597,6 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
                   ),
                 );
               }
-
-              final url = _uploadedImageUrls[index];
-              return Padding(
-                padding: const EdgeInsets.only(right: 12.0),
-                child: Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(AppRadii.md),
-                      child: Image.network(
-                        url,
-                        width: 80.0,
-                        height: 80.0,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned(
-                      top: 4.0,
-                      right: 4.0,
-                      child: GestureDetector(
-                        onTap: () => _removePhoto(index),
-                        child: const CircleAvatar(
-                          radius: 10.0,
-                          backgroundColor: Colors.black54,
-                          child: Icon(Icons.close, color: Colors.white, size: 12.0),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
             },
           ),
         ),
