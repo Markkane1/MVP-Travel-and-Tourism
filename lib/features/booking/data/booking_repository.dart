@@ -29,9 +29,32 @@ class BookingRepository {
 
     await _firestore.collection('bookings').doc(booking.id).set(data);
   }
+
+  /// Streams a single booking by its ID from Firestore.
+  Stream<Booking?> watchBooking(String bookingId) {
+    return _firestore.collection('bookings').doc(bookingId).snapshots().map((doc) {
+      if (!doc.exists) return null;
+      final data = doc.data()!;
+      data['id'] = doc.id;
+
+      if (data['tourDate'] is Timestamp) {
+        data['tourDate'] = (data['tourDate'] as Timestamp).toDate().toIso8601String();
+      }
+      if (data['createdAt'] is Timestamp) {
+        data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
+      }
+
+      return Booking.fromJson(data);
+    });
+  }
 }
 
 @riverpod
 BookingRepository bookingRepository(Ref ref) {
   return BookingRepository(FirebaseFirestore.instance);
+}
+
+@riverpod
+Stream<Booking?> bookingDetails(Ref ref, String bookingId) {
+  return ref.watch(bookingRepositoryProvider).watchBooking(bookingId);
 }

@@ -13,6 +13,9 @@ import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/search/presentation/screens/search_results_screen.dart';
 import '../../features/tour_details/presentation/screens/tour_details_screen.dart';
 import '../../features/booking/presentation/screens/booking_screen.dart';
+import '../../features/checkout/presentation/screens/checkout_screen.dart';
+import '../../features/checkout/presentation/screens/bank_transfer_screen.dart';
+import '../../features/checkout/presentation/screens/payment_success_screen.dart';
 import 'auth_guard.dart';
 import 'route_paths.dart';
 
@@ -153,15 +156,30 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final bookingId = state.pathParameters['bookingId'] ?? 'unknown';
-          return _PlaceholderScreen(title: 'Checkout / Payment ($bookingId)');
+          return CheckoutScreen(bookingId: bookingId);
         },
+        routes: [
+          GoRoute(
+            path: 'bank',
+            parentNavigatorKey: rootNavigatorKey,
+            builder: (context, state) {
+              final amount = state.extra as double? ?? 0.0;
+              return BankTransferScreen(amount: amount);
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: RoutePaths.paymentSuccess,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final bookingId = state.pathParameters['bookingId'] ?? 'unknown';
-          return _PlaceholderScreen(title: 'Payment Success ($bookingId)');
+          final Map<String, dynamic> data = (state.extra as Map?)?.cast<String, dynamic>() ?? {};
+          final refCode = data['bookingReferenceCode'] as String? ?? 'LT-XXXXX';
+          return PaymentSuccessScreen(
+            bookingId: bookingId,
+            bookingReferenceCode: refCode,
+          );
         },
       ),
       GoRoute(

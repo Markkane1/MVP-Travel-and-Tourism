@@ -93,6 +93,37 @@ class _BookingStrings {
 
 class _CheckoutStrings {
   const _CheckoutStrings();
+
+  final String title = 'Checkout';
+  final String orderSummary = 'Order Summary';
+  final String cardholderNameLabel = 'Cardholder Name';
+  final String cardholderNameHint = 'John Doe';
+  final String cardNumberLabel = 'Card Number';
+  final String cardNumberHint = '4111 2222 3333 4444';
+  final String expiryLabel = 'Expiry';
+  final String expiryHint = 'MM/YY';
+  final String cvvLabel = 'CVV';
+  final String cvvHint = '123';
+  final String saveCardLabel = 'Save card details for future bookings';
+  final String bankTransferRow = 'Bank Transfer';
+  final String bankTransferTitle = 'Bank Details';
+  final String bankTransferInstructions = 'Please transfer the total amount to the bank details below. Your booking will be processed once the transfer is cleared.';
+  final String bankName = 'MVP International Bank';
+  final String bankAccount = 'Account: 9876-5432-1098';
+  final String bankRouting = 'Routing/IBAN: MVPTAEAAXXX';
+  final String footnote = 'Secure Checkout — this is a demo payment flow. No real charge will be made.';
+  final String applePayButton = 'Apple Pay';
+  final String googlePayButton = 'Google Pay';
+  final String demoBadge = 'DEMO';
+  final String payWithCard = 'OR PAY WITH CARD';
+  final String payButton = 'Pay';
+  final String paymentFailed = 'Payment failed. Please try again.';
+  
+  // Success Screen
+  final String successHeader = 'Payment Successful';
+  final String successSub = 'Your expedition is now confirmed. A digital receipt has been sent to your email.';
+  final String referenceLabel = 'BOOKING ID:';
+  final String viewItineraryButton = 'View Your Itinerary →';
 }
 
 class _TripsStrings {
