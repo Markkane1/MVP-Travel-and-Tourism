@@ -18,6 +18,7 @@ import '../../features/checkout/presentation/screens/bank_transfer_screen.dart';
 import '../../features/checkout/presentation/screens/payment_success_screen.dart';
 import '../../features/trips/presentation/screens/booking_confirmation_screen.dart';
 import '../../features/trips/presentation/screens/trips_screen.dart';
+import '../../features/concierge/presentation/screens/concierge_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../../features/profile/presentation/screens/payment_methods_screen.dart';
@@ -122,7 +123,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RoutePaths.concierge,
-                builder: (context, state) => const _PlaceholderScreen(title: 'Travel Concierge Chat'),
+                builder: (context, state) => const ConciergeScreen(),
               ),
             ],
           ),

@@ -69,3 +69,5 @@ export const cleanupUserData = onCall(async (request) => {
     throw new HttpsError('internal', error.message || 'Unknown error occurred during user data cleanup.');
   }
 });
+
+export { onConciergeMessageCreated } from './concierge/onConciergeMessageCreated';
