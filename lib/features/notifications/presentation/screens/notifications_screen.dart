@@ -162,16 +162,16 @@ class NotificationsScreen extends ConsumerWidget {
 
     if (item.type == 'booking') {
       iconData = Icons.book_online_outlined;
-      iconColor = Colors.teal;
+      iconColor = AppColors.success;
     } else if (item.type == 'promo') {
       iconData = Icons.local_offer_outlined;
-      iconColor = Colors.orange;
+      iconColor = AppColors.warning;
     } else if (item.type == 'concierge') {
       iconData = Icons.support_agent_outlined;
       iconColor = AppColors.secondary;
     } else if (item.type == 'system') {
       iconData = Icons.info_outline;
-      iconColor = Colors.blue;
+      iconColor = AppColors.primary;
     }
 
     final relativeTime = _formatRelativeTime(item.createdAt);
@@ -182,7 +182,9 @@ class NotificationsScreen extends ConsumerWidget {
         onTap: () => _onNotificationTap(context, ref, uid, item),
         child: Container(
           decoration: BoxDecoration(
-            color: item.read ? Colors.white : AppColors.primaryContainer.withValues(alpha: 0.3),
+            color: item.read
+                ? AppColors.surfaceContainerLowest
+                : AppColors.primaryContainer.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(AppRadii.defaultRadius),
             border: Border.all(
               color: item.read ? AppColors.outlineVariant : AppColors.primary.withValues(alpha: 0.2),

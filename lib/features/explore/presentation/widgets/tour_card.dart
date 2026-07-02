@@ -22,7 +22,7 @@ class TourCard extends StatelessWidget {
         width: 240.0,
         margin: const EdgeInsets.only(right: 16.0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceContainerLowest,
           borderRadius: AppRadii.borderLg,
           border: Border.all(color: AppColors.outlineVariant, width: 1.0),
         ),
@@ -33,9 +33,9 @@ class TourCard extends StatelessWidget {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(15.0),
-                    topRight: Radius.circular(15.0),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(AppRadii.lg),
+                    topRight: Radius.circular(AppRadii.lg),
                   ),
                   child: Image.network(
                     tour.heroImageUrl,
@@ -53,9 +53,11 @@ class TourCard extends StatelessWidget {
                         horizontal: 8.0,
                         vertical: 4.0,
                       ),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppColors.secondary,
-                        borderRadius: AppRadii.borderDefault,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(AppRadii.defaultRadius),
+                        ),
                       ),
                       child: Text(
                         'FEATURED',

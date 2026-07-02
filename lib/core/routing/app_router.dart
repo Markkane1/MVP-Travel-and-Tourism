@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
-import '../widgets/app_bottom_nav.dart';
-import '../../features/widgets_catalog_screen.dart';
+import 'app_shell.dart';
 import '../../features/auth/presentation/screens/login_register_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/legal_placeholder_screen.dart';
@@ -31,7 +30,6 @@ import '../../features/profile/presentation/screens/security_privacy_screen.dart
 import '../../features/profile/presentation/screens/notification_settings_screen.dart';
 import '../../features/profile/presentation/screens/help_support_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
-import '../services/notification_service.dart';
 import 'auth_guard.dart';
 import 'route_paths.dart';
 
@@ -73,9 +71,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Persistent Bottom-Nav Shell
       StatefulShellRoute.indexedStack(
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state, navigationShell) {
-          return _ShellScaffold(navigationShell: navigationShell);
-        },
+        builder: (context, state, navigationShell) => ShellScaffold(navigationShell: navigationShell),
         branches: [
           // Explore Tab (Branch 1)
           StatefulShellBranch(
@@ -149,7 +145,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.searchResults,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Search Results'),
+        builder: (context, state) => const PlaceholderScreen(title: 'Search Results'),
       ),
       GoRoute(
         path: RoutePaths.tourDetails,
@@ -277,111 +273,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const PrivacyPolicyScreen(),
       ),
-      // Widgets Catalog Preview Debug Route
-      GoRoute(
-        path: '/catalog',
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const WidgetsCatalogScreen(),
-      ),
     ],
   );
 });
-
-/// Scaffold container for the persistent bottom navigation shell.
-class _ShellScaffold extends ConsumerStatefulWidget {
-  final StatefulNavigationShell navigationShell;
-
-  const _ShellScaffold({required this.navigationShell});
-
-  @override
-  ConsumerState<_ShellScaffold> createState() => _ShellScaffoldState();
-}
-
-class _ShellScaffoldState extends ConsumerState<_ShellScaffold> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final user = ref.read(authServiceProvider).currentUser;
-      if (user != null) {
-        ref.read(notificationServiceProvider).setupNotifications(user.uid);
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: widget.navigationShell,
-      bottomNavigationBar: AppBottomNav(
-        currentIndex: widget.navigationShell.currentIndex,
-        onTap: (index) {
-          widget.navigationShell.goBranch(
-            index,
-            initialLocation: index == widget.navigationShell.currentIndex,
-          );
-        },
-        items: const [
-          AppBottomNavItem(
-            activeIcon: Icons.explore,
-            inactiveIcon: Icons.explore_outlined,
-            label: 'Explore',
-          ),
-          AppBottomNavItem(
-            activeIcon: Icons.search,
-            inactiveIcon: Icons.search,
-            label: 'Search',
-          ),
-          AppBottomNavItem(
-            activeIcon: Icons.airplane_ticket,
-            inactiveIcon: Icons.airplane_ticket_outlined,
-            label: 'Trips',
-          ),
-          AppBottomNavItem(
-            activeIcon: Icons.headset_mic,
-            inactiveIcon: Icons.headset_mic_outlined,
-            label: 'Concierge',
-          ),
-          AppBottomNavItem(
-            activeIcon: Icons.person,
-            inactiveIcon: Icons.person_outline,
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Simple placeholder screen reusable stub.
-class _PlaceholderScreen extends StatelessWidget {
-  final String title;
-
-  const _PlaceholderScreen({
-    required this.title,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '$title — TODO',
-              style: Theme.of(context).textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 /// Simple Stream -> Listenable bridge class for GoRouter.
 class _GoRouterRefreshStream extends ChangeNotifier {

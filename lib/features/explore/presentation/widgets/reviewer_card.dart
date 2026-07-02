@@ -20,7 +20,7 @@ class ReviewerCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: 16.0),
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceContainerLowest,
         borderRadius: AppRadii.borderLg,
         border: Border.all(color: AppColors.outlineVariant, width: 1.0),
       ),

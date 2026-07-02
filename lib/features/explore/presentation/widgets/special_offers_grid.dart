@@ -51,9 +51,11 @@ class SpecialOffersGrid extends StatelessWidget {
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppColors.inverseSurface,
-                      borderRadius: AppRadii.borderLg,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(AppRadii.lg),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +63,7 @@ class SpecialOffersGrid extends StatelessWidget {
                         Text(
                           'First Flight',
                           style: theme.textTheme.titleMedium?.copyWith(
-                            color: Colors.white,
+                            color: AppColors.onPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -69,7 +71,7 @@ class SpecialOffersGrid extends StatelessWidget {
                         Text(
                           'Save \$50 on your first booking',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.7),
+                            color: AppColors.onPrimary.withValues(alpha: 0.7),
                           ),
                         ),
                         const Spacer(),
@@ -78,8 +80,10 @@ class SpecialOffersGrid extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.secondary,
                             foregroundColor: AppColors.inverseSurface,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadii.borderDefault,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(AppRadii.defaultRadius),
+                              ),
                             ),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16.0,
@@ -109,9 +113,11 @@ class SpecialOffersGrid extends StatelessWidget {
                             horizontal: AppSpacing.md,
                             vertical: AppSpacing.sm,
                           ),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: AppColors.warningContainer,
-                            borderRadius: AppRadii.borderLg,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(AppRadii.lg),
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -125,7 +131,7 @@ class SpecialOffersGrid extends StatelessWidget {
                                       'FLASH DEAL',
                                       overflow: TextOverflow.ellipsis,
                                       style: theme.textTheme.labelSmall?.copyWith(
-                                        color: Colors.orange.shade900,
+                                        color: AppColors.warning,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -133,16 +139,16 @@ class SpecialOffersGrid extends StatelessWidget {
                                       '20% OFF',
                                       overflow: TextOverflow.ellipsis,
                                       style: theme.textTheme.titleMedium?.copyWith(
-                                        color: Colors.orange.shade900,
+                                        color: AppColors.warning,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Icon(
+                              const Icon(
                                 Icons.access_time,
-                                color: Colors.orange.shade900,
+                                color: AppColors.warning,
                                 size: 28.0,
                               ),
                             ],
@@ -157,9 +163,11 @@ class SpecialOffersGrid extends StatelessWidget {
                             horizontal: AppSpacing.md,
                             vertical: AppSpacing.sm,
                           ),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: AppColors.surfaceContainerLow,
-                            borderRadius: AppRadii.borderLg,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(AppRadii.lg),
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
