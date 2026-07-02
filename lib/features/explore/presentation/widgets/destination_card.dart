@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_radii.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -27,7 +28,7 @@ class DestinationCard extends StatelessWidget {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(16.0),
+                  borderRadius: AppRadii.borderLg,
                   child: Image.network(
                     tour.heroImageUrl,
                     height: 160.0,
@@ -45,14 +46,14 @@ class DestinationCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: AppRadii.borderDefault,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(
                           Icons.star,
-                          color: Colors.amber,
+                          color: AppColors.warning,
                           size: 14.0,
                         ),
                         const SizedBox(width: 4.0),

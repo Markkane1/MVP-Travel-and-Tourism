@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_radii.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -100,7 +101,7 @@ class ExploreScreen extends ConsumerWidget {
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(12.0),
+                      borderRadius: AppRadii.borderMd,
                       border: Border.all(color: AppColors.outlineVariant, width: 1.0),
                     ),
                     child: Row(
@@ -259,8 +260,8 @@ class ExploreScreen extends ConsumerWidget {
         height: height,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(16.0),
+          color: AppColors.surfaceContainerHigh,
+          borderRadius: AppRadii.borderLg,
         ),
         child: const Center(
           child: CircularProgressIndicator(strokeWidth: 2.0),
@@ -276,7 +277,7 @@ class ExploreScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: AppColors.errorContainer,
-          borderRadius: BorderRadius.circular(16.0),
+          borderRadius: AppRadii.borderLg,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

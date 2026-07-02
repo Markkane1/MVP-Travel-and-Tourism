@@ -1,4 +1,5 @@
 import 'package:flutter/gestures.dart';
+import '../../../../core/theme/app_radii.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -241,7 +242,7 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
                           margin: const EdgeInsets.only(bottom: AppSpacing.md),
                           decoration: BoxDecoration(
                             color: AppColors.errorContainer,
-                            borderRadius: BorderRadius.circular(8.0),
+                            borderRadius: AppRadii.borderDefault,
                           ),
                           child: Text(
                             _errorMessage!,

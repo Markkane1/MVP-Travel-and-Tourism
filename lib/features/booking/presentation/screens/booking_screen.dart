@@ -576,7 +576,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     return Container(
       padding: const EdgeInsets.all(4.0),
       decoration: BoxDecoration(
-        color: const Color(0xFFECF5FE), // light grey container background
+        color: AppColors.surfaceContainerLow, // light grey container background
         borderRadius: BorderRadius.circular(AppRadii.defaultRadius),
       ),
       child: Row(
@@ -591,9 +591,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   color: isSelected ? Colors.white : Colors.transparent,
                   borderRadius: BorderRadius.circular(AppRadii.defaultRadius - 2),
                   boxShadow: isSelected
-                      ? const [
-                          BoxShadow(
-                            color: Color(0x0D002349),
+                      ? [ BoxShadow(color: AppColors.primaryContainer.withValues(alpha: 0.05),
                             blurRadius: 4,
                             offset: Offset(0, 2),
                           )

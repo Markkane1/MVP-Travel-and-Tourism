@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../core/theme/app_colors.dart';
+import '../core/theme/app_radii.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/widgets/primary_button.dart';
@@ -341,8 +343,8 @@ class _WidgetsCatalogScreenState extends State<WidgetsCatalogScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8.0),
+                      color: AppColors.surfaceContainerHigh,
+                      borderRadius: AppRadii.borderDefault,
                     ),
                     child: Text(
                       _firebaseLog,

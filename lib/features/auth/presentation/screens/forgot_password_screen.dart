@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_radii.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -95,7 +96,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                           children: [
                             const Icon(
                               Icons.check_circle_outline,
-                              color: Colors.green,
+                              color: AppColors.success,
                               size: 64.0,
                             ),
                             AppSpacing.gapMd,
@@ -146,7 +147,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                                   margin: const EdgeInsets.only(bottom: AppSpacing.md),
                                   decoration: BoxDecoration(
                                     color: AppColors.errorContainer,
-                                    borderRadius: BorderRadius.circular(8.0),
+                                    borderRadius: AppRadii.borderDefault,
                                   ),
                                   child: Text(
                                     _errorMessage!,

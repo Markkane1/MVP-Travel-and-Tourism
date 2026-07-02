@@ -594,7 +594,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-              child: Container(color: Colors.black.withValues(alpha: 0.4)),
+              child: Container(color: AppColors.onSurface.withValues(alpha: 0.4)),
             ),
           ),
           // Rotating rings and lock icon

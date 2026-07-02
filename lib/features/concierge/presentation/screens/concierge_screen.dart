@@ -347,7 +347,7 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                         width: 14.0,
                         height: 14.0,
                         decoration: BoxDecoration(
-                          color: Colors.green,
+                          color: AppColors.success,
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 2.0),
                         ),

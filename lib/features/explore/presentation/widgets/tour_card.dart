@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_radii.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -22,7 +23,7 @@ class TourCard extends StatelessWidget {
         margin: const EdgeInsets.only(right: 16.0),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
+          borderRadius: AppRadii.borderLg,
           border: Border.all(color: AppColors.outlineVariant, width: 1.0),
         ),
         child: Column(
@@ -32,7 +33,7 @@ class TourCard extends StatelessWidget {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(15.0),
                     topRight: Radius.circular(15.0),
                   ),
@@ -54,7 +55,7 @@ class TourCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.secondary,
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: AppRadii.borderDefault,
                       ),
                       child: Text(
                         'FEATURED',

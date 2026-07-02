@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_radii.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 
@@ -52,7 +53,7 @@ class SpecialOffersGrid extends StatelessWidget {
                     padding: const EdgeInsets.all(AppSpacing.md),
                     decoration: BoxDecoration(
                       color: AppColors.inverseSurface,
-                      borderRadius: BorderRadius.circular(16.0),
+                      borderRadius: AppRadii.borderLg,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +79,7 @@ class SpecialOffersGrid extends StatelessWidget {
                             backgroundColor: AppColors.secondary,
                             foregroundColor: AppColors.inverseSurface,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
+                              borderRadius: AppRadii.borderDefault,
                             ),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16.0,
@@ -109,8 +110,8 @@ class SpecialOffersGrid extends StatelessWidget {
                             vertical: AppSpacing.sm,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFFE0B2),
-                            borderRadius: BorderRadius.circular(16.0),
+                            color: AppColors.warningContainer,
+                            borderRadius: AppRadii.borderLg,
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -158,7 +159,7 @@ class SpecialOffersGrid extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(16.0),
+                            borderRadius: AppRadii.borderLg,
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,

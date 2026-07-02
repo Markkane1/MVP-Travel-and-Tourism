@@ -587,7 +587,7 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.favorite, color: Colors.red),
+                        icon: const Icon(Icons.favorite, color: AppColors.error),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                         onPressed: () => _unsaveTour(tour),

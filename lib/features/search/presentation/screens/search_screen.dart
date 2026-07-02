@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_radii.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -52,7 +53,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
       ),
       builder: (context) => Container(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -276,7 +277,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 border: Border.all(color: AppColors.outlineVariant),
-                                borderRadius: BorderRadius.circular(12.0),
+                                borderRadius: AppRadii.borderMd,
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -333,7 +334,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 border: Border.all(color: AppColors.outlineVariant),
-                                borderRadius: BorderRadius.circular(12.0),
+                                borderRadius: AppRadii.borderMd,
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -406,7 +407,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           margin: const EdgeInsets.only(bottom: 12.0),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(16.0),
+                            borderRadius: AppRadii.borderLg,
                             border: Border.all(color: AppColors.outlineVariant),
                           ),
                           child: ListTile(
@@ -415,7 +416,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               vertical: AppSpacing.sm,
                             ),
                             leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(12.0),
+                              borderRadius: AppRadii.borderMd,
                               child: Image.network(
                                 tour.heroImageUrl,
                                 width: 56.0,

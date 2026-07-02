@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_radii.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -65,7 +66,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                       width: double.infinity,
                       decoration: const BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
                       ),
                       padding: const EdgeInsets.all(AppSpacing.lg),
                       child: Column(
@@ -105,7 +106,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                           // Rating and Location
                           Row(
                             children: [
-                              const Icon(Icons.star, color: Colors.amber, size: 18.0),
+                              const Icon(Icons.star, color: AppColors.warning, size: 18.0),
                               const SizedBox(width: 4.0),
                               Text(
                                 '${tour.ratingAverage} · ${tour.destination}',
@@ -185,7 +186,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                                   children: [
                                     const Icon(
                                       Icons.check_circle_outline,
-                                      color: Colors.green,
+                                      color: AppColors.success,
                                       size: 20.0,
                                     ),
                                     const SizedBox(width: 8.0),
@@ -271,7 +272,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                   children: [
                     // Back button in translucent circle
                     CircleAvatar(
-                      backgroundColor: Colors.black.withValues(alpha: 0.4),
+                      backgroundColor: AppColors.onSurface.withValues(alpha: 0.4),
                       radius: 20.0,
                       child: Semantics(
                         label: 'Go back',
@@ -285,7 +286,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                     ),
                     // Bookmark toggle in translucent circle
                     CircleAvatar(
-                      backgroundColor: Colors.black.withValues(alpha: 0.4),
+                      backgroundColor: AppColors.onSurface.withValues(alpha: 0.4),
                       radius: 20.0,
                       child: Semantics(
                         label: isSaved ? 'Remove from saved' : 'Save tour',
@@ -294,7 +295,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                           tooltip: isSaved ? 'Remove from saved' : 'Save tour',
                           icon: Icon(
                             isSaved ? Icons.favorite : Icons.favorite_border,
-                            color: isSaved ? Colors.red : Colors.white,
+                            color: isSaved ? AppColors.error : Colors.white,
                             size: 20.0,
                           ),
                           onPressed: () async {
@@ -465,7 +466,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                           Text(
                             description,
                             style: TextStyle(
-                              color: Colors.grey.shade600,
+                              color: AppColors.outline,
                               fontSize: 13.0,
                             ),
                           ),
@@ -525,7 +526,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                 padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.0),
+                  borderRadius: AppRadii.borderLg,
                   border: Border.all(color: AppColors.outlineVariant),
                 ),
                 child: Column(

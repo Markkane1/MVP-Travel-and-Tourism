@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_radii.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -95,7 +96,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
       ),
       builder: (context) {
         String tempDest = _currentFilters.destination ?? 'All Destinations';
@@ -367,7 +368,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.search_off, size: 64.0, color: Colors.grey.shade400),
+              const Icon(Icons.search_off, size: 64.0, color: AppColors.outlineVariant),
               AppSpacing.gapMd,
               Text(
                 'No tours match these filters.',
@@ -451,7 +452,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                     top: AppSpacing.md,
                     right: AppSpacing.md,
                     child: CircleAvatar(
-                      backgroundColor: Colors.black.withValues(alpha: 0.4),
+                      backgroundColor: AppColors.onSurface.withValues(alpha: 0.4),
                       radius: 20.0,
                       child: Semantics(
                         label: isSaved ? 'Remove from saved' : 'Save tour',
@@ -460,7 +461,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                           tooltip: isSaved ? 'Remove from saved' : 'Save tour',
                           icon: Icon(
                             isSaved ? Icons.favorite : Icons.favorite_border,
-                            color: isSaved ? Colors.red : Colors.white,
+                            color: isSaved ? AppColors.error : Colors.white,
                             size: 20.0,
                           ),
                            onPressed: () async {

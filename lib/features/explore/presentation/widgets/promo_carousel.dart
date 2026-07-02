@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../../../../core/theme/app_radii.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -77,7 +78,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16.0),
+                      borderRadius: AppRadii.borderLg,
                       image: DecorationImage(
                         image: NetworkImage(tour.heroImageUrl),
                         fit: BoxFit.cover,
@@ -89,7 +90,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
                         Positioned.fill(
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16.0),
+                              borderRadius: AppRadii.borderLg,
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,

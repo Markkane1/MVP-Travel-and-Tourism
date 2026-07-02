@@ -54,3 +54,6 @@ functions/lib/
 
 # Local rules/emulator scratch workspace
 test/rules_tests/
+
+# Local documents generated during audits/planning
+/Documents/

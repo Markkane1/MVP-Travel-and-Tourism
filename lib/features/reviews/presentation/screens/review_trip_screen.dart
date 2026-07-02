@@ -358,7 +358,7 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
 
               if (_isSubmitting)
                 Container(
-                  color: Colors.black26,
+                  color: AppColors.onSurface.withValues(alpha: 0.26),
                   child: const Center(child: LoadingIndicator()),
                 ),
             ],
@@ -519,10 +519,10 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
                         right: 4.0,
                         child: GestureDetector(
                           onTap: () => _removePhoto(index),
-                          child: const CircleAvatar(
+                          child: CircleAvatar(
                             radius: 10.0,
-                            backgroundColor: Colors.black54,
-                            child: Icon(Icons.close, color: Colors.white, size: 12.0),
+                            backgroundColor: AppColors.onSurface.withValues(alpha: 0.54),
+                            child: const Icon(Icons.close, color: Colors.white, size: 12.0),
                           ),
                         ),
                       ),

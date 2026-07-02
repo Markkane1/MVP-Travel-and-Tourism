@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_radii.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,7 +23,7 @@ class _SearchMapScreenState extends State<SearchMapScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.15),
+      barrierColor: AppColors.onSurface.withValues(alpha: 0.15),
       builder: (context) {
         final theme = Theme.of(context);
         return Container(
@@ -33,7 +34,7 @@ class _SearchMapScreenState extends State<SearchMapScreen> {
             borderRadius: BorderRadius.circular(20.0),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
+                color: AppColors.onSurface.withValues(alpha: 0.15),
                 blurRadius: 10.0,
                 offset: const Offset(0, 4),
               ),
@@ -47,7 +48,7 @@ class _SearchMapScreenState extends State<SearchMapScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0),
+                    borderRadius: AppRadii.borderMd,
                     child: Image.network(
                       tour.heroImageUrl,
                       width: 80.0,
@@ -108,7 +109,7 @@ class _SearchMapScreenState extends State<SearchMapScreen> {
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
+                        borderRadius: AppRadii.borderMd,
                       ),
                     ),
                     child: const Text('View Details'),

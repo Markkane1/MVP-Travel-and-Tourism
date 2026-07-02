@@ -204,13 +204,13 @@ class ProfileScreen extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
           decoration: BoxDecoration(
-            color: Colors.amber.shade100,
+            color: AppColors.warningContainer,
             borderRadius: BorderRadius.circular(AppRadii.full),
           ),
           child: Text(
             AppStrings.profile.eliteMemberPill,
             style: const TextStyle(
-              color: Colors.amber,
+              color: AppColors.warning,
               fontWeight: FontWeight.bold,
               fontSize: 11.0,
             ),
@@ -270,7 +270,7 @@ class ProfileScreen extends ConsumerWidget {
                 top: 8.0,
                 right: 8.0,
                 child: CircleAvatar(
-                  backgroundColor: Colors.black54,
+                  backgroundColor: AppColors.onSurface.withValues(alpha: 0.54),
                   child: IconButton(
                     icon: const Icon(Icons.close, color: Colors.white),
                     onPressed: () => Navigator.pop(context),
@@ -556,7 +556,7 @@ class ProfileScreen extends ConsumerWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(AppRadii.md),
-                      color: Colors.black.withValues(alpha: 0.4),
+                      color: AppColors.onSurface.withValues(alpha: 0.4),
                     ),
                     child: Center(
                       child: Row(

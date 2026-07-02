@@ -41,7 +41,7 @@ class TierBenefitsScreen extends StatelessWidget {
                 'General Destination Access',
                 'Self-service Cancellation Options',
               ],
-              Colors.grey.shade400,
+              AppColors.outlineVariant,
             ),
             AppSpacing.gapLg,
 

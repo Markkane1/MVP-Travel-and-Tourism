@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_radii.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 
@@ -67,7 +68,7 @@ class _CategorySelectorState extends State<CategorySelector> {
                           color: isSelected
                               ? AppColors.primary
                               : AppColors.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(16.0),
+                          borderRadius: AppRadii.borderLg,
                         ),
                         child: Icon(
                           category['icon'] as IconData,
