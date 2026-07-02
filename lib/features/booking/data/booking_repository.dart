@@ -31,6 +31,7 @@ class BookingRepository {
       // Security rules filter: these fields cannot be passed on document creation
       data.remove('stripePaymentIntentId');
       data.remove('bookingReferenceCode');
+      data.remove('reviewed');
 
       // Convert DateTime objects to Firestore Timestamps for native Firestore querying
       data['tourDate'] = Timestamp.fromDate(booking.tourDate.toUtc());

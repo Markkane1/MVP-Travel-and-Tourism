@@ -48,5 +48,9 @@ ios/Flutter/Flutter.framework
 ios/Flutter/Flutter.podspec
 
 # Firebase Functions dependencies/build output
+**/node_modules/
 functions/node_modules/
 functions/lib/
+
+# Local rules/emulator scratch workspace
+test/rules_tests/

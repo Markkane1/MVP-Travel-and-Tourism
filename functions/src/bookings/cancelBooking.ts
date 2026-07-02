@@ -51,6 +51,7 @@ export async function cancelBookingLogic(
       title: 'Booking Cancelled',
       body: `Your booking for ${bookingData.tourSnapshot?.title || 'your destination'} has been cancelled.`,
       type: 'booking',
+      deepLink: `/trips/${bookingId}`,
       read: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });

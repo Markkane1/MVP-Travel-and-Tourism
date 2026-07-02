@@ -60,6 +60,12 @@ class AppColors {
   static const Color onBackground = Color(0xFF141D23);
   static const Color surfaceVariant = Color(0xFFDBE4ED);
 
+  // Semantic status colors
+  static const Color success = Color(0xFF2E7D32);
+  static const Color successContainer = Color(0xFFE8F5E9);
+  static const Color warning = Color(0xFFE65100);
+  static const Color warningContainer = Color(0xFFFFF3E0);
+
   /// Canonical Flutter [ColorScheme] wired from tokens.
   static const ColorScheme lightScheme = ColorScheme(
     brightness: Brightness.light,

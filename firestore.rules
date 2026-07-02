@@ -32,13 +32,13 @@ service cloud.firestore {
       allow create: if isAuthenticated()
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.status == 'pending'
-        && !request.resource.data.keys().hasAny(['stripePaymentIntentId', 'bookingReferenceCode']);
+        && !request.resource.data.keys().hasAny(['stripePaymentIntentId', 'bookingReferenceCode', 'reviewed']);
         
-      // Client updates cannot modify status, payment tokens, or reference codes.
+      // Client updates cannot modify status, payment tokens, reference codes, or review completion.
       allow update: if isAuthenticated()
         && resource.data.userId == request.auth.uid
         && request.resource.data.userId == resource.data.userId
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'stripePaymentIntentId', 'bookingReferenceCode']);
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'stripePaymentIntentId', 'bookingReferenceCode', 'reviewed']);
         
       allow delete: if false;
     }
@@ -59,25 +59,28 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.tourId == tourId
           && get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.status == 'completed';
           
-        allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+        allow update, delete: if false;
       }
     }
 
     // Travel Concierge chat threads: user-scoped read/write.
     match /concierge_threads/{uid} {
-      allow read, write: if isOwner(uid);
+      allow read: if isOwner(uid);
+      allow write: if false;
       
       match /messages/{messageId} {
         allow read, write: if isOwner(uid);
       }
     }
 
-    // User Notification center: user-scoped read/write.
     match /notifications/{uid} {
-      allow read, write: if isOwner(uid);
+      allow read: if isOwner(uid);
+      allow write: if false;
       
       match /items/{notificationId} {
-        allow read, write: if isOwner(uid);
+        allow read: if isOwner(uid);
+        allow update: if isOwner(uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+        allow create, delete: if false;
       }
     }
   }

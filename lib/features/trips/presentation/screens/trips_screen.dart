@@ -359,16 +359,16 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
                             padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
                             decoration: BoxDecoration(
                               color: isConfirmed
-                                  ? const Color(0xFFE8F5E9) // Light green
-                                  : const Color(0xFFFFF3E0), // Light amber
+                                  ? AppColors.successContainer
+                                  : AppColors.warningContainer,
                               borderRadius: BorderRadius.circular(AppRadii.sm),
                             ),
                             child: Text(
                               booking.status.toUpperCase(),
                               style: TextStyle(
                                 color: isConfirmed
-                                    ? const Color(0xFF2E7D32)
-                                    : const Color(0xFFE65100),
+                                    ? AppColors.success
+                                    : AppColors.warning,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 9.0,
                               ),

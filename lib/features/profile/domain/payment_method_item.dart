@@ -18,7 +18,7 @@ class PaymentMethodItem {
     final data = doc.data() as Map<String, dynamic>;
     return PaymentMethodItem(
       id: doc.id,
-      brand: data['brand'] ?? data['cardBrand'] ?? 'Visa',
+      brand: data['brand'] ?? 'Visa',
       last4: data['last4'] ?? '0000',
       isDefault: data['isDefault'] ?? false,
     );

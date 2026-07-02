@@ -60,9 +60,6 @@ Stream<List<Review>> tourReviews(Ref ref, String tourId) {
 }
 
 Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
-  if (data['rating'] is num) {
-    data['ratingAverage'] = (data['rating'] as num).toDouble();
-  }
   if (data['ratingAverage'] is num) {
     data['ratingAverage'] = (data['ratingAverage'] as num).toDouble();
   } else {

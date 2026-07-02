@@ -80,6 +80,7 @@ export async function confirmBookingLogic(
       title: 'Booking Confirmed',
       body: `Your expedition to ${bookingData.tourSnapshot?.title || 'your destination'} is ready!`,
       type: 'booking',
+      deepLink: `/trips/${bookingId}`,
       read: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });

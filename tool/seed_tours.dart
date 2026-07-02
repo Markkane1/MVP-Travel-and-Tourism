@@ -73,7 +73,8 @@ Future<void> main() async {
       'currency': 'USD',
       'durationDays': 7,
       'maxParticipants': 16,
-      'rating': 4.9,
+      'ratingAverage': 4.9,
+      'ratingCount': 120,
       'overview': 'Experience the romantic history, fine art, and culinary excellence of Paris. Explore the Louvre, Eiffel Tower, and charming sidewalk bistros.',
       'itinerary': [
         {'day': 1, 'title': 'Arrival & Seine Cruise', 'description': 'Check in to your boutique hotel, then enjoy a scenic cruise down the Seine river.'},
@@ -86,7 +87,7 @@ Future<void> main() async {
         {
           'userName': 'James Wilson',
           'userPhotoUrl': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150',
-          'rating': 5.0,
+          'overallRating': 5.0,
           'comment': 'An absolutely breathtaking trip! The service was immaculate and the views were out of this world.',
           'createdAt': DateTime.now().subtract(const Duration(days: 2)),
         }
@@ -107,7 +108,8 @@ Future<void> main() async {
       'currency': 'USD',
       'durationDays': 10,
       'maxParticipants': 8,
-      'rating': 4.8,
+      'ratingAverage': 4.8,
+      'ratingCount': 85,
       'overview': 'Witness the majestic wildlife migration on this premium private safari package. Includes luxury lodges and highly experienced wildlife track guides.',
       'itinerary': [
         {'day': 1, 'title': 'Kilimanjaro Arrival', 'description': 'Arrive in Tanzania and check in to your safari briefing lodge.'},
@@ -120,7 +122,7 @@ Future<void> main() async {
         {
           'userName': 'Emily Davis',
           'userPhotoUrl': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150',
-          'rating': 4.8,
+          'overallRating': 4.8,
           'comment': 'Seeing the Great Migration up close was a life-changing experience. Highly recommend this tour.',
           'createdAt': DateTime.now().subtract(const Duration(days: 4)),
         }
@@ -141,7 +143,8 @@ Future<void> main() async {
       'currency': 'USD',
       'durationDays': 5,
       'maxParticipants': 4,
-      'rating': 4.9,
+      'ratingAverage': 4.9,
+      'ratingCount': 210,
       'overview': 'Escape to your private overwater bungalow. Swim in turquoise lagoons, indulge in couples spa treatments, and enjoy candlelight dinners on private sandbanks.',
       'inclusions': ['Overwater villa accommodation', 'All-inclusive premium dining', 'Spa credit', 'Private catamaran charter'],
       'latitude': -16.5004,
@@ -150,7 +153,7 @@ Future<void> main() async {
         {
           'userName': 'Arthur Pendragon',
           'userPhotoUrl': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150',
-          'rating': 5.0,
+          'overallRating': 5.0,
           'comment': 'Paradise on Earth. The overwater villas are luxurious and private.',
           'createdAt': DateTime.now().subtract(const Duration(days: 7)),
         }
@@ -170,7 +173,8 @@ Future<void> main() async {
       'currency': 'USD',
       'durationDays': 8,
       'maxParticipants': 6,
-      'rating': 4.7,
+      'ratingAverage': 4.7,
+      'ratingCount': 45,
       'overview': 'Sail between the outer Yasawa islands on a luxury motor yacht. Snorkel pristine reefs and picnic on untouched coral keys.',
       'inclusions': ['Private yacht cabins', 'Chef service on board', 'Snorkeling equipment', 'Custom island tours'],
       'latitude': -17.7134,
@@ -179,7 +183,7 @@ Future<void> main() async {
         {
           'userName': 'Sarah Jenkins',
           'userPhotoUrl': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150',
-          'rating': 4.7,
+          'overallRating': 4.7,
           'comment': 'Amazing reefs, incredible staff, and complete serenity. A perfect getaway.',
           'createdAt': DateTime.now().subtract(const Duration(days: 10)),
         }
@@ -199,7 +203,8 @@ Future<void> main() async {
       'currency': 'USD',
       'durationDays': 6,
       'maxParticipants': 12,
-      'rating': 4.9,
+      'ratingAverage': 4.9,
+      'ratingCount': 110,
       'overview': 'Relax on the sugar-white sandbanks of Zanzibar. Swim alongside wild dolphins and experience sunset dhow cruises with fresh seafood.',
       'inclusions': ['Boutique beachfront resort', 'Seafood dinners', 'Dolphin cruise', 'Local spice tour'],
       'latitude': -6.1659,
@@ -208,7 +213,7 @@ Future<void> main() async {
         {
           'userName': 'Michael Chang',
           'userPhotoUrl': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150',
-          'rating': 5.0,
+          'overallRating': 5.0,
           'comment': 'Unbelievable sandbanks, turquoise waters, and fresh local fruits. Paradise!',
           'createdAt': DateTime.now().subtract(const Duration(days: 12)),
         }
@@ -228,7 +233,8 @@ Future<void> main() async {
       'currency': 'USD',
       'durationDays': 7,
       'maxParticipants': 8,
-      'rating': 4.9,
+      'ratingAverage': 4.9,
+      'ratingCount': 340,
       'overview': 'Soak up the sun on private villa terraces. Includes glass-bottom lounges, premium scuba dives, and sunset massage treatments.',
       'inclusions': ['Glass bottom villa stays', 'Private scuba guide', 'Couples massage session', 'Champagne breakfast'],
       'latitude': 3.2028,
@@ -237,7 +243,7 @@ Future<void> main() async {
         {
           'userName': 'Sophia Lauren',
           'userPhotoUrl': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150',
-          'rating': 4.9,
+          'overallRating': 4.9,
           'comment': 'Stunning beaches, luxurious amenities, and amazing marine life. Loved the overwater spa.',
           'createdAt': DateTime.now().subtract(const Duration(days: 1)),
         }
@@ -257,7 +263,8 @@ Future<void> main() async {
       'currency': 'USD',
       'durationDays': 8,
       'maxParticipants': 10,
-      'rating': 4.8,
+      'ratingAverage': 4.8,
+      'ratingCount': 72,
       'overview': 'Hike and ski under the mighty Matterhorn. Rest in cozy luxury ski lodges, warm up with traditional cheese fondue, and travel on panoramic high-altitude trains.',
       'inclusions': ['Luxury ski lodge chalet', 'Ski lift passes', 'Daily gourmet dinners', 'Glacier Express train ticket'],
       'latitude': 46.0207,
@@ -266,7 +273,7 @@ Future<void> main() async {
         {
           'userName': 'Hans Mueller',
           'userPhotoUrl': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=150',
-          'rating': 4.8,
+          'overallRating': 4.8,
           'comment': 'Breath-taking vistas of the Matterhorn. The Chalets are warm and cozy after a long hike.',
           'createdAt': DateTime.now().subtract(const Duration(days: 15)),
         }
@@ -286,7 +293,8 @@ Future<void> main() async {
       'currency': 'USD',
       'durationDays': 6,
       'maxParticipants': 12,
-      'rating': 4.9,
+      'ratingAverage': 4.9,
+      'ratingCount': 195,
       'overview': 'Immerse yourself in Zen gardens, bamboo groves, and ancient tea ceremonies. Tour stunning shrines and rest at traditional hot-spring ryokans.',
       'inclusions': ['Traditional Ryokan stay', 'Kaiseki dinners', 'Private tea master', 'Hot spring (onsen) access'],
       'latitude': 35.0116,
@@ -295,7 +303,7 @@ Future<void> main() async {
         {
           'userName': 'Kenji Sato',
           'userPhotoUrl': 'https://images.unsplash.com/photo-1542206395-9feb3edaa68d?q=80&w=150',
-          'rating': 5.0,
+          'overallRating': 5.0,
           'comment': 'A serene journey through time. The Kaiseki dining was outstanding.',
           'createdAt': DateTime.now().subtract(const Duration(days: 18)),
         }
@@ -347,6 +355,15 @@ Future<void> main() async {
     // Seed subcollection reviews
     for (var i = 0; i < reviews.length; i++) {
       final review = reviews[i] as Map<String, dynamic>;
+      review['bookingId'] = 'seed-booking-$tourId-${i + 1}';
+      review['userId'] = 'seed-user-${i + 1}';
+      review['aspectRatings'] = {
+        'service': review['overallRating'],
+        'accommodation': review['overallRating'],
+        'activities': review['overallRating'],
+        'value': review['overallRating'],
+      };
+      review['photoUrls'] = <String>[];
       final reviewId = 'review-${i + 1}';
       final reviewUrl = Uri.parse(
         'https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/tours/$tourId/reviews?documentId=$reviewId',
