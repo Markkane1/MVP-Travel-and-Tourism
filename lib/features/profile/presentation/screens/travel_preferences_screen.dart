@@ -49,20 +49,31 @@ class _TravelPreferencesScreenState extends ConsumerState<TravelPreferencesScree
     });
 
     try {
-      await ref.read(profileRepositoryProvider).saveTravelPreferences(
+      final result = await ref.read(profileRepositoryProvider).saveTravelPreferences(
             uid: uid,
             dietary: _dietaryController.text.trim(),
             seat: _seatPreference,
             hotelClass: _hotelClassPreference,
           );
 
-      if (mounted) {
-        ref.invalidate(userFirestoreDataProvider);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Preferences saved successfully.')),
-        );
-        context.pop();
-      }
+      await result.when(
+        onSuccess: (_) {
+          if (mounted) {
+            ref.invalidate(userFirestoreDataProvider);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Preferences saved successfully.')),
+            );
+            context.pop();
+          }
+        },
+        onFailure: (exception) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to save preferences: ${exception.message}')),
+            );
+          }
+        },
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

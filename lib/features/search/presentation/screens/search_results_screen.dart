@@ -463,20 +463,22 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                             color: isSaved ? Colors.red : Colors.white,
                             size: 20.0,
                           ),
-                          onPressed: () async {
-                            // Heart toggle updates state optimistically instantly
-                            try {
-                              await ref
-                                  .read(optimisticSavedToursProvider.notifier)
-                                  .toggleSave(tour.id);
-                            } catch (e) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Failed to update bookmark: $e')),
-                                );
-                              }
-                            }
-                          },
+                           onPressed: () async {
+                             // Heart toggle updates state optimistically instantly
+                             final res = await ref
+                                 .read(optimisticSavedToursProvider.notifier)
+                                 .toggleSave(tour.id);
+                             res.when(
+                               onSuccess: (_) {},
+                               onFailure: (exception) {
+                                 if (context.mounted) {
+                                   ScaffoldMessenger.of(context).showSnackBar(
+                                     SnackBar(content: Text('Failed to update bookmark: ${exception.message}')),
+                                   );
+                                 }
+                               },
+                             );
+                           },
                         ),
                       ),
                     ),

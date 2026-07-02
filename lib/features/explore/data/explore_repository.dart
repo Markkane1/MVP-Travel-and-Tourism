@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../../core/utils/safe_stream.dart';
 
 import '../domain/tour.dart';
 import '../domain/review.dart';
@@ -24,7 +25,7 @@ class ExploreRepository {
         data['id'] = doc.id;
         return Tour.fromJson(_mapTourData(data));
       }).toList();
-    });
+    }).mapAppException('Failed to load hero promotions');
   }
 
   /// Streams tours with the "Featured" badge.
@@ -39,7 +40,7 @@ class ExploreRepository {
         data['id'] = doc.id;
         return Tour.fromJson(_mapTourData(data));
       }).toList();
-    });
+    }).mapAppException('Failed to load featured tours');
   }
 
   /// Streams tours with the "Top Rated" badge.
@@ -54,7 +55,7 @@ class ExploreRepository {
         data['id'] = doc.id;
         return Tour.fromJson(_mapTourData(data));
       }).toList();
-    });
+    }).mapAppException('Failed to load popular destinations');
   }
 
   /// Streams the 5 most recent reviews using a collectionGroup query.
@@ -75,7 +76,7 @@ class ExploreRepository {
         }
         return Review.fromJson(data);
       }).toList();
-    });
+    }).mapAppException('Failed to load recent reviews');
   }
 }
 
@@ -144,4 +145,3 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
   }
   return data;
 }
-

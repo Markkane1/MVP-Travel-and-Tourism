@@ -175,15 +175,18 @@ class _FakeSavedToursRepository implements SavedToursRepository {
   Stream<List<String>> watchSavedTourIds(String uid) => Stream.value(const []);
 
   @override
-  Future<void> saveTour(String uid, String tourId) async {}
+  Future<Result<void>> saveTour(String uid, String tourId) async => const Result.success(null);
 
   @override
-  Future<void> unsaveTour(String uid, String tourId) async {}
+  Future<Result<void>> unsaveTour(String uid, String tourId) async => const Result.success(null);
 }
 
 class _FakeBookingRepository implements BookingRepository {
   @override
-  Future<void> createPendingBooking(Booking booking) async {}
+  String generateNewBookingId() => 'fake-booking-id';
+
+  @override
+  Future<Result<void>> createPendingBooking(Booking booking) async => const Result.success(null);
 
   @override
   Stream<Booking?> watchBooking(String bookingId) => Stream.value(null);
@@ -203,43 +206,43 @@ class _FakeProfileRepository implements ProfileRepository {
       });
 
   @override
-  Future<void> updateProfile({
+  Future<Result<void>> updateProfile({
     required String uid,
     required String name,
     required String photoUrl,
-  }) async {}
+  }) async => const Result.success(null);
 
   @override
-  Future<void> updateNotificationPreference({
+  Future<Result<void>> updateNotificationPreference({
     required String uid,
     required String key,
     required bool value,
-  }) async {}
+  }) async => const Result.success(null);
 
   @override
-  Future<void> saveTravelPreferences({
+  Future<Result<void>> saveTravelPreferences({
     required String uid,
     required String dietary,
     required String seat,
     required String hotelClass,
-  }) async {}
+  }) async => const Result.success(null);
 
   @override
   Stream<List<PaymentMethodItem>> watchPaymentMethods(String uid) => Stream.value(const []);
 
   @override
-  Future<void> deletePaymentMethod({
+  Future<Result<void>> deletePaymentMethod({
     required String uid,
     required String methodId,
-  }) async {}
+  }) async => const Result.success(null);
 
   @override
-  Future<void> savePaymentMethod({
+  Future<Result<void>> savePaymentMethod({
     required String uid,
     required String brand,
     required String last4,
     required bool isDefault,
-  }) async {}
+  }) async => const Result.success(null);
 
   @override
   Future<Result<void>> cleanupUserData() async => const Result.success(null);
@@ -269,14 +272,14 @@ class _FakeConciergeRepository implements ConciergeRepository {
       Stream.value(const {'isTyping': false});
 
   @override
-  Future<void> sendMessage({
+  Future<Result<void>> sendMessage({
     required String uid,
     required String text,
     String? attachmentUrl,
-  }) async {}
+  }) async => const Result.success(null);
 
   @override
-  Future<bool> checkAndSeedConcierges(String uid) async => false;
+  Future<Result<bool>> checkAndSeedConcierges(String uid) async => const Result.success(false);
 }
 
 // ---------------------------------------------------------------------------

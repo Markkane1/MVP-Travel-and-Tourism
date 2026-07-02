@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../../core/utils/safe_stream.dart';
 import '../../explore/domain/tour.dart';
 
 part 'search_repository.g.dart';
@@ -124,7 +125,7 @@ class SearchRepository {
 
         return true;
       }).toList();
-    });
+    }).mapAppException('Failed to search tours');
   }
 }
 
@@ -178,4 +179,3 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
   }
   return data;
 }
-

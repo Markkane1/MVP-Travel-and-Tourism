@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -16,7 +15,7 @@ import '../../../../core/widgets/error_state_view.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../explore/domain/tour.dart';
-import '../../../tour_details/data/tour_details_repository.dart';
+import '../../../tour_details/tour_details.dart';
 import '../../domain/booking.dart';
 import '../../data/booking_repository.dart';
 import '../../domain/usecases/calculate_booking_price_use_case.dart';
@@ -145,8 +144,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     });
 
     try {
-      final firestore = FirebaseFirestore.instance;
-      final docId = firestore.collection('bookings').doc().id;
+      final docId = ref.read(bookingRepositoryProvider).generateNewBookingId();
 
       final total = _calculateTotal(tour);
 
@@ -174,11 +172,22 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         createdAt: DateTime.now(),
       );
 
-      await ref.read(bookingRepositoryProvider).createPendingBooking(booking);
+      final result = await ref.read(bookingRepositoryProvider).createPendingBooking(booking);
 
-      if (mounted) {
-        unawaited(context.push('/booking/${booking.id}/checkout'));
-      }
+      await result.when(
+        onSuccess: (_) {
+          if (mounted) {
+            unawaited(context.push('/booking/${booking.id}/checkout'));
+          }
+        },
+        onFailure: (exception) {
+          if (mounted) {
+            setState(() {
+              _validationWarning = 'Booking failed: ${exception.message}';
+            });
+          }
+        },
+      );
     } catch (e) {
       if (mounted) {
         setState(() {

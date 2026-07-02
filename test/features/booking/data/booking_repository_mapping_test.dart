@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
+import 'package:mvp_travel/core/errors/app_exception.dart';
 import 'package:mvp_travel/features/booking/data/booking_repository.dart';
 
 // ---------------------------------------------------------------------------
@@ -122,6 +123,24 @@ void main() {
       final booking = await repo.watchBooking('booking-1').first;
 
       expect(booking, isNull);
+    });
+
+    test('watchBooking maps backend stream errors to AppException', () async {
+      when(() => mockDocRef.snapshots())
+          .thenAnswer((_) => Stream.error(Exception('boom')));
+
+      final repo = BookingRepository(mockFirestore);
+
+      expect(
+        repo.watchBooking('booking-1'),
+        emitsError(
+          isA<AppException>().having(
+            (error) => error.message,
+            'message',
+            contains('Failed to load booking'),
+          ),
+        ),
+      );
     });
   });
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/trips_repository.dart';
-import '../../../reviews/data/reviews_repository.dart';
+import '../../../reviews/reviews.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -14,9 +14,8 @@ import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_state_view.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/services/auth_service.dart';
-import '../../../booking/data/booking_repository.dart';
-import '../../../booking/domain/booking.dart';
-import '../../../search/data/saved_tours_repository.dart';
+import '../../../booking/booking.dart';
+import '../../../search/search.dart';
 import '../../../explore/domain/tour.dart';
 
 /// Screen representing the user's trips list dashboard.
@@ -109,19 +108,30 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
 
   Future<void> _unsaveTour(Tour tour) async {
     final optimisticSaved = ref.read(optimisticSavedToursProvider.notifier);
-    await optimisticSaved.toggleSave(tour.id);
+    final res = await optimisticSaved.toggleSave(tour.id);
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Tour removed from saved list.'),
-          action: SnackBarAction(
-            label: 'Undo',
-            onPressed: () => ref.read(optimisticSavedToursProvider.notifier).toggleSave(tour.id),
-          ),
-        ),
-      );
-    }
+    await res.when(
+      onSuccess: (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Tour removed from saved list.'),
+              action: SnackBarAction(
+                label: 'Undo',
+                onPressed: () => ref.read(optimisticSavedToursProvider.notifier).toggleSave(tour.id),
+              ),
+            ),
+          );
+        }
+      },
+      onFailure: (exception) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to unsave tour: ${exception.message}')),
+          );
+        }
+      },
+    );
   }
 
   @override

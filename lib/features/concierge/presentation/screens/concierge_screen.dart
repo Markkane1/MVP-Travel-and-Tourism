@@ -60,10 +60,19 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
 
   /// Automatic concierge seeding and user profile matching logic.
   Future<void> _checkAndSeedConcierges(String uid) async {
-    final updated = await ref.read(conciergeRepositoryProvider).checkAndSeedConcierges(uid);
-    if (updated && mounted) {
-      ref.invalidate(userFirestoreDataProvider);
-    }
+    final result = await ref.read(conciergeRepositoryProvider).checkAndSeedConcierges(uid);
+    result.when(
+      onSuccess: (updated) {
+        if (updated && mounted) {
+          ref.invalidate(userFirestoreDataProvider);
+        }
+      },
+      onFailure: (exception) {
+        if (kDebugMode) {
+          print('Concierge seeding error: ${exception.message}');
+        }
+      },
+    );
   }
 
   Future<void> _sendMessage(String uid, String conciergeId, {String? attachmentUrl}) async {
@@ -81,7 +90,16 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
         uid: uid,
         text: text,
         attachmentUrl: attachmentUrl,
-      ).then((_) {}, onError: (e) {
+      ).then((res) {
+        res.when(
+          onSuccess: (_) {},
+          onFailure: (exception) {
+            if (kDebugMode) {
+              print('Error sending message: ${exception.message}');
+            }
+          },
+        );
+      }, onError: (e) {
         if (kDebugMode) {
           print('Error sending message: $e');
         }

@@ -110,20 +110,31 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       );
 
       // 3. Update Firestore /users/{uid} document
-      await ref.read(profileRepositoryProvider).updateProfile(
+      final result = await ref.read(profileRepositoryProvider).updateProfile(
         uid: uid,
         name: _nameController.text.trim(),
         photoUrl: photoUrl ?? '',
       );
 
-      if (mounted) {
-        // Force refresh user profile document stream
-        ref.invalidate(userFirestoreDataProvider);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully.')),
-        );
-        context.pop();
-      }
+      await result.when(
+        onSuccess: (_) {
+          if (mounted) {
+            // Force refresh user profile document stream
+            ref.invalidate(userFirestoreDataProvider);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Profile updated successfully.')),
+            );
+            context.pop();
+          }
+        },
+        onFailure: (exception) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Profile update failed: ${exception.message}')),
+            );
+          }
+        },
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

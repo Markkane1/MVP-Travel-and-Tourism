@@ -40,20 +40,31 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     });
 
     try {
-      await ref.read(profileRepositoryProvider).updateNotificationPreference(
+      final result = await ref.read(profileRepositoryProvider).updateNotificationPreference(
             uid: uid,
             key: key,
             value: value,
           );
 
-      // Update local state variables
-      setState(() {
-        if (key == 'bookingUpdates') _bookingUpdates = value;
-        if (key == 'promotions') _promotions = value;
-        if (key == 'conciergeMessages') _conciergeMessages = value;
-      });
+      await result.when(
+        onSuccess: (_) {
+          // Update local state variables
+          setState(() {
+            if (key == 'bookingUpdates') _bookingUpdates = value;
+            if (key == 'promotions') _promotions = value;
+            if (key == 'conciergeMessages') _conciergeMessages = value;
+          });
 
-      ref.invalidate(userFirestoreDataProvider);
+          ref.invalidate(userFirestoreDataProvider);
+        },
+        onFailure: (exception) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to update preference: ${exception.message}')),
+            );
+          }
+        },
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

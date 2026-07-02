@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../../core/utils/safe_stream.dart';
 
 import '../../../../core/services/auth_service.dart';
 
@@ -18,7 +19,8 @@ class ReviewsRepository {
         .collection('reviews')
         .where('userId', isEqualTo: uid)
         .snapshots()
-        .map((snap) => snap.docs.isNotEmpty);
+        .map((snap) => snap.docs.isNotEmpty)
+        .mapAppException('Failed to load review status');
   }
 }
 

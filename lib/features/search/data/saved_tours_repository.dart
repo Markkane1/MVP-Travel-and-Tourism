@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../../core/utils/result.dart';
+import '../../../../core/utils/safe_stream.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../auth/auth.dart';
 import '../../explore/explore.dart';
 import 'search_repository.dart';
@@ -20,30 +23,41 @@ class SavedToursRepository {
         .doc(uid)
         .collection('savedTours')
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => doc.id).toList());
+        .map((snapshot) => snapshot.docs.map((doc) => doc.id).toList())
+        .mapAppException('Failed to load saved tours');
   }
 
   /// Saves a tour.
-  Future<void> saveTour(String uid, String tourId) async {
-    await _firestore
-        .collection('users')
-        .doc(uid)
-        .collection('savedTours')
-        .doc(tourId)
-        .set({
-      'tourId': tourId,
-      'savedAt': FieldValue.serverTimestamp(),
-    });
+  Future<Result<void>> saveTour(String uid, String tourId) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('savedTours')
+          .doc(tourId)
+          .set({
+        'tourId': tourId,
+        'savedAt': FieldValue.serverTimestamp(),
+      });
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(AppException.unknown('Failed to save tour: ${e.toString()}'));
+    }
   }
 
   /// Removes a saved tour.
-  Future<void> unsaveTour(String uid, String tourId) async {
-    await _firestore
-        .collection('users')
-        .doc(uid)
-        .collection('savedTours')
-        .doc(tourId)
-        .delete();
+  Future<Result<void>> unsaveTour(String uid, String tourId) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('savedTours')
+          .doc(tourId)
+          .delete();
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(AppException.unknown('Failed to unsave tour: ${e.toString()}'));
+    }
   }
 }
 
@@ -72,9 +86,11 @@ class OptimisticSavedTours extends _$OptimisticSavedTours {
   }
 
   /// Optimistically toggles a saved tour, rolling back the state automatically if Firestore errors out.
-  Future<void> toggleSave(String tourId) async {
+  Future<Result<void>> toggleSave(String tourId) async {
     final user = ref.read(authControllerProvider).value;
-    if (user == null) return;
+    if (user == null) {
+      return const Result.failure(AppException.unknown('User not authenticated'));
+    }
 
     final repo = ref.read(savedToursRepositoryProvider);
     final previousState = state.value ?? <String>{};
@@ -91,15 +107,25 @@ class OptimisticSavedTours extends _$OptimisticSavedTours {
 
     // 2. Dispatch Firestore write in background
     try {
+      Result<void> res;
       if (isSaved) {
-        await repo.unsaveTour(user.uid, tourId);
+        res = await repo.unsaveTour(user.uid, tourId);
       } else {
-        await repo.saveTour(user.uid, tourId);
+        res = await repo.saveTour(user.uid, tourId);
       }
+
+      return res.when(
+        onSuccess: (_) => const Result.success(null),
+        onFailure: (err) {
+          // Rollback local state on write failure
+          state = AsyncData(previousState);
+          return Result.failure(err);
+        },
+      );
     } catch (e) {
       // 3. Rollback local state on write failure
       state = AsyncData(previousState);
-      rethrow;
+      return Result.failure(AppException.unknown('Failed to update bookmark: ${e.toString()}'));
     }
   }
 }

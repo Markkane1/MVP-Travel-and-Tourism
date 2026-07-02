@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../auth/auth.dart';
 import '../domain/payment_method_item.dart';
 import '../../../../core/utils/result.dart';
+import '../../../../core/utils/safe_stream.dart';
 import '../../../../core/errors/app_exception.dart';
 
 part 'profile_repository.g.dart';
@@ -21,46 +22,62 @@ class ProfileRepository {
         .collection('users')
         .doc(uid)
         .snapshots()
-        .map((doc) => doc.data());
+        .map((doc) => doc.data())
+        .mapAppException('Failed to load profile');
   }
 
   /// Updates display name and photo url.
-  Future<void> updateProfile({
+  Future<Result<void>> updateProfile({
     required String uid,
     required String name,
     required String photoUrl,
   }) async {
-    await _firestore.collection('users').doc(uid).update({
-      'displayName': name,
-      'photoUrl': photoUrl,
-    });
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'displayName': name,
+        'photoUrl': photoUrl,
+      });
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(AppException.unknown('Failed to update profile: ${e.toString()}'));
+    }
   }
 
   /// Updates a single notification preference under notificationPrefs map.
-  Future<void> updateNotificationPreference({
+  Future<Result<void>> updateNotificationPreference({
     required String uid,
     required String key,
     required bool value,
   }) async {
-    await _firestore.collection('users').doc(uid).update({
-      'notificationPrefs.$key': value,
-    });
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'notificationPrefs.$key': value,
+      });
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(AppException.unknown('Failed to update preference: ${e.toString()}'));
+    }
   }
 
   /// Saves travel preferences.
-  Future<void> saveTravelPreferences({
+  Future<Result<void>> saveTravelPreferences({
     required String uid,
     required String dietary,
     required String seat,
     required String hotelClass,
   }) async {
-    await _firestore.collection('users').doc(uid).update({
-      'preferences': {
-        'dietary': dietary,
-        'seat': seat,
-        'hotelClass': hotelClass,
-      }
-    });
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'preferences': {
+          'dietary': dietary,
+          'seat': seat,
+          'hotelClass': hotelClass,
+        }
+      });
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(AppException.unknown('Failed to save preferences: ${e.toString()}'));
+    }
   }
 
   /// Streams saved payment methods.
@@ -73,49 +90,60 @@ class ProfileRepository {
         .snapshots()
         .map((snap) => snap.docs
             .map((doc) => PaymentMethodItem.fromFirestore(doc))
-            .toList());
+            .toList())
+        .mapAppException('Failed to load payment methods');
   }
 
   /// Deletes a payment method.
-  Future<void> deletePaymentMethod({
+  Future<Result<void>> deletePaymentMethod({
     required String uid,
     required String methodId,
   }) async {
-    await _firestore
-        .collection('users')
-        .doc(uid)
-        .collection('paymentMethods')
-        .doc(methodId)
-        .delete();
+    try {
+      await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('paymentMethods')
+          .doc(methodId)
+          .delete();
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(AppException.unknown('Failed to delete payment method: ${e.toString()}'));
+    }
   }
 
   /// Saves a payment method card, optionally unsetting other defaults.
-  Future<void> savePaymentMethod({
+  Future<Result<void>> savePaymentMethod({
     required String uid,
     required String brand,
     required String last4,
     required bool isDefault,
   }) async {
-    final collection = _firestore
-        .collection('users')
-        .doc(uid)
-        .collection('paymentMethods');
+    try {
+      final collection = _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('paymentMethods');
 
-    if (isDefault) {
-      final defaults = await collection.where('isDefault', isEqualTo: true).get();
-      final batch = _firestore.batch();
-      for (var doc in defaults.docs) {
-        batch.update(doc.reference, {'isDefault': false});
+      if (isDefault) {
+        final defaults = await collection.where('isDefault', isEqualTo: true).get();
+        final batch = _firestore.batch();
+        for (var doc in defaults.docs) {
+          batch.update(doc.reference, {'isDefault': false});
+        }
+        await batch.commit();
       }
-      await batch.commit();
-    }
 
-    await collection.add({
-      'brand': brand,
-      'last4': last4,
-      'isDefault': isDefault,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+      await collection.add({
+        'brand': brand,
+        'last4': last4,
+        'isDefault': isDefault,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(AppException.unknown('Failed to save card: ${e.toString()}'));
+    }
   }
 
   /// Calls Cloud Function to delete user-related Firestore data.

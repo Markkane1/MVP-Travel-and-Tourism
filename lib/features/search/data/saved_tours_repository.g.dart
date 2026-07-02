@@ -121,7 +121,7 @@ final class OptimisticSavedToursProvider
 }
 
 String _$optimisticSavedToursHash() =>
-    r'68ebdcf0adc38ef6eb3b1d57e9839f2559280cfd';
+    r'd62c4b6040d642b934fa90b94381a61812875460';
 
 abstract class _$OptimisticSavedTours extends $AsyncNotifier<Set<String>> {
   FutureOr<Set<String>> build();

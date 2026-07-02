@@ -21,9 +21,8 @@ import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_state_view.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/services/auth_service.dart';
-import '../../../booking/data/booking_repository.dart';
-import '../../../booking/domain/booking.dart';
-import '../../../tour_details/data/tour_details_repository.dart';
+import '../../../booking/booking.dart';
+import '../../../tour_details/tour_details.dart';
 import '../../../explore/domain/tour.dart';
 
 class BookingConfirmationScreen extends ConsumerStatefulWidget {

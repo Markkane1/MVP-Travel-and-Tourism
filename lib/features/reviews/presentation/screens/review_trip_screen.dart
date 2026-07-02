@@ -15,8 +15,7 @@ import '../../../../core/widgets/error_state_view.dart';
 import '../../../../core/widgets/rating_stars.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/storage_service.dart';
-import '../../../booking/data/booking_repository.dart';
-import '../../../booking/domain/booking.dart';
+import '../../../booking/booking.dart';
 import '../../domain/usecases/submit_review_use_case.dart';
 
 class PendingImage {

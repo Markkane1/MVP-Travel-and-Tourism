@@ -298,17 +298,19 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                             size: 20.0,
                           ),
                           onPressed: () async {
-                            try {
-                              await ref
-                                  .read(optimisticSavedToursProvider.notifier)
-                                  .toggleSave(widget.tourId);
-                            } catch (e) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Bookmark sync error: $e')),
-                                );
-                              }
-                            }
+                            final res = await ref
+                                .read(optimisticSavedToursProvider.notifier)
+                                .toggleSave(widget.tourId);
+                            res.when(
+                              onSuccess: (_) {},
+                              onFailure: (exception) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Bookmark sync error: ${exception.message}')),
+                                  );
+                                }
+                              },
+                            );
                           },
                         ),
                       ),

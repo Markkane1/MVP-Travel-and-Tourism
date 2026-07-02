@@ -20,16 +20,27 @@ class PaymentMethodsScreen extends ConsumerWidget {
 
   Future<void> _deletePaymentMethod(BuildContext context, WidgetRef ref, String uid, String methodId) async {
     try {
-      await ref.read(profileRepositoryProvider).deletePaymentMethod(
+      final result = await ref.read(profileRepositoryProvider).deletePaymentMethod(
             uid: uid,
             methodId: methodId,
           );
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment method removed.')),
-        );
-      }
+      await result.when(
+        onSuccess: (_) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Payment method removed.')),
+            );
+          }
+        },
+        onFailure: (exception) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to delete payment method: ${exception.message}')),
+            );
+          }
+        },
+      );
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -223,19 +234,30 @@ class _AddPaymentMethodFormState extends ConsumerState<_AddPaymentMethodForm> {
     });
 
     try {
-      await ref.read(profileRepositoryProvider).savePaymentMethod(
+      final result = await ref.read(profileRepositoryProvider).savePaymentMethod(
             uid: widget.uid,
             brand: _selectedBrand,
             last4: cleanL4,
             isDefault: _isDefault,
           );
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment method added successfully.')),
-        );
-        Navigator.pop(context);
-      }
+      await result.when(
+        onSuccess: (_) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Payment method added successfully.')),
+            );
+            Navigator.pop(context);
+          }
+        },
+        onFailure: (exception) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to save card: ${exception.message}')),
+            );
+          }
+        },
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

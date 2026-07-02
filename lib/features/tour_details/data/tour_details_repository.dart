@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../../core/utils/safe_stream.dart';
 import '../../explore/domain/tour.dart';
 import '../../explore/domain/review.dart';
 
@@ -18,7 +19,7 @@ class TourDetailsRepository {
       final data = doc.data()!;
       data['id'] = doc.id;
       return Tour.fromJson(_mapTourData(data));
-    });
+    }).mapAppException('Failed to load tour details');
   }
 
   /// Streams the 5 most recent reviews for a tour.
@@ -39,7 +40,7 @@ class TourDetailsRepository {
         }
         return Review.fromJson(data);
       }).toList();
-    });
+    }).mapAppException('Failed to load tour reviews');
   }
 }
 
@@ -98,4 +99,3 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
   }
   return data;
 }
-

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart' show FieldValue;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -8,12 +9,14 @@ import '../../features/auth/domain/user_entity.dart';
 import '../utils/result.dart';
 import '../errors/app_exception.dart';
 import '../constants/app_strings.dart';
+import 'firestore_service.dart';
 
 /// A service that handles all Firebase Authentication operations.
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final FirestoreService _firestoreService;
 
-  AuthService();
+  AuthService(this._firestoreService);
 
   /// Stream of user sign-in status changes, mapped to UserEntity.
   Stream<UserEntity?> get authStateChanges {
@@ -69,6 +72,41 @@ class AuthService {
     }
   }
 
+  Future<Result<UserEntity>> registerWithEmailAndProfile(
+    String name,
+    String email,
+    String password,
+  ) async {
+    final result = await registerWithEmail(email, password);
+    return result.when(
+      onSuccess: (user) async {
+        try {
+          await _firestoreService.set<Map<String, dynamic>>(
+            path: 'users/${user.uid}',
+            data: {
+              'displayName': name,
+              'email': email,
+              'tier': 'Standard',
+              'loyaltyPoints': 0,
+            },
+            toJson: (value) => {
+              ...value,
+              'createdAt': FieldValue.serverTimestamp(),
+            },
+          );
+          return Result.success(user.copyWith(displayName: name));
+        } catch (_) {
+          return const Result.failure(
+            AppException.unknown(
+              'Account created, but failed to initialize user profile document.',
+            ),
+          );
+        }
+      },
+      onFailure: Result.failure,
+    );
+  }
+
   /// Authenticates using Google Sign-In.
   Future<Result<UserEntity>> signInWithGoogle() async {
     try {
@@ -88,6 +126,17 @@ class AuthService {
     } catch (e, s) {
       return _handleGeneralError(e, s);
     }
+  }
+
+  Future<Result<UserEntity>> signInWithGoogleAndProfile() async {
+    final result = await signInWithGoogle();
+    return result.when(
+      onSuccess: (user) => _ensureUserProfile(
+        user,
+        fallbackDisplayName: 'Google User',
+      ),
+      onFailure: Result.failure,
+    );
   }
 
   /// Authenticates using Apple Sign-In.
@@ -113,6 +162,17 @@ class AuthService {
     } catch (e, s) {
       return _handleGeneralError(e, s);
     }
+  }
+
+  Future<Result<UserEntity>> signInWithAppleAndProfile() async {
+    final result = await signInWithApple();
+    return result.when(
+      onSuccess: (user) => _ensureUserProfile(
+        user,
+        fallbackDisplayName: 'Apple User',
+      ),
+      onFailure: Result.failure,
+    );
   }
 
   /// Triggers reset password link delivery.
@@ -193,6 +253,37 @@ class AuthService {
     return Result.failure(AppException.unknown(AppStrings.common.genericError));
   }
 
+  Future<Result<UserEntity>> _ensureUserProfile(
+    UserEntity user, {
+    required String fallbackDisplayName,
+  }) async {
+    try {
+      final exists = await _firestoreService.get(
+        path: 'users/${user.uid}',
+        fromJson: (json) => json,
+        toJson: (json) => json,
+      );
+      if (exists == null) {
+        await _firestoreService.set<Map<String, dynamic>>(
+          path: 'users/${user.uid}',
+          data: {
+            'displayName': user.displayName ?? fallbackDisplayName,
+            'email': user.email,
+            'tier': 'Standard',
+            'loyaltyPoints': 0,
+          },
+          toJson: (value) => {
+            ...value,
+            'createdAt': FieldValue.serverTimestamp(),
+          },
+        );
+      }
+      return Result.success(user);
+    } catch (_) {
+      return Result.success(user);
+    }
+  }
+
   /// Updates the current user's display name and/or photo URL in Firebase Auth.
   Future<Result<void>> updateProfile({String? displayName, String? photoUrl}) async {
     try {
@@ -234,5 +325,5 @@ class AuthService {
 
 /// Provider for the AuthService instance.
 final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService();
+  return AuthService(ref.watch(firestoreServiceProvider));
 });

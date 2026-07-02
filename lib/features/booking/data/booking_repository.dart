@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../../core/utils/result.dart';
+import '../../../../core/utils/safe_stream.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../domain/booking.dart';
 
 part 'booking_repository.g.dart';
@@ -10,24 +13,34 @@ class BookingRepository {
 
   BookingRepository(this._firestore);
 
+  /// Generates a new unique booking ID.
+  String generateNewBookingId() {
+    return _firestore.collection('bookings').doc().id;
+  }
+
   /// Creates a new booking document in `pending` status.
   /// 
   /// Per Firestore security rules, client-side writes:
   /// 1. Must have status == 'pending'
   /// 2. Must not contain 'stripePaymentIntentId' or 'bookingReferenceCode'
   /// 3. userId must match the authenticated user's UID.
-  Future<void> createPendingBooking(Booking booking) async {
-    final Map<String, dynamic> data = booking.toJson();
+  Future<Result<void>> createPendingBooking(Booking booking) async {
+    try {
+      final Map<String, dynamic> data = booking.toJson();
 
-    // Security rules filter: these fields cannot be passed on document creation
-    data.remove('stripePaymentIntentId');
-    data.remove('bookingReferenceCode');
+      // Security rules filter: these fields cannot be passed on document creation
+      data.remove('stripePaymentIntentId');
+      data.remove('bookingReferenceCode');
 
-    // Convert DateTime objects to Firestore Timestamps for native Firestore querying
-    data['tourDate'] = Timestamp.fromDate(booking.tourDate.toUtc());
-    data['createdAt'] = Timestamp.fromDate(booking.createdAt.toUtc());
+      // Convert DateTime objects to Firestore Timestamps for native Firestore querying
+      data['tourDate'] = Timestamp.fromDate(booking.tourDate.toUtc());
+      data['createdAt'] = Timestamp.fromDate(booking.createdAt.toUtc());
 
-    await _firestore.collection('bookings').doc(booking.id).set(data);
+      await _firestore.collection('bookings').doc(booking.id).set(data);
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(AppException.unknown('Booking creation failed: ${e.toString()}'));
+    }
   }
 
   /// Streams a single booking by its ID from Firestore.
@@ -45,7 +58,7 @@ class BookingRepository {
       }
 
       return Booking.fromJson(data);
-    });
+    }).mapAppException('Failed to load booking');
   }
 
   /// Streams all bookings for a specific user from Firestore.
@@ -69,7 +82,7 @@ class BookingRepository {
 
         return Booking.fromJson(data);
       }).toList();
-    });
+    }).mapAppException('Failed to load bookings');
   }
 }
 
