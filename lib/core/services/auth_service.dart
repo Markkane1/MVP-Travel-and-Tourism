@@ -35,7 +35,10 @@ class AuthService {
   }
 
   /// Signs in a user using email and password.
-  Future<Result<UserEntity>> signInWithEmail(String email, String password) async {
+  Future<Result<UserEntity>> signInWithEmail(
+    String email,
+    String password,
+  ) async {
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
@@ -43,7 +46,9 @@ class AuthService {
       );
       final user = credential.user;
       if (user == null) {
-        return Result.failure(AppException.auth(AppStrings.common.genericError));
+        return Result.failure(
+          AppException.auth(AppStrings.common.genericError),
+        );
       }
       return Result.success(_mapFirebaseUser(user));
     } on FirebaseAuthException catch (e) {
@@ -54,7 +59,10 @@ class AuthService {
   }
 
   /// Registers a new user using email and password.
-  Future<Result<UserEntity>> registerWithEmail(String email, String password) async {
+  Future<Result<UserEntity>> registerWithEmail(
+    String email,
+    String password,
+  ) async {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -62,7 +70,9 @@ class AuthService {
       );
       final user = credential.user;
       if (user == null) {
-        return Result.failure(AppException.auth(AppStrings.common.genericError));
+        return Result.failure(
+          AppException.auth(AppStrings.common.genericError),
+        );
       }
       return Result.success(_mapFirebaseUser(user));
     } on FirebaseAuthException catch (e) {
@@ -88,6 +98,12 @@ class AuthService {
               'email': email,
               'tier': 'Standard',
               'loyaltyPoints': 0,
+              'milesTraveled': 0,
+              'notificationPrefs': {
+                'bookingUpdates': true,
+                'promotions': true,
+                'conciergeMessages': true,
+              },
             },
             toJson: (value) => {
               ...value,
@@ -115,10 +131,14 @@ class AuthService {
       final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
       );
-      final userCredential = await _firebaseAuth.signInWithCredential(credential);
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
       final user = userCredential.user;
       if (user == null) {
-        return Result.failure(AppException.auth(AppStrings.common.genericError));
+        return Result.failure(
+          AppException.auth(AppStrings.common.genericError),
+        );
       }
       return Result.success(_mapFirebaseUser(user));
     } on FirebaseAuthException catch (e) {
@@ -131,10 +151,8 @@ class AuthService {
   Future<Result<UserEntity>> signInWithGoogleAndProfile() async {
     final result = await signInWithGoogle();
     return result.when(
-      onSuccess: (user) => _ensureUserProfile(
-        user,
-        fallbackDisplayName: 'Google User',
-      ),
+      onSuccess: (user) =>
+          _ensureUserProfile(user, fallbackDisplayName: 'Google User'),
       onFailure: Result.failure,
     );
   }
@@ -148,13 +166,17 @@ class AuthService {
           AppleIDAuthorizationScopes.fullName,
         ],
       );
-      final credential = OAuthProvider('apple.com').credential(
-        idToken: appleCredential.identityToken,
+      final credential = OAuthProvider(
+        'apple.com',
+      ).credential(idToken: appleCredential.identityToken);
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
       );
-      final userCredential = await _firebaseAuth.signInWithCredential(credential);
       final user = userCredential.user;
       if (user == null) {
-        return Result.failure(AppException.auth(AppStrings.common.genericError));
+        return Result.failure(
+          AppException.auth(AppStrings.common.genericError),
+        );
       }
       return Result.success(_mapFirebaseUser(user));
     } on FirebaseAuthException catch (e) {
@@ -167,10 +189,8 @@ class AuthService {
   Future<Result<UserEntity>> signInWithAppleAndProfile() async {
     final result = await signInWithApple();
     return result.when(
-      onSuccess: (user) => _ensureUserProfile(
-        user,
-        fallbackDisplayName: 'Apple User',
-      ),
+      onSuccess: (user) =>
+          _ensureUserProfile(user, fallbackDisplayName: 'Apple User'),
       onFailure: Result.failure,
     );
   }
@@ -271,6 +291,12 @@ class AuthService {
             'email': user.email,
             'tier': 'Standard',
             'loyaltyPoints': 0,
+            'milesTraveled': 0,
+            'notificationPrefs': {
+              'bookingUpdates': true,
+              'promotions': true,
+              'conciergeMessages': true,
+            },
           },
           toJson: (value) => {
             ...value,
@@ -285,11 +311,16 @@ class AuthService {
   }
 
   /// Updates the current user's display name and/or photo URL in Firebase Auth.
-  Future<Result<void>> updateProfile({String? displayName, String? photoUrl}) async {
+  Future<Result<void>> updateProfile({
+    String? displayName,
+    String? photoUrl,
+  }) async {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) {
-        return const Result.failure(AppException.auth('No user is currently signed in.'));
+        return const Result.failure(
+          AppException.auth('No user is currently signed in.'),
+        );
       }
       if (displayName != null) {
         await user.updateDisplayName(displayName);
@@ -311,7 +342,9 @@ class AuthService {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) {
-        return const Result.failure(AppException.auth('No user is currently signed in.'));
+        return const Result.failure(
+          AppException.auth('No user is currently signed in.'),
+        );
       }
       await user.delete();
       return const Result.success(null);

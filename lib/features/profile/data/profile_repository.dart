@@ -39,7 +39,9 @@ class ProfileRepository {
       });
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Failed to update profile: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Failed to update profile: ${e.toString()}'),
+      );
     }
   }
 
@@ -55,7 +57,9 @@ class ProfileRepository {
       });
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Failed to update preference: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Failed to update preference: ${e.toString()}'),
+      );
     }
   }
 
@@ -72,11 +76,13 @@ class ProfileRepository {
           'dietary': dietary,
           'seat': seat,
           'hotelClass': hotelClass,
-        }
+        },
       });
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Failed to save preferences: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Failed to save preferences: ${e.toString()}'),
+      );
     }
   }
 
@@ -86,11 +92,12 @@ class ProfileRepository {
         .collection('users')
         .doc(uid)
         .collection('paymentMethods')
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((doc) => PaymentMethodItem.fromFirestore(doc))
-            .toList())
+        .map(
+          (snap) => snap.docs
+              .map((doc) => PaymentMethodItem.fromFirestore(doc))
+              .toList(),
+        )
         .mapAppException('Failed to load payment methods');
   }
 
@@ -108,7 +115,11 @@ class ProfileRepository {
           .delete();
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Failed to delete payment method: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown(
+          'Failed to delete payment method: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -126,7 +137,9 @@ class ProfileRepository {
           .collection('paymentMethods');
 
       if (isDefault) {
-        final defaults = await collection.where('isDefault', isEqualTo: true).get();
+        final defaults = await collection
+            .where('isDefault', isEqualTo: true)
+            .get();
         final batch = _firestore.batch();
         for (var doc in defaults.docs) {
           batch.update(doc.reference, {'isDefault': false});
@@ -138,11 +151,12 @@ class ProfileRepository {
         'brand': brand,
         'last4': last4,
         'isDefault': isDefault,
-        'createdAt': FieldValue.serverTimestamp(),
       });
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Failed to save card: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Failed to save card: ${e.toString()}'),
+      );
     }
   }
 
@@ -152,14 +166,19 @@ class ProfileRepository {
       await _functions.httpsCallable('cleanupUserData').call();
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Firestore user cleanup failed: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Firestore user cleanup failed: ${e.toString()}'),
+      );
     }
   }
 }
 
 @riverpod
 ProfileRepository profileRepository(Ref ref) {
-  return ProfileRepository(FirebaseFirestore.instance, FirebaseFunctions.instance);
+  return ProfileRepository(
+    FirebaseFirestore.instance,
+    FirebaseFunctions.instance,
+  );
 }
 
 /// Provider that reactively streams the current user's profile document from Firestore.

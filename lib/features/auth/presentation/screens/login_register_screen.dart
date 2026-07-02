@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/routing/route_paths.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/secondary_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -19,7 +20,8 @@ class LoginRegisterScreen extends ConsumerStatefulWidget {
   const LoginRegisterScreen({super.key});
 
   @override
-  ConsumerState<LoginRegisterScreen> createState() => _LoginRegisterScreenState();
+  ConsumerState<LoginRegisterScreen> createState() =>
+      _LoginRegisterScreenState();
 }
 
 class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
@@ -56,27 +58,32 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
       if (!_loginFormKey.currentState!.validate()) return;
 
       setState(() => _isLoading = true);
-      final result = await ref.read(authControllerProvider.notifier).login(
-            _emailController.text.trim(),
-            _passwordController.text,
-          );
+      final result = await ref
+          .read(authControllerProvider.notifier)
+          .login(_emailController.text.trim(), _passwordController.text);
 
       if (mounted) {
         setState(() => _isLoading = false);
         result.when(
-          onSuccess: (_) => context.go('/explore'),
-          onFailure: (exception) => setState(() => _errorMessage = exception.message),
+          onSuccess: (_) => context.go(RoutePaths.explore),
+          onFailure: (exception) =>
+              setState(() => _errorMessage = exception.message),
         );
       }
     } else {
       if (!_registerFormKey.currentState!.validate()) return;
       if (!_agreedToTerms) {
-        setState(() => _termsCheckboxError = 'You must agree to the Terms & Privacy Policy.');
+        setState(
+          () => _termsCheckboxError =
+              'You must agree to the Terms & Privacy Policy.',
+        );
         return;
       }
 
       setState(() => _isLoading = true);
-      final result = await ref.read(authControllerProvider.notifier).register(
+      final result = await ref
+          .read(authControllerProvider.notifier)
+          .register(
             _nameController.text.trim(),
             _emailController.text.trim(),
             _passwordController.text,
@@ -85,8 +92,9 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         result.when(
-          onSuccess: (_) => context.go('/explore'),
-          onFailure: (exception) => setState(() => _errorMessage = exception.message),
+          onSuccess: (_) => context.go(RoutePaths.explore),
+          onFailure: (exception) =>
+              setState(() => _errorMessage = exception.message),
         );
       }
     }
@@ -99,13 +107,16 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
     });
 
     final notifier = ref.read(authControllerProvider.notifier);
-    final result = isGoogle ? await notifier.loginWithGoogle() : await notifier.loginWithApple();
+    final result = isGoogle
+        ? await notifier.loginWithGoogle()
+        : await notifier.loginWithApple();
 
     if (mounted) {
       setState(() => _isLoading = false);
       result.when(
-        onSuccess: (_) => context.go('/explore'),
-        onFailure: (exception) => setState(() => _errorMessage = exception.message),
+        onSuccess: (_) => context.go(RoutePaths.explore),
+        onFailure: (exception) =>
+            setState(() => _errorMessage = exception.message),
       );
     }
   }
@@ -115,6 +126,7 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      key: const Key('auth_screen'),
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Stack(
@@ -133,7 +145,7 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
                   if (Navigator.of(context).canPop()) {
                     Navigator.of(context).pop();
                   } else {
-                    context.go('/explore');
+                    context.go(RoutePaths.explore);
                   }
                 },
               ),
@@ -177,26 +189,36 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
                               children: [
                                 Expanded(
                                   child: GestureDetector(
+                                    key: const Key('auth_toggle_sign_in'),
                                     onTap: _isLoading
                                         ? null
                                         : () => setState(() {
-                                              _isLogin = true;
-                                              _errorMessage = null;
-                                            }),
+                                            _isLogin = true;
+                                            _errorMessage = null;
+                                          }),
                                     child: Column(
                                       children: [
                                         Text(
                                           AppStrings.auth.signInButton,
-                                          style: theme.textTheme.titleMedium?.copyWith(
-                                            fontWeight: _isLogin ? FontWeight.bold : FontWeight.w500,
-                                            color: _isLogin ? AppColors.primary : AppColors.outline,
-                                          ),
+                                          style: theme.textTheme.titleMedium
+                                              ?.copyWith(
+                                                fontWeight: _isLogin
+                                                    ? FontWeight.bold
+                                                    : FontWeight.w500,
+                                                color: _isLogin
+                                                    ? AppColors.primary
+                                                    : AppColors.outline,
+                                              ),
                                         ),
                                         AppSpacing.gapBase,
                                         Container(
                                           height: 3.0,
-                                          color: _isLogin ? AppColors.primary : Colors.transparent,
-                                          margin: const EdgeInsets.only(bottom: -1.0),
+                                          color: _isLogin
+                                              ? AppColors.primary
+                                              : Colors.transparent,
+                                          margin: const EdgeInsets.only(
+                                            bottom: -1.0,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -204,26 +226,36 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
                                 ),
                                 Expanded(
                                   child: GestureDetector(
+                                    key: const Key('auth_toggle_register'),
                                     onTap: _isLoading
                                         ? null
                                         : () => setState(() {
-                                              _isLogin = false;
-                                              _errorMessage = null;
-                                            }),
+                                            _isLogin = false;
+                                            _errorMessage = null;
+                                          }),
                                     child: Column(
                                       children: [
                                         Text(
                                           'Register',
-                                          style: theme.textTheme.titleMedium?.copyWith(
-                                            fontWeight: !_isLogin ? FontWeight.bold : FontWeight.w500,
-                                            color: !_isLogin ? AppColors.primary : AppColors.outline,
-                                          ),
+                                          style: theme.textTheme.titleMedium
+                                              ?.copyWith(
+                                                fontWeight: !_isLogin
+                                                    ? FontWeight.bold
+                                                    : FontWeight.w500,
+                                                color: !_isLogin
+                                                    ? AppColors.primary
+                                                    : AppColors.outline,
+                                              ),
                                         ),
                                         AppSpacing.gapBase,
                                         Container(
                                           height: 3.0,
-                                          color: !_isLogin ? AppColors.primary : Colors.transparent,
-                                          margin: const EdgeInsets.only(bottom: -1.0),
+                                          color: !_isLogin
+                                              ? AppColors.primary
+                                              : Colors.transparent,
+                                          margin: const EdgeInsets.only(
+                                            bottom: -1.0,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -234,117 +266,132 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
                           ),
                           AppSpacing.gapLg,
 
-                      // Error feedback block
-                      if (_errorMessage != null) ...[
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(AppSpacing.base),
-                          margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                          decoration: const BoxDecoration(
-                            color: AppColors.errorContainer,
-                            borderRadius: AppRadii.borderDefault,
-                          ),
-                          child: Text(
-                            _errorMessage!,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: AppColors.onErrorContainer,
-                            ),
-                          ),
-                        ),
-                      ],
-
-                      // Form Body
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child: _isLogin ? _buildLoginForm() : _buildRegisterForm(),
-                      ),
-                      AppSpacing.gapLg,
-
-                      // Divider section
-                      Row(
-                        children: [
-                          const Expanded(child: Divider()),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Text(
-                              AppStrings.auth.orContinueWith,
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: AppColors.outline,
+                          // Error feedback block
+                          if (_errorMessage != null) ...[
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(AppSpacing.base),
+                              margin: const EdgeInsets.only(
+                                bottom: AppSpacing.md,
+                              ),
+                              decoration: const BoxDecoration(
+                                color: AppColors.errorContainer,
+                                borderRadius: AppRadii.borderDefault,
+                              ),
+                              child: Text(
+                                _errorMessage!,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: AppColors.onErrorContainer,
+                                ),
                               ),
                             ),
-                          ),
-                          const Expanded(child: Divider()),
-                        ],
-                      ),
-                      AppSpacing.gapLg,
-
-                      // Social Actions
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SecondaryButton(
-                              label: AppStrings.auth.googleButton,
-                              onPressed: _isLoading ? null : () => _handleSocialAuth(true),
-                              icon: const Icon(Icons.g_mobiledata, size: 28.0),
-                            ),
-                          ),
-                          const SizedBox(width: 12.0),
-                          Expanded(
-                            child: SecondaryButton(
-                              label: AppStrings.auth.appleButton,
-                              onPressed: _isLoading ? null : () => _handleSocialAuth(false),
-                              icon: const Icon(Icons.apple, size: 24.0),
-                            ),
-                          ),
-                        ],
-                      ),
-                      AppSpacing.gapLg,
-
-                      // Interactive legal footnote
-                      RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: AppColors.onSurfaceVariant,
-                          ),
-                          children: [
-                            TextSpan(text: AppStrings.auth.footnotePrefix),
-                            TextSpan(
-                              text: AppStrings.auth.termsOfUseLink,
-                              style: const TextStyle(
-                                color: AppColors.secondary,
-                                fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline,
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () => context.push('/legal/terms'),
-                            ),
-                            TextSpan(text: AppStrings.auth.footnoteAnd),
-                            TextSpan(
-                              text: AppStrings.auth.privacyStandardsLink,
-                              style: const TextStyle(
-                                color: AppColors.secondary,
-                                fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline,
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () => context.push('/legal/privacy'),
-                            ),
-                            TextSpan(text: AppStrings.auth.footnoteSuffix),
                           ],
-                        ),
+
+                          // Form Body
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 250),
+                            child: _isLogin
+                                ? _buildLoginForm()
+                                : _buildRegisterForm(),
+                          ),
+                          AppSpacing.gapLg,
+
+                          // Divider section
+                          Row(
+                            children: [
+                              const Expanded(child: Divider()),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                ),
+                                child: Text(
+                                  AppStrings.auth.orContinueWith,
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: AppColors.outline,
+                                  ),
+                                ),
+                              ),
+                              const Expanded(child: Divider()),
+                            ],
+                          ),
+                          AppSpacing.gapLg,
+
+                          // Social Actions
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SecondaryButton(
+                                  label: AppStrings.auth.googleButton,
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () => _handleSocialAuth(true),
+                                  icon: const Icon(
+                                    Icons.g_mobiledata,
+                                    size: 28.0,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12.0),
+                              Expanded(
+                                child: SecondaryButton(
+                                  label: AppStrings.auth.appleButton,
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () => _handleSocialAuth(false),
+                                  icon: const Icon(Icons.apple, size: 24.0),
+                                ),
+                              ),
+                            ],
+                          ),
+                          AppSpacing.gapLg,
+
+                          // Interactive legal footnote
+                          RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: AppColors.onSurfaceVariant,
+                              ),
+                              children: [
+                                TextSpan(text: AppStrings.auth.footnotePrefix),
+                                TextSpan(
+                                  text: AppStrings.auth.termsOfUseLink,
+                                  style: const TextStyle(
+                                    color: AppColors.secondary,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () =>
+                                        context.push('/legal/terms'),
+                                ),
+                                TextSpan(text: AppStrings.auth.footnoteAnd),
+                                TextSpan(
+                                  text: AppStrings.auth.privacyStandardsLink,
+                                  style: const TextStyle(
+                                    color: AppColors.secondary,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () =>
+                                        context.push('/legal/privacy'),
+                                ),
+                                TextSpan(text: AppStrings.auth.footnoteSuffix),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
-      ],
-    ),
-  ),
-);
+      ),
+    );
   }
 
   Widget _buildLoginForm() {
@@ -356,6 +403,7 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppTextField(
+            fieldKey: const Key('auth_email_field'),
             controller: _emailController,
             labelText: AppStrings.auth.emailLabel,
             hintText: 'email@example.com',
@@ -366,6 +414,7 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
           ),
           AppSpacing.gapMd,
           AppTextField(
+            fieldKey: const Key('auth_password_field'),
             controller: _passwordController,
             labelText: AppStrings.auth.passwordLabel,
             hintText: 'Enter password',
@@ -378,7 +427,9 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: _isLoading ? null : () => context.push('/auth/forgot-password'),
+              onPressed: _isLoading
+                  ? null
+                  : () => context.push('/auth/forgot-password'),
               child: Text(
                 AppStrings.auth.forgotPasswordButton,
                 style: theme.textTheme.labelMedium?.copyWith(
@@ -390,6 +441,7 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
           ),
           AppSpacing.gapMd,
           PrimaryButton(
+            buttonKey: const Key('auth_submit_button'),
             label: AppStrings.auth.signInButton,
             onPressed: _isLoading ? null : _handleEmailAuth,
             isLoading: _isLoading,
@@ -408,6 +460,7 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppTextField(
+            fieldKey: const Key('auth_full_name_field'),
             controller: _nameController,
             labelText: AppStrings.auth.fullNameLabel,
             hintText: 'Jane Doe',
@@ -417,6 +470,7 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
           ),
           AppSpacing.gapMd,
           AppTextField(
+            fieldKey: const Key('auth_email_field'),
             controller: _emailController,
             labelText: AppStrings.auth.emailLabel,
             hintText: 'email@example.com',
@@ -427,6 +481,7 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
           ),
           AppSpacing.gapMd,
           AppTextField(
+            fieldKey: const Key('auth_password_field'),
             controller: _passwordController,
             labelText: AppStrings.auth.passwordLabel,
             hintText: 'At least 8 characters with numbers',
@@ -437,6 +492,7 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
           ),
           AppSpacing.gapMd,
           AppTextField(
+            fieldKey: const Key('auth_confirm_password_field'),
             controller: _confirmPasswordController,
             labelText: AppStrings.auth.confirmPasswordLabel,
             hintText: 'Confirm your password',
@@ -450,13 +506,14 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
           ),
           AppSpacing.gapMd,
           CheckboxListTile(
+            key: const Key('auth_terms_checkbox'),
             value: _agreedToTerms,
             onChanged: _isLoading
                 ? null
                 : (val) => setState(() {
-                      _agreedToTerms = val ?? false;
-                      if (val == true) _termsCheckboxError = null;
-                    }),
+                    _agreedToTerms = val ?? false;
+                    if (val == true) _termsCheckboxError = null;
+                  }),
             title: Text(
               AppStrings.auth.agreeCheckbox,
               style: theme.textTheme.labelMedium,
@@ -470,12 +527,15 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
               padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
               child: Text(
                 _termsCheckboxError!,
-                style: theme.textTheme.labelSmall?.copyWith(color: AppColors.error),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: AppColors.error,
+                ),
               ),
             ),
           ],
           AppSpacing.gapMd,
           PrimaryButton(
+            buttonKey: const Key('auth_submit_button'),
             label: AppStrings.auth.createAccountButton,
             onPressed: _isLoading ? null : _handleEmailAuth,
             isLoading: _isLoading,

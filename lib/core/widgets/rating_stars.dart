@@ -9,6 +9,7 @@ class RatingStars extends StatelessWidget {
   final double starSize;
   final ValueChanged<double>? onRatingChanged;
   final Color starColor;
+  final String? interactiveKeyPrefix;
 
   const RatingStars({
     super.key,
@@ -17,6 +18,7 @@ class RatingStars extends StatelessWidget {
     this.starSize = 20.0,
     this.onRatingChanged,
     this.starColor = AppColors.secondary, // Gold/secondary color for ratings
+    this.interactiveKeyPrefix,
   });
 
   @override
@@ -32,6 +34,9 @@ class RatingStars extends StatelessWidget {
         if (isInteractive) {
           final isSelected = starValue <= rating;
           starIcon = GestureDetector(
+            key: interactiveKeyPrefix == null
+                ? null
+                : Key('${interactiveKeyPrefix!}_$starValue'),
             onTap: () => onRatingChanged?.call(starValue.toDouble()),
             child: Icon(
               isSelected ? Icons.star : Icons.star_border,
@@ -46,7 +51,11 @@ class RatingStars extends StatelessWidget {
           } else if (rating >= starValue - 0.5) {
             starIcon = Icon(Icons.star_half, color: starColor, size: starSize);
           } else {
-            starIcon = Icon(Icons.star_border, color: starColor, size: starSize);
+            starIcon = Icon(
+              Icons.star_border,
+              color: starColor,
+              size: starSize,
+            );
           }
         }
 

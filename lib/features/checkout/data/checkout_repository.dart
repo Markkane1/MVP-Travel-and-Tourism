@@ -16,11 +16,15 @@ class CheckoutRepository {
   /// Triggers the cloud function to confirm the booking in Firestore.
   Future<Result<Map<String, dynamic>?>> confirmBooking(String bookingId) async {
     try {
-      final response = await _functions.httpsCallable('confirmBooking').call({'bookingId': bookingId});
+      final response = await _functions.httpsCallable('confirmBooking').call({
+        'bookingId': bookingId,
+      });
       final data = response.data as Map?;
       return Result.success(data?.cast<String, dynamic>());
     } catch (e) {
-      return Result.failure(AppException.unknown('Booking confirmation failed: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Booking confirmation failed: ${e.toString()}'),
+      );
     }
   }
 
@@ -35,15 +39,12 @@ class CheckoutRepository {
           .collection('users')
           .doc(uid)
           .collection('paymentMethods')
-          .add({
-        'brand': brand,
-        'last4': last4,
-        'isDefault': false,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+          .add({'brand': brand, 'last4': last4, 'isDefault': false});
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Failed to save payment method: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Failed to save payment method: ${e.toString()}'),
+      );
     }
   }
 }

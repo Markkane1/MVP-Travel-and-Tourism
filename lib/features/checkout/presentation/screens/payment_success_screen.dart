@@ -26,7 +26,21 @@ class PaymentSuccessScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
+      key: const Key('payment_success_screen'),
       backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text(
+          'Checkout',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.onSurface),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: Stack(
         children: [
           // Success content container
@@ -45,11 +59,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: const Center(
-                      child: Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 40.0,
-                      ),
+                      child: Icon(Icons.check, color: Colors.white, size: 40.0),
                     ),
                   ),
                   const SizedBox(height: 24.0),
@@ -78,7 +88,10 @@ class PaymentSuccessScreen extends StatelessWidget {
                   // Confirmation Reference card
                   AppCard(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8.0,
+                        horizontal: 16.0,
+                      ),
                       child: Column(
                         children: [
                           Text(
@@ -114,11 +127,14 @@ class PaymentSuccessScreen extends StatelessWidget {
               decoration: const BoxDecoration(
                 color: Colors.white,
                 boxShadow: AppShadows.level2,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(AppRadii.lg),
+                ),
               ),
               child: SafeArea(
                 top: false,
                 child: PrimaryButton(
+                  buttonKey: const Key('payment_success_view_itinerary_button'),
                   label: AppStrings.checkout.viewItineraryButton,
                   onPressed: () {
                     // Navigate to Itinerary/Booking confirmation inside Trips tab

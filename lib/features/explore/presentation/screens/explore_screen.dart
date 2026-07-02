@@ -37,6 +37,7 @@ class ExploreScreen extends ConsumerWidget {
     }
 
     return Scaffold(
+      key: const Key('explore_screen'),
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -103,11 +104,17 @@ class ExploreScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: AppRadii.borderMd,
-                      border: Border.all(color: AppColors.outlineVariant, width: 1.0),
+                      border: Border.all(
+                        color: AppColors.outlineVariant,
+                        width: 1.0,
+                      ),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.search, color: AppColors.onSurfaceVariant),
+                        const Icon(
+                          Icons.search,
+                          color: AppColors.onSurfaceVariant,
+                        ),
                         const SizedBox(width: 12.0),
                         Text(
                           'Where to next?',
@@ -125,7 +132,9 @@ class ExploreScreen extends ConsumerWidget {
               // 3. Category selector row
               CategorySelector(
                 onCategorySelected: (category) {
-                  context.push('${RoutePaths.searchResults}?category=${Uri.encodeComponent(category)}');
+                  context.push(
+                    '${RoutePaths.searchResults}?category=${Uri.encodeComponent(category)}',
+                  );
                 },
               ),
               AppSpacing.gapLg,
@@ -137,21 +146,28 @@ class ExploreScreen extends ConsumerWidget {
                   SectionHeader(
                     title: 'Featured Tours',
                     actionLabel: 'See All',
-                    onActionPressed: () => context.push('${RoutePaths.searchResults}?featured=true'),
+                    onActionPressed: () => context.push(
+                      '${RoutePaths.searchResults}?featured=true',
+                    ),
                   ),
                   AppSpacing.gapMd,
                   featured.when(
                     data: (tours) {
                       if (tours.isEmpty) {
-                        return const Center(child: Text('No featured tours found.'));
+                        return const Center(
+                          child: Text('No featured tours found.'),
+                        );
                       }
                       return SizedBox(
                         height: 220.0,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg,
+                          ),
                           itemCount: tours.length,
-                          itemBuilder: (context, index) => TourCard(tour: tours[index]),
+                          itemBuilder: (context, index) =>
+                              TourCard(tour: tours[index]),
                         ),
                       );
                     },
@@ -176,19 +192,25 @@ class ExploreScreen extends ConsumerWidget {
                   SectionHeader(
                     title: 'Popular Destinations',
                     actionLabel: 'See All',
-                    onActionPressed: () => context.push('${RoutePaths.searchResults}?featured=true'),
+                    onActionPressed: () => context.push(
+                      '${RoutePaths.searchResults}?featured=true',
+                    ),
                   ),
                   AppSpacing.gapMd,
                   popular.when(
                     data: (destinations) {
                       if (destinations.isEmpty) {
-                        return const Center(child: Text('No popular destinations found.'));
+                        return const Center(
+                          child: Text('No popular destinations found.'),
+                        );
                       }
                       return SizedBox(
                         height: 220.0,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg,
+                          ),
                           itemCount: destinations.length,
                           itemBuilder: (context, index) =>
                               DestinationCard(tour: destinations[index]),
@@ -210,7 +232,9 @@ class ExploreScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                    ),
                     child: Text(
                       'Traveler Stories',
                       style: theme.textTheme.titleMedium?.copyWith(
@@ -223,7 +247,9 @@ class ExploreScreen extends ConsumerWidget {
                     data: (reviewList) {
                       if (reviewList.isEmpty) {
                         return const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg,
+                          ),
                           child: Text('No reviews shared yet.'),
                         );
                       }
@@ -231,7 +257,9 @@ class ExploreScreen extends ConsumerWidget {
                         height: 140.0,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg,
+                          ),
                           itemCount: reviewList.length,
                           itemBuilder: (context, index) =>
                               ReviewerCard(review: reviewList[index]),
@@ -264,9 +292,7 @@ class ExploreScreen extends ConsumerWidget {
           color: AppColors.surfaceContainerHigh,
           borderRadius: AppRadii.borderLg,
         ),
-        child: const Center(
-          child: CircularProgressIndicator(strokeWidth: 2.0),
-        ),
+        child: const Center(child: CircularProgressIndicator(strokeWidth: 2.0)),
       ),
     );
   }

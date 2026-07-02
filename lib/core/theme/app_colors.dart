@@ -65,6 +65,9 @@ class AppColors {
   static const Color successContainer = Color(0xFFE8F5E9);
   static const Color warning = Color(0xFFE65100);
   static const Color warningContainer = Color(0xFFFFF3E0);
+  static const Color shadow = Color(0xFF000000);
+  static const Color level2Shadow = Color(0x0D002349);
+  static const Color level3Shadow = Color(0x1A002349);
 
   /// Canonical Flutter [ColorScheme] wired from tokens.
   static const ColorScheme lightScheme = ColorScheme(
@@ -90,7 +93,7 @@ class AppColors {
     onSurfaceVariant: onSurfaceVariant,
     outline: outline,
     outlineVariant: outlineVariant,
-    shadow: Color(0xFF000000),
+    shadow: shadow,
     inverseSurface: inverseSurface,
     onInverseSurface: inverseOnSurface,
     inversePrimary: inversePrimary,

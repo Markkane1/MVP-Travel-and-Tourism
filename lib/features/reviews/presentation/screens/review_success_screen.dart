@@ -30,6 +30,7 @@ class ReviewSuccessScreen extends ConsumerWidget {
     final String firstName = fullName.split(' ').first;
 
     return Scaffold(
+      key: const Key('review_success_screen'),
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -61,7 +62,11 @@ class ReviewSuccessScreen extends ConsumerWidget {
                         color: AppColors.primaryContainer,
                       ),
                       child: tourHeroImageUrl == null
-                          ? const Icon(Icons.celebration, size: 48.0, color: AppColors.primary)
+                          ? const Icon(
+                              Icons.celebration,
+                              size: 48.0,
+                              color: AppColors.primary,
+                            )
                           : null,
                     ),
                     Positioned(
@@ -109,7 +114,11 @@ class ReviewSuccessScreen extends ConsumerWidget {
               AppCard(
                 child: Column(
                   children: [
-                    const Icon(Icons.stars, color: AppColors.secondary, size: 36.0),
+                    const Icon(
+                      Icons.stars,
+                      color: AppColors.secondary,
+                      size: 36.0,
+                    ),
                     const SizedBox(height: 8.0),
                     Text(
                       'POINTS EARNED',
@@ -128,21 +137,32 @@ class ReviewSuccessScreen extends ConsumerWidget {
                         color: AppColors.secondary,
                       ),
                     ),
-                    const Divider(height: 24.0, color: AppColors.outlineVariant, thickness: 1.0),
-                    
+                    const Divider(
+                      height: 24.0,
+                      color: AppColors.outlineVariant,
+                      thickness: 1.0,
+                    ),
+
                     // Reactive balance line with loading state
                     firestoreState.when(
                       loading: () => const Text(
                         'Updating balance...',
-                        style: TextStyle(fontSize: 13.0, color: AppColors.onSurfaceVariant),
+                        style: TextStyle(
+                          fontSize: 13.0,
+                          color: AppColors.onSurfaceVariant,
+                        ),
                       ),
                       error: (err, stack) => const Text(
                         'New Balance: -- pts',
-                        style: TextStyle(fontSize: 13.0, color: AppColors.error),
+                        style: TextStyle(
+                          fontSize: 13.0,
+                          color: AppColors.error,
+                        ),
                       ),
                       data: (profile) {
                         final points = profile?['loyaltyPoints'] ?? 0;
                         return Text(
+                          key: const Key('review_success_points'),
                           'New Balance: $points pts',
                           style: const TextStyle(
                             fontSize: 14.0,
@@ -160,7 +180,10 @@ class ReviewSuccessScreen extends ConsumerWidget {
               // Photo pill banner info message
               if (hasUploadedPhotos) ...[
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 10.0,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primaryContainer,
                     borderRadius: BorderRadius.circular(AppRadii.full),
@@ -168,7 +191,11 @@ class ReviewSuccessScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.photo_library_outlined, size: 16.0, color: AppColors.primary),
+                      const Icon(
+                        Icons.photo_library_outlined,
+                        size: 16.0,
+                        color: AppColors.primary,
+                      ),
                       const SizedBox(width: 8.0),
                       Text(
                         'Your photos have been added to the tour gallery.',

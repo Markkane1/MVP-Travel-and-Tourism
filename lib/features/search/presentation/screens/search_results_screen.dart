@@ -18,7 +18,8 @@ class SearchResultsScreen extends ConsumerStatefulWidget {
   const SearchResultsScreen({super.key, required this.queryParameters});
 
   @override
-  ConsumerState<SearchResultsScreen> createState() => _SearchResultsScreenState();
+  ConsumerState<SearchResultsScreen> createState() =>
+      _SearchResultsScreenState();
 }
 
 class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
@@ -34,7 +35,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
     'Zanzibar, Tanzania',
     'Maldives',
     'Zermatt, Switzerland',
-    'Kyoto, Japan'
+    'Kyoto, Japan',
   ];
 
   final List<String> _priceRangesList = [
@@ -42,7 +43,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
     'Under \$1,000',
     '\$1,000–\$2,500',
     '\$2,500–\$5,000',
-    '\$5,000+'
+    '\$5,000+',
   ];
 
   @override
@@ -84,11 +85,21 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
   }
 
   String _getPriceRangeLabel(SearchFilters filters) {
-    if (filters.minPrice == null && filters.maxPrice == null) return 'Any Price';
-    if (filters.minPrice == null && filters.maxPrice == 1000.0) return 'Under \$1,000';
-    if (filters.minPrice == 1000.0 && filters.maxPrice == 2500.0) return '\$1,000–\$2,500';
-    if (filters.minPrice == 2500.0 && filters.maxPrice == 5000.0) return '\$2,500–\$5,000';
-    if (filters.minPrice == 5000.0) return '\$5,000+';
+    if (filters.minPrice == null && filters.maxPrice == null) {
+      return 'Any Price';
+    }
+    if (filters.minPrice == null && filters.maxPrice == 1000.0) {
+      return r'Under $1,000';
+    }
+    if (filters.minPrice == 1000.0 && filters.maxPrice == 2500.0) {
+      return r'$1,000-$2,500';
+    }
+    if (filters.minPrice == 2500.0 && filters.maxPrice == 5000.0) {
+      return r'$2,500-$5,000';
+    }
+    if (filters.minPrice == 5000.0) {
+      return r'$5,000+';
+    }
     return 'Custom Price';
   }
 
@@ -113,8 +124,8 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                   Text(
                     'Adjust Filters',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   AppSpacing.gapMd,
                   // Destination list selector
@@ -181,9 +192,11 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final results = ref.watch(searchResultsProvider(_currentFilters));
-    final savedTours = ref.watch(optimisticSavedToursProvider).value ?? <String>{};
+    final savedTours =
+        ref.watch(optimisticSavedToursProvider).value ?? <String>{};
 
     return Scaffold(
+      key: const Key('search_results_screen'),
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -212,8 +225,10 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
               ),
             ],
           ),
-          loading: () => Text('Searching...', style: theme.textTheme.titleMedium),
-          error: (err, stack) => Text('Search failed', style: theme.textTheme.titleMedium),
+          loading: () =>
+              Text('Searching...', style: theme.textTheme.titleMedium),
+          error: (err, stack) =>
+              Text('Search failed', style: theme.textTheme.titleMedium),
         ),
         centerTitle: true,
         actions: [
@@ -249,7 +264,8 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                 const Text('Failed to load search results.'),
                 AppSpacing.gapMd,
                 ElevatedButton(
-                  onPressed: () => ref.invalidate(searchResultsProvider(_currentFilters)),
+                  onPressed: () =>
+                      ref.invalidate(searchResultsProvider(_currentFilters)),
                   child: const Text('Retry'),
                 ),
               ],
@@ -279,49 +295,60 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
 
     // Category Filter Chip
     if (_currentFilters.category != null && _currentFilters.category != 'All') {
-      chips.add(_buildRemovableChip(
-        _currentFilters.category!,
-        () => setState(() {
-          _currentFilters = _currentFilters.copyWith(category: 'All');
-        }),
-      ));
+      chips.add(
+        _buildRemovableChip(
+          _currentFilters.category!,
+          () => setState(() {
+            _currentFilters = _currentFilters.copyWith(category: 'All');
+          }),
+        ),
+      );
     }
 
     // Destination Filter Chip
-    if (_currentFilters.destination != null && _currentFilters.destination != 'All Destinations') {
-      chips.add(_buildRemovableChip(
-        _currentFilters.destination!,
-        () => setState(() {
-          _currentFilters = _currentFilters.copyWith(destination: 'All Destinations');
-        }),
-      ));
+    if (_currentFilters.destination != null &&
+        _currentFilters.destination != 'All Destinations') {
+      chips.add(
+        _buildRemovableChip(
+          _currentFilters.destination!,
+          () => setState(() {
+            _currentFilters = _currentFilters.copyWith(
+              destination: 'All Destinations',
+            );
+          }),
+        ),
+      );
     }
 
     // Price Filter Chip
     final priceLabel = _getPriceRangeLabel(_currentFilters);
     if (priceLabel != 'Any Price') {
-      chips.add(_buildRemovableChip(
-        priceLabel,
-        () => setState(() {
-          _currentFilters = SearchFilters(
-            query: _currentFilters.query,
-            category: _currentFilters.category,
-            destination: _currentFilters.destination,
-            minPrice: null,
-            maxPrice: null,
-          );
-        }),
-      ));
+      chips.add(
+        _buildRemovableChip(
+          priceLabel,
+          () => setState(() {
+            _currentFilters = SearchFilters(
+              query: _currentFilters.query,
+              category: _currentFilters.category,
+              destination: _currentFilters.destination,
+              minPrice: null,
+              maxPrice: null,
+            );
+          }),
+        ),
+      );
     }
 
     // Keyword Query Chip
     if (_currentFilters.query != null && _currentFilters.query!.isNotEmpty) {
-      chips.add(_buildRemovableChip(
-        '"${_currentFilters.query}"',
-        () => setState(() {
-          _currentFilters = _currentFilters.copyWith(query: '');
-        }),
-      ));
+      chips.add(
+        _buildRemovableChip(
+          '"${_currentFilters.query}"',
+          () => setState(() {
+            _currentFilters = _currentFilters.copyWith(query: '');
+          }),
+        ),
+      );
     }
 
     return Container(
@@ -330,10 +357,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
       child: Row(
         children: [
           Expanded(
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: chips,
-            ),
+            child: ListView(scrollDirection: Axis.horizontal, children: chips),
           ),
           IconButton(
             icon: const Icon(Icons.tune, color: AppColors.primary),
@@ -360,7 +384,11 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
     );
   }
 
-  Widget _buildToursList(List<Tour> tours, Set<String> savedList, ThemeData theme) {
+  Widget _buildToursList(
+    List<Tour> tours,
+    Set<String> savedList,
+    ThemeData theme,
+  ) {
     if (tours.isEmpty) {
       return Center(
         child: Padding(
@@ -368,16 +396,24 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.search_off, size: 64.0, color: AppColors.outlineVariant),
+              const Icon(
+                Icons.search_off,
+                size: 64.0,
+                color: AppColors.outlineVariant,
+              ),
               AppSpacing.gapMd,
               Text(
                 'No tours match these filters.',
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 4.0),
               Text(
                 'Try adjusting your search.',
-                style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.onSurfaceVariant),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: AppColors.onSurfaceVariant,
+                ),
               ),
               AppSpacing.gapLg,
               OutlinedButton(
@@ -419,7 +455,9 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(19.0)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(19.0),
+                    ),
                     child: Image.network(
                       tour.heroImageUrl,
                       height: 180.0,
@@ -433,7 +471,10 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                       top: AppSpacing.md,
                       left: AppSpacing.md,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10.0,
+                          vertical: 4.0,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.secondary,
                           borderRadius: BorderRadius.circular(20.0),
@@ -448,11 +489,13 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                       ),
                     ),
                   // Right-heart: translucent dark circle
-                   Positioned(
+                  Positioned(
                     top: AppSpacing.md,
                     right: AppSpacing.md,
                     child: CircleAvatar(
-                      backgroundColor: AppColors.onSurface.withValues(alpha: 0.4),
+                      backgroundColor: AppColors.onSurface.withValues(
+                        alpha: 0.4,
+                      ),
                       radius: 20.0,
                       child: Semantics(
                         label: isSaved ? 'Remove from saved' : 'Save tour',
@@ -464,22 +507,26 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                             color: isSaved ? AppColors.error : Colors.white,
                             size: 20.0,
                           ),
-                           onPressed: () async {
-                             // Heart toggle updates state optimistically instantly
-                             final res = await ref
-                                 .read(optimisticSavedToursProvider.notifier)
-                                 .toggleSave(tour.id);
-                             res.when(
-                               onSuccess: (_) {},
-                               onFailure: (exception) {
-                                 if (context.mounted) {
-                                   ScaffoldMessenger.of(context).showSnackBar(
-                                     SnackBar(content: Text('Failed to update bookmark: ${exception.message}')),
-                                   );
-                                 }
-                               },
-                             );
-                           },
+                          onPressed: () async {
+                            // Heart toggle updates state optimistically instantly
+                            final res = await ref
+                                .read(optimisticSavedToursProvider.notifier)
+                                .toggleSave(tour.id);
+                            res.when(
+                              onSuccess: (_) {},
+                              onFailure: (exception) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Failed to update bookmark: ${exception.message}',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -528,6 +575,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                           ],
                         ),
                         ElevatedButton(
+                          key: Key('search_result_card_$index'),
                           onPressed: () => context.push('/tour/${tour.id}'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
@@ -535,7 +583,10 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20.0,
+                              vertical: 10.0,
+                            ),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,

@@ -1,22 +1,19 @@
-import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../../../../core/utils/result.dart';
 import '../../../../core/errors/app_exception.dart';
+import '../../data/reviews_repository.dart';
 
 /// Sequenced multi-step use case to submit a tour review.
 class SubmitReviewUseCase {
-  final FirebaseFirestore _firestore;
+  final ReviewsRepository _repository;
 
-  /// [firestore] is injectable for testing; defaults to the live singleton.
-  SubmitReviewUseCase({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  SubmitReviewUseCase(this._repository);
 
   /// Submits the review to Firestore and waits until the background Cloud Function
   /// sets `reviewed: true` on the booking document.
   Future<Result<void>> execute({
     required String userId,
     required String userName,
+    required String userPhotoUrl,
     required String bookingId,
     required String tourId,
     required double overallRating,
@@ -24,42 +21,35 @@ class SubmitReviewUseCase {
     required String comment,
     required List<String> photoUrls,
   }) async {
-    try {
-      // 1. Submit the review document to tours/{tourId}/reviews
-      await _firestore
-          .collection('tours')
-          .doc(tourId)
-          .collection('reviews')
-          .add({
-        'userId': userId,
-        'userName': userName,
-        'bookingId': bookingId,
-        'overallRating': overallRating,
-        'aspectRatings': aspectRatings,
-        'comment': comment,
-        'photoUrls': photoUrls,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+    final submitResult = await _repository.submitReview(
+      userId: userId,
+      userName: userName,
+      userPhotoUrl: userPhotoUrl,
+      bookingId: bookingId,
+      tourId: tourId,
+      overallRating: overallRating,
+      aspectRatings: aspectRatings,
+      comment: comment,
+      photoUrls: photoUrls,
+    );
 
-      // 2. Wait until the background Cloud Function updates `bookings/{bookingId}` with `reviewed: true`.
-      // We timeout after 10 seconds.
-      await _firestore
-          .collection('bookings')
-          .doc(bookingId)
-          .snapshots()
-          .firstWhere((snap) {
-            final data = snap.data();
-            return data != null && (data['reviewed'] ?? false) == true;
-          })
-          .timeout(const Duration(seconds: 10));
-
-      return const Result.success(null);
-    } catch (e) {
-      return Result.failure(
+    return submitResult.when(
+      onSuccess: (_) async {
+        final waitResult = await _repository.waitForReviewProcessing(bookingId);
+        return waitResult.when(
+          onSuccess: (_) => const Result.success(null),
+          onFailure: (exception) => Result.failure(
+            AppException.unknown(
+              'Failed to submit review and verify points credit: ${exception.message}',
+            ),
+          ),
+        );
+      },
+      onFailure: (exception) => Result.failure(
         AppException.unknown(
-          'Failed to submit review and verify points credit: ${e.toString()}',
+          'Failed to submit review and verify points credit: ${exception.message}',
         ),
-      );
-    }
+      ),
+    );
   }
 }

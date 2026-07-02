@@ -71,9 +71,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   }
 
   void _onPrivateVehicleToggled(bool value) {
-    if (!value && (_groupSizeOption == 'Max 6' || _groupSizeOption == 'Max 12')) {
+    if (!value &&
+        (_groupSizeOption == 'Max 6' || _groupSizeOption == 'Max 12')) {
       setState(() {
-        _validationWarning = 'Private vehicle is required for non-shared groups.';
+        _validationWarning =
+            'Private vehicle is required for non-shared groups.';
       });
     } else {
       setState(() {
@@ -95,7 +97,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   String _buildLiveSummaryString(Tour tour) {
     final List<String> parts = [];
-    
+
     // Adults breakdown
     final String adultsStr = _adultsCount == 1 ? 'Adult' : 'Adults';
     parts.add('\$${tour.pricePerPerson.toInt()} x $_adultsCount $adultsStr');
@@ -166,8 +168,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         privateVehicle: _privateVehicle,
         groupSizeOption: _groupSizeOption,
         pickupLocation: _pickupController.text.trim(),
-        specialRequests: _specialRequestsController.text.trim().isEmpty 
-            ? null 
+        specialRequests: _specialRequestsController.text.trim().isEmpty
+            ? null
             : _specialRequestsController.text.trim(),
         totalPrice: total,
         currency: tour.currency,
@@ -175,7 +177,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         createdAt: DateTime.now(),
       );
 
-      final result = await ref.read(bookingRepositoryProvider).createPendingBooking(booking);
+      final result = await ref
+          .read(bookingRepositoryProvider)
+          .createPendingBooking(booking);
 
       await result.when(
         onSuccess: (_) {
@@ -211,13 +215,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     final tourState = ref.watch(tourDetailsProvider(widget.tourId));
 
     return Scaffold(
+      key: const Key('booking_screen'),
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
           AppStrings.booking.title,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -320,7 +325,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     );
   }
 
-
   Widget _buildCalendarCard(Tour tour) {
     return Container(
       decoration: BoxDecoration(
@@ -349,10 +353,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         borderRadius: BorderRadius.circular(AppRadii.lg),
         boxShadow: AppShadows.level2,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       child: Column(
         children: [
           _buildStepperRow(
+            keyPrefix: 'booking_adults',
             title: AppStrings.booking.adultsLabel,
             subtitle: AppStrings.booking.adultsSubtitle,
             value: _adultsCount,
@@ -366,6 +374,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           ),
           const Divider(height: 1.0, color: AppColors.outlineVariant),
           _buildStepperRow(
+            keyPrefix: 'booking_children',
             title: AppStrings.booking.childrenLabel,
             subtitle: AppStrings.booking.childrenSubtitle,
             value: _childrenCount,
@@ -383,6 +392,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   }
 
   Widget _buildStepperRow({
+    required String keyPrefix,
     required String title,
     required String subtitle,
     required int value,
@@ -404,22 +414,23 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               Text(
                 title,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.onSurface,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.onSurface,
+                ),
               ),
               const SizedBox(height: 2.0),
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
+                  color: AppColors.onSurfaceVariant,
+                ),
               ),
             ],
           ),
           Row(
             children: [
               GestureDetector(
+                key: Key('${keyPrefix}_decrement'),
                 onTap: canMinus ? () => onChanged(value - 1) : null,
                 child: Opacity(
                   opacity: canMinus ? 1.0 : 0.38,
@@ -431,7 +442,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       border: Border.all(color: AppColors.primary, width: 1.5),
                     ),
                     child: const Center(
-                      child: Icon(Icons.remove, size: 18.0, color: AppColors.primary),
+                      child: Icon(
+                        Icons.remove,
+                        size: 18.0,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
                 ),
@@ -442,12 +457,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 child: Text(
                   '$value',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.onSurface,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.onSurface,
+                  ),
                 ),
               ),
               GestureDetector(
+                key: Key('${keyPrefix}_increment'),
                 onTap: canPlus ? () => onChanged(value + 1) : null,
                 child: Opacity(
                   opacity: canPlus ? 1.0 : 0.38,
@@ -459,7 +475,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       border: Border.all(color: AppColors.primary, width: 1.5),
                     ),
                     child: const Center(
-                      child: Icon(Icons.add, size: 18.0, color: AppColors.primary),
+                      child: Icon(
+                        Icons.add,
+                        size: 18.0,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
                 ),
@@ -489,9 +509,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 child: Text(
                   AppStrings.booking.privateVehicleLabel,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.onSurface,
-                      ),
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.onSurface,
+                  ),
                 ),
               ),
               Switch(
@@ -505,9 +525,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           Text(
             AppStrings.booking.groupSizeLimitLabel,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                  fontWeight: FontWeight.bold,
-                ),
+              color: AppColors.onSurfaceVariant,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8.0),
           _buildSegmentedControl(),
@@ -534,12 +554,18 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 decoration: BoxDecoration(
                   color: isSelected ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppRadii.defaultRadius - 2),
+                  borderRadius: BorderRadius.circular(
+                    AppRadii.defaultRadius - 2,
+                  ),
                   boxShadow: isSelected
-                      ? [ BoxShadow(color: AppColors.primaryContainer.withValues(alpha: 0.05),
+                      ? [
+                          BoxShadow(
+                            color: AppColors.primaryContainer.withValues(
+                              alpha: 0.05,
+                            ),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
-                          )
+                          ),
                         ]
                       : null,
                 ),
@@ -547,7 +573,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 child: Text(
                   opt,
                   style: TextStyle(
-                    color: isSelected ? AppColors.primary : AppColors.onSurfaceVariant,
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.onSurfaceVariant,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                     fontSize: 14.0,
                   ),
@@ -560,7 +588,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     );
   }
 
-
   Widget _buildStickyBottomSummary(Tour tour) {
     final double total = _calculateTotal(tour);
     final String summaryText = _buildLiveSummaryString(tour);
@@ -572,7 +599,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         decoration: const BoxDecoration(
           color: Colors.white,
           boxShadow: AppShadows.level3,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadii.lg),
+          ),
         ),
         child: SafeArea(
           top: false,
@@ -597,8 +626,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                     child: Text(
                       summaryText,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppColors.onSurfaceVariant,
-                          ),
+                        color: AppColors.onSurfaceVariant,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -609,18 +638,15 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       Text(
                         '${AppStrings.booking.totalLabel} ',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AppColors.onSurfaceVariant,
-                            ),
+                          color: AppColors.onSurfaceVariant,
+                        ),
                       ),
                       Text(
-                        '\$${total.toInt().toString().replaceAllMapped(
-                              RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                              (Match m) => '${m[1]},',
-                            )}',
+                        '\$${total.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
-                            ),
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ],
                   ),
@@ -628,6 +654,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               ),
               AppSpacing.gapSm,
               PrimaryButton(
+                buttonKey: const Key('booking_continue_button'),
                 label: AppStrings.booking.proceedButton,
                 isLoading: _isSubmitting,
                 onPressed: () => _submitBooking(tour),
@@ -660,8 +687,18 @@ class _InlineCalendarState extends State<_InlineCalendar> {
   late DateTime _currentMonth;
 
   static const List<String> _months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
   @override
@@ -669,7 +706,11 @@ class _InlineCalendarState extends State<_InlineCalendar> {
     super.initState();
     // Default to the first available date or current month
     if (widget.availableDates.isNotEmpty) {
-      _currentMonth = DateTime(widget.availableDates.first.year, widget.availableDates.first.month, 1);
+      _currentMonth = DateTime(
+        widget.availableDates.first.year,
+        widget.availableDates.first.month,
+        1,
+      );
     } else {
       _currentMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
     }
@@ -693,11 +734,25 @@ class _InlineCalendarState extends State<_InlineCalendar> {
     if (date.isBefore(today)) return false;
 
     for (final avail in widget.availableDates) {
-      if (avail.year == date.year && avail.month == date.month && avail.day == date.day) {
+      if (avail.year == date.year &&
+          avail.month == date.month &&
+          avail.day == date.day) {
         return true;
       }
     }
     return false;
+  }
+
+  int? _availableIndexFor(DateTime date) {
+    for (int i = 0; i < widget.availableDates.length; i++) {
+      final availableDate = widget.availableDates[i];
+      if (availableDate.year == date.year &&
+          availableDate.month == date.month &&
+          availableDate.day == date.day) {
+        return i;
+      }
+    }
+    return null;
   }
 
   @override
@@ -706,9 +761,17 @@ class _InlineCalendarState extends State<_InlineCalendar> {
     final monthName = _months[_currentMonth.month - 1];
     final year = _currentMonth.year;
 
-    final firstDayOfMonth = DateTime(_currentMonth.year, _currentMonth.month, 1);
-    final totalDays = DateTime(_currentMonth.year, _currentMonth.month + 1, 0).day;
-    
+    final firstDayOfMonth = DateTime(
+      _currentMonth.year,
+      _currentMonth.month,
+      1,
+    );
+    final totalDays = DateTime(
+      _currentMonth.year,
+      _currentMonth.month + 1,
+      0,
+    ).day;
+
     // Weekday is 1 (Monday) to 7 (Sunday). Empty slots = firstDayOfMonth.weekday - 1.
     final emptySlots = firstDayOfMonth.weekday - 1;
     final totalSlots = emptySlots + totalDays;
@@ -725,23 +788,29 @@ class _InlineCalendarState extends State<_InlineCalendar> {
               button: true,
               child: IconButton(
                 tooltip: 'Previous month',
-                icon: const Icon(Icons.chevron_left, color: AppColors.onSurface),
+                icon: const Icon(
+                  Icons.chevron_left,
+                  color: AppColors.onSurface,
+                ),
                 onPressed: _prevMonth,
               ),
             ),
             Text(
               '$monthName $year',
               style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.onSurface,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: AppColors.onSurface,
+              ),
             ),
             Semantics(
               label: 'Next month',
               button: true,
               child: IconButton(
                 tooltip: 'Next month',
-                icon: const Icon(Icons.chevron_right, color: AppColors.onSurface),
+                icon: const Icon(
+                  Icons.chevron_right,
+                  color: AppColors.onSurface,
+                ),
                 onPressed: _nextMonth,
               ),
             ),
@@ -776,24 +845,38 @@ class _InlineCalendarState extends State<_InlineCalendar> {
                 }
 
                 final dayNum = cellIndex - emptySlots + 1;
-                final date = DateTime(_currentMonth.year, _currentMonth.month, dayNum);
-                final isSelected = widget.selectedDate != null &&
+                final date = DateTime(
+                  _currentMonth.year,
+                  _currentMonth.month,
+                  dayNum,
+                );
+                final isSelected =
+                    widget.selectedDate != null &&
                     widget.selectedDate!.year == date.year &&
                     widget.selectedDate!.month == date.month &&
                     widget.selectedDate!.day == date.day;
                 final isAvail = _isAvailable(date);
+                final availableIndex = _availableIndexFor(date);
 
                 final now = DateTime.now();
-                final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
+                final isToday =
+                    date.year == now.year &&
+                    date.month == now.month &&
+                    date.day == now.day;
 
                 return Expanded(
                   child: GestureDetector(
+                    key: isAvail && availableIndex != null
+                        ? Key('booking_calendar_date_$availableIndex')
+                        : null,
                     onTap: isAvail ? () => widget.onDateSelected(date) : null,
                     child: Container(
                       height: 40.0,
                       margin: const EdgeInsets.all(2.0),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primary : Colors.transparent,
+                        color: isSelected
+                            ? AppColors.primary
+                            : Colors.transparent,
                         shape: BoxShape.circle,
                         border: isToday && !isSelected
                             ? Border.all(color: AppColors.primary, width: 1.0)
@@ -803,13 +886,15 @@ class _InlineCalendarState extends State<_InlineCalendar> {
                       child: Text(
                         '$dayNum',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
-                              color: isSelected
-                                  ? Colors.white
-                                  : isAvail
-                                      ? AppColors.onSurface
-                                      : AppColors.outlineVariant,
-                            ),
+                          fontWeight: isSelected || isToday
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: isSelected
+                              ? Colors.white
+                              : isAvail
+                              ? AppColors.onSurface
+                              : AppColors.outlineVariant,
+                        ),
                       ),
                     ),
                   ),
@@ -835,9 +920,9 @@ class _WeekdayLabel extends StatelessWidget {
         child: Text(
           text,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppColors.outline,
-                fontWeight: FontWeight.bold,
-              ),
+            color: AppColors.outline,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

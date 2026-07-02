@@ -23,7 +23,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   String _selectedDestination = 'All Destinations';
   String _selectedPriceRange = 'Any Price';
 
-  final List<String> _categories = ['All', 'Beach', 'Mountain', 'City', 'Adventure', 'Wellness'];
+  final List<String> _categories = [
+    'All',
+    'Beach',
+    'Mountain',
+    'City',
+    'Adventure',
+    'Wellness',
+  ];
 
   final List<String> _destinations = [
     'All Destinations',
@@ -34,7 +41,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     'Zanzibar, Tanzania',
     'Maldives',
     'Zermatt, Switzerland',
-    'Kyoto, Japan'
+    'Kyoto, Japan',
   ];
 
   final List<String> _priceRanges = [
@@ -42,7 +49,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     'Under \$1,000',
     '\$1,000–\$2,500',
     '\$2,500–\$5,000',
-    '\$5,000+'
+    '\$5,000+',
   ];
 
   void _showSelectorBottomSheet({
@@ -64,9 +71,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             AppSpacing.gapMd,
             Flexible(
@@ -80,8 +87,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     title: Text(
                       option,
                       style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        color: isSelected ? AppColors.primary : AppColors.onSurface,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.onSurface,
                       ),
                     ),
                     trailing: isSelected
@@ -118,7 +129,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
 
     context.push(
-      Uri(path: RoutePaths.searchResults, queryParameters: queryParams).toString(),
+      Uri(
+        path: RoutePaths.searchResults,
+        queryParameters: queryParams,
+      ).toString(),
     );
   }
 
@@ -170,26 +184,39 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               children: [
                 // 1. Search Bar Input
                 TextField(
+                  key: const Key('search_query_field'),
                   controller: _searchController,
                   textInputAction: TextInputAction.search,
                   onSubmitted: (_) => _applyFilters(),
                   decoration: InputDecoration(
                     hintText: 'Search tours, activities...',
-                    prefixIcon: const Icon(Icons.search, color: AppColors.onSurfaceVariant),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                     fillColor: Colors.white,
                     filled: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 14.0),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
-                      borderSide: const BorderSide(color: AppColors.outlineVariant, width: 1.0),
+                      borderSide: const BorderSide(
+                        color: AppColors.outlineVariant,
+                        width: 1.0,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
-                      borderSide: const BorderSide(color: AppColors.outlineVariant, width: 1.0),
+                      borderSide: const BorderSide(
+                        color: AppColors.outlineVariant,
+                        width: 1.0,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
-                      borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                      borderSide: const BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
                     ),
                   ),
                 ),
@@ -221,19 +248,27 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               setState(() {
                                 _selectedCategory = category;
                               });
-                              context.push('${RoutePaths.searchResults}?category=${Uri.encodeComponent(category)}');
+                              context.push(
+                                '${RoutePaths.searchResults}?category=${Uri.encodeComponent(category)}',
+                              );
                             }
                           },
                           backgroundColor: AppColors.surfaceContainerLow,
                           selectedColor: AppColors.primary,
                           labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : AppColors.onSurface,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.onSurface,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),
                             side: BorderSide(
-                              color: isSelected ? AppColors.primary : AppColors.outlineVariant,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.outlineVariant,
                             ),
                           ),
                         ),
@@ -277,11 +312,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                border: Border.all(color: AppColors.outlineVariant),
+                                border: Border.all(
+                                  color: AppColors.outlineVariant,
+                                ),
                                 borderRadius: AppRadii.borderMd,
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
                                     child: Text(
@@ -334,11 +372,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                border: Border.all(color: AppColors.outlineVariant),
+                                border: Border.all(
+                                  color: AppColors.outlineVariant,
+                                ),
                                 borderRadius: AppRadii.borderMd,
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
                                     child: Text(
@@ -374,10 +415,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 featured.when(
                   data: (tourList) {
                     // Combine and filter for matching tours
-                    final displayTours = tourList.where((t) =>
-                        t.id == 'maldives-retreat' ||
-                        t.id == 'swiss-alpine' ||
-                        t.id == 'kyoto-walk').toList();
+                    final displayTours = tourList
+                        .where(
+                          (t) =>
+                              t.id == 'maldives-retreat' ||
+                              t.id == 'swiss-alpine' ||
+                              t.id == 'kyoto-walk',
+                        )
+                        .toList();
 
                     // Fallback to first 3 tours if they are not in the database yet
                     final tours = displayTours.isNotEmpty
@@ -385,7 +430,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         : tourList.take(3).toList();
 
                     if (tours.isEmpty) {
-                      return const Center(child: Text('No popular tours found.'));
+                      return const Center(
+                        child: Text('No popular tours found.'),
+                      );
                     }
 
                     return ListView.builder(
@@ -427,7 +474,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             ),
                             title: Row(
                               children: [
-                                Icon(badgeIcon, size: 12.0, color: AppColors.secondary),
+                                Icon(
+                                  badgeIcon,
+                                  size: 12.0,
+                                  color: AppColors.secondary,
+                                ),
                                 const SizedBox(width: 4.0),
                                 Text(
                                   badge,
@@ -467,8 +518,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       },
                     );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (err, stack) => const Center(child: Text('Failed to load popular tours.')),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (err, stack) => const Center(
+                    child: Text('Failed to load popular tours.'),
+                  ),
                 ),
               ],
             ),

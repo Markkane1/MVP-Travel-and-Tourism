@@ -16,6 +16,7 @@ import '../../../../core/widgets/rating_stars.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../booking/booking.dart';
+import '../../data/reviews_repository.dart';
 import '../../domain/usecases/submit_review_use_case.dart';
 
 class PendingImage {
@@ -36,8 +37,6 @@ class ReviewTripScreen extends ConsumerStatefulWidget {
 class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
   final _commentController = TextEditingController();
   final _picker = ImagePicker();
-  final SubmitReviewUseCase _submitReviewUseCase = SubmitReviewUseCase();
-
   double _overallRating = 0.0;
   final Map<String, double> _aspectRatings = {
     'Service': 0.0,
@@ -67,7 +66,9 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
       return;
     }
 
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile == null) return;
 
     final file = File(pickedFile.path);
@@ -131,10 +132,12 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
     try {
       final user = ref.read(authServiceProvider).currentUser;
       final String name = user?.displayName ?? 'Valued Guest';
+      final useCase = SubmitReviewUseCase(ref.read(reviewsRepositoryProvider));
 
-      final res = await _submitReviewUseCase.execute(
+      final res = await useCase.execute(
         userId: user?.uid ?? 'guest',
         userName: name,
+        userPhotoUrl: user?.photoUrl ?? '',
         bookingId: booking.id,
         tourId: booking.tourId,
         overallRating: _overallRating,
@@ -146,18 +149,21 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
       res.when(
         onSuccess: (_) {
           if (mounted) {
-            context.go('/trips/${booking.id}/review/success', extra: {
-              'tourTitle': booking.tourSnapshot.title,
-              'tourHeroImageUrl': booking.tourSnapshot.heroImageUrl,
-              'hasUploadedPhotos': _uploadedImageUrls.isNotEmpty,
-            });
+            context.go(
+              '/trips/${booking.id}/review/success',
+              extra: {
+                'tourTitle': booking.tourSnapshot.title,
+                'tourHeroImageUrl': booking.tourSnapshot.heroImageUrl,
+                'hasUploadedPhotos': _uploadedImageUrls.isNotEmpty,
+              },
+            );
           }
         },
         onFailure: (exception) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(exception.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(exception.message)));
           }
         },
       );
@@ -182,6 +188,7 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      key: const Key('review_trip_screen'),
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
@@ -206,7 +213,10 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
             itemBuilder: (context) => [
               const PopupMenuItem(
                 value: 'cancel',
-                child: Text('Cancel Review', style: TextStyle(color: AppColors.error)),
+                child: Text(
+                  'Cancel Review',
+                  style: TextStyle(color: AppColors.error),
+                ),
               ),
             ],
           ),
@@ -217,7 +227,8 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
         error: (err, stack) => Center(
           child: ErrorStateView(
             message: err.toString(),
-            onRetry: () => ref.refresh(bookingDetailsProvider(widget.bookingId)),
+            onRetry: () =>
+                ref.refresh(bookingDetailsProvider(widget.bookingId)),
           ),
         ),
         data: (booking) {
@@ -296,6 +307,7 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
                           RatingStars(
                             rating: _overallRating,
                             starSize: 36.0,
+                            interactiveKeyPrefix: 'review_star',
                             onRatingChanged: (val) {
                               setState(() {
                                 _overallRating = val;
@@ -345,10 +357,14 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
                   decoration: const BoxDecoration(
                     color: AppColors.background,
                     border: Border(
-                      top: BorderSide(color: AppColors.outlineVariant, width: 1.0),
+                      top: BorderSide(
+                        color: AppColors.outlineVariant,
+                        width: 1.0,
+                      ),
                     ),
                   ),
                   child: PrimaryButton(
+                    buttonKey: const Key('review_submit_button'),
                     label: 'Submit Review →',
                     onPressed: (_overallRating == 0.0 || _isSubmitting)
                         ? null
@@ -413,7 +429,9 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
                   color: isExpanded ? AppColors.primaryContainer : Colors.white,
                   borderRadius: BorderRadius.circular(AppRadii.defaultRadius),
                   border: Border.all(
-                    color: isExpanded ? AppColors.primary : AppColors.outlineVariant,
+                    color: isExpanded
+                        ? AppColors.primary
+                        : AppColors.outlineVariant,
                     width: 1.0,
                   ),
                 ),
@@ -423,12 +441,20 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
                   children: [
                     Row(
                       children: [
-                        Icon(iconData, color: isExpanded ? AppColors.primary : AppColors.onSurfaceVariant),
+                        Icon(
+                          iconData,
+                          color: isExpanded
+                              ? AppColors.primary
+                              : AppColors.onSurfaceVariant,
+                        ),
                         const SizedBox(width: 8.0),
                         Expanded(
                           child: Text(
                             aspect,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.0),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.0,
+                            ),
                           ),
                         ),
                       ],
@@ -451,7 +477,10 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
                           const SizedBox(width: 4.0),
                           Text(
                             rating > 0 ? rating.toInt().toString() : '--',
-                            style: const TextStyle(fontSize: 11.0, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 11.0,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -470,7 +499,8 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
     final int uploadedCount = _uploadedImageUrls.length;
     final int pendingCount = _pendingImages.length;
     final bool showUploadButton = (uploadedCount + pendingCount) < 6;
-    final int totalItems = uploadedCount + pendingCount + (showUploadButton ? 1 : 0);
+    final int totalItems =
+        uploadedCount + pendingCount + (showUploadButton ? 1 : 0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -522,8 +552,14 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
                           onTap: () => _removePhoto(index),
                           child: CircleAvatar(
                             radius: 10.0,
-                            backgroundColor: AppColors.onSurface.withValues(alpha: 0.54),
-                            child: const Icon(Icons.close, color: Colors.white, size: 12.0),
+                            backgroundColor: AppColors.onSurface.withValues(
+                              alpha: 0.54,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 12.0,
+                            ),
                           ),
                         ),
                       ),
@@ -582,7 +618,10 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
                     child: const Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.add_a_photo_outlined, color: AppColors.primary),
+                        Icon(
+                          Icons.add_a_photo_outlined,
+                          color: AppColors.primary,
+                        ),
                         SizedBox(height: 4.0),
                         Text(
                           'Upload',

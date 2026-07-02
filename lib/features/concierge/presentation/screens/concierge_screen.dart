@@ -34,7 +34,8 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
   final _picker = ImagePicker();
-  
+  String? _seededUserId;
+
   bool _isUploadingAttachment = false;
 
   @override
@@ -60,7 +61,9 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
 
   /// Automatic concierge seeding and user profile matching logic.
   Future<void> _checkAndSeedConcierges(String uid) async {
-    final result = await ref.read(conciergeRepositoryProvider).checkAndSeedConcierges(uid);
+    final result = await ref
+        .read(conciergeRepositoryProvider)
+        .checkAndSeedConcierges(uid);
     result.when(
       onSuccess: (updated) {
         if (updated && mounted) {
@@ -75,7 +78,11 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
     );
   }
 
-  Future<void> _sendMessage(String uid, String conciergeId, {String? attachmentUrl}) async {
+  Future<void> _sendMessage(
+    String uid,
+    String conciergeId, {
+    String? attachmentUrl,
+  }) async {
     final text = _inputController.text.trim();
     if (text.isEmpty && attachmentUrl == null) return;
 
@@ -86,31 +93,35 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
     // so the message is added to Firestore and immediately echoed back via stream snapshot
     // without blocking textfield entry states.
     unawaited(
-      ref.read(conciergeRepositoryProvider).sendMessage(
-        uid: uid,
-        text: text,
-        attachmentUrl: attachmentUrl,
-      ).then((res) {
-        res.when(
-          onSuccess: (_) {},
-          onFailure: (exception) {
-            if (kDebugMode) {
-              print('Error sending message: ${exception.message}');
-            }
-          },
-        );
-      }, onError: (e) {
-        if (kDebugMode) {
-          print('Error sending message: $e');
-        }
-      }),
+      ref
+          .read(conciergeRepositoryProvider)
+          .sendMessage(uid: uid, text: text, attachmentUrl: attachmentUrl)
+          .then(
+            (res) {
+              res.when(
+                onSuccess: (_) {},
+                onFailure: (exception) {
+                  if (kDebugMode) {
+                    print('Error sending message: ${exception.message}');
+                  }
+                },
+              );
+            },
+            onError: (e) {
+              if (kDebugMode) {
+                print('Error sending message: $e');
+              }
+            },
+          ),
     );
 
     _scrollToBottom();
   }
 
   Future<void> _pickAttachment(String uid, String conciergeId) async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile == null) return;
 
     setState(() {
@@ -119,14 +130,17 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
 
     try {
       final storage = ref.read(storageServiceProvider);
-      final String path = 'concierge_threads/$uid/attachments/${DateTime.now().millisecondsSinceEpoch}.png';
+      final String path =
+          'concierge_threads/$uid/attachments/${DateTime.now().millisecondsSinceEpoch}.png';
       final String url = await storage.uploadImage(File(pickedFile.path), path);
 
       await _sendMessage(uid, conciergeId, attachmentUrl: url);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to upload image attachment: ${e.toString()}')),
+          SnackBar(
+            content: Text('Failed to upload image attachment: ${e.toString()}'),
+          ),
         );
       }
     } finally {
@@ -154,8 +168,14 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
       return const Scaffold(body: Center(child: Text('Please log in.')));
     }
 
-    // Run seed checking on load
-    _checkAndSeedConcierges(user.uid);
+    if (_seededUserId != user.uid) {
+      _seededUserId = user.uid;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _checkAndSeedConcierges(user.uid);
+        }
+      });
+    }
 
     final firestoreState = ref.watch(userFirestoreDataProvider);
     final theme = Theme.of(context);
@@ -173,32 +193,59 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: const [
-          NotificationBellButton(),
-        ],
+        actions: const [NotificationBellButton()],
       ),
       body: firestoreState.when(
         loading: () => const Center(child: LoadingIndicator()),
-        error: (err, stack) => Center(child: ErrorStateView(message: err.toString(), onRetry: () => ref.refresh(userFirestoreDataProvider))),
+        error: (err, stack) => Center(
+          child: ErrorStateView(
+            message: err.toString(),
+            onRetry: () => ref.refresh(userFirestoreDataProvider),
+          ),
+        ),
         data: (profileDoc) {
           final profile = profileDoc ?? {};
-          final String conciergeId = profile['conciergeId'] ?? 'concierge-elena';
+          final String conciergeId =
+              profile['conciergeId'] ?? 'concierge-elena';
 
-          final conciergeState = ref.watch(conciergeProfileProvider(conciergeId));
+          final conciergeState = ref.watch(
+            conciergeProfileProvider(conciergeId),
+          );
           final messagesState = ref.watch(conciergeMessagesProvider(user.uid));
-          final threadState = ref.watch(conciergeThreadMetadataProvider(user.uid));
+          final threadState = ref.watch(
+            conciergeThreadMetadataProvider(user.uid),
+          );
 
           return conciergeState.when(
             loading: () => const Center(child: LoadingIndicator()),
-            error: (err, stack) => Center(child: ErrorStateView(message: err.toString(), onRetry: () => ref.refresh(conciergeProfileProvider(conciergeId)))),
+            error: (err, stack) => Center(
+              child: ErrorStateView(
+                message: err.toString(),
+                onRetry: () =>
+                    ref.refresh(conciergeProfileProvider(conciergeId)),
+              ),
+            ),
             data: (concierge) {
               return messagesState.when(
                 loading: () => const Center(child: LoadingIndicator()),
-                error: (err, stack) => Center(child: ErrorStateView(message: err.toString(), onRetry: () => ref.refresh(conciergeMessagesProvider(user.uid)))),
+                error: (err, stack) => Center(
+                  child: ErrorStateView(
+                    message: err.toString(),
+                    onRetry: () =>
+                        ref.refresh(conciergeMessagesProvider(user.uid)),
+                  ),
+                ),
                 data: (messages) {
                   return threadState.when(
                     loading: () => const Center(child: LoadingIndicator()),
-                    error: (err, stack) => Center(child: ErrorStateView(message: err.toString(), onRetry: () => ref.refresh(conciergeThreadMetadataProvider(user.uid)))),
+                    error: (err, stack) => Center(
+                      child: ErrorStateView(
+                        message: err.toString(),
+                        onRetry: () => ref.refresh(
+                          conciergeThreadMetadataProvider(user.uid),
+                        ),
+                      ),
+                    ),
                     data: (threadData) {
                       final bool isTyping = threadData['isTyping'] ?? false;
 
@@ -220,10 +267,11 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                                   // Headline
                                   Text(
                                     'Travel Concierge',
-                                    style: theme.textTheme.headlineLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.onSurface,
-                                    ),
+                                    style: theme.textTheme.headlineLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.onSurface,
+                                        ),
                                   ),
                                   const SizedBox(height: 4.0),
                                   Text(
@@ -247,7 +295,11 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                                   AppSpacing.gapLg,
 
                                   // Chat messages area header
-                                  const Divider(height: 32.0, color: AppColors.outlineVariant, thickness: 1.0),
+                                  const Divider(
+                                    height: 32.0,
+                                    color: AppColors.outlineVariant,
+                                    thickness: 1.0,
+                                  ),
                                   Text(
                                     'Chat History',
                                     style: theme.textTheme.titleSmall?.copyWith(
@@ -261,42 +313,59 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                                   if (messages.isEmpty)
                                     const Center(
                                       child: Padding(
-                                        padding: EdgeInsets.symmetric(vertical: 24.0),
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 24.0,
+                                        ),
                                         child: Text(
                                           'No messages yet. Send a message to start conversing with your concierge helper.',
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 13.0),
+                                          style: TextStyle(
+                                            color: AppColors.onSurfaceVariant,
+                                            fontSize: 13.0,
+                                          ),
                                         ),
                                       ),
                                     )
                                   else
                                     ListView.builder(
                                       shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       itemCount: messages.length,
                                       itemBuilder: (context, index) {
                                         final msg = messages[index];
-                                        return _buildMessageRow(context, msg, concierge.photoUrl);
+                                        return _buildMessageRow(
+                                          context,
+                                          msg,
+                                          concierge.photoUrl,
+                                        );
                                       },
                                     ),
 
                                   // Typing indicator
                                   if (isTyping)
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 8.0, left: 4.0),
+                                      padding: const EdgeInsets.only(
+                                        top: 8.0,
+                                        left: 4.0,
+                                      ),
                                       child: Row(
                                         children: [
                                           CircleAvatar(
                                             radius: 12.0,
-                                            backgroundImage: NetworkImage(concierge.photoUrl),
+                                            backgroundImage: NetworkImage(
+                                              concierge.photoUrl,
+                                            ),
                                           ),
                                           const SizedBox(width: 8.0),
                                           Text(
                                             '${concierge.name} is typing...',
-                                            style: theme.textTheme.labelSmall?.copyWith(
-                                              color: AppColors.onSurfaceVariant,
-                                              fontStyle: FontStyle.italic,
-                                            ),
+                                            style: theme.textTheme.labelSmall
+                                                ?.copyWith(
+                                                  color: AppColors
+                                                      .onSurfaceVariant,
+                                                  fontStyle: FontStyle.italic,
+                                                ),
                                           ),
                                         ],
                                       ),
@@ -370,12 +439,18 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                     const SizedBox(height: 6.0),
                     Row(
                       children: [
-                        const Icon(Icons.star, color: AppColors.secondary, size: 14.0),
+                        const Icon(
+                          Icons.star,
+                          color: AppColors.secondary,
+                          size: 14.0,
+                        ),
                         const SizedBox(width: 4.0),
                         Expanded(
                           child: Text(
                             concierge.specialty,
-                            style: theme.textTheme.labelSmall?.copyWith(color: AppColors.onSurfaceVariant),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: AppColors.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ],
@@ -383,12 +458,18 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                     const SizedBox(height: 4.0),
                     Row(
                       children: [
-                        const Icon(Icons.translate, color: AppColors.primary, size: 14.0),
+                        const Icon(
+                          Icons.translate,
+                          color: AppColors.primary,
+                          size: 14.0,
+                        ),
                         const SizedBox(width: 4.0),
                         Expanded(
                           child: Text(
                             'Languages: ${concierge.languages}',
-                            style: theme.textTheme.labelSmall?.copyWith(color: AppColors.onSurfaceVariant),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: AppColors.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ],
@@ -435,13 +516,25 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                   letterSpacing: 1.0,
                 ),
               ),
-              const Icon(Icons.workspace_premium, color: AppColors.secondary, size: 24.0),
+              const Icon(
+                Icons.workspace_premium,
+                color: AppColors.secondary,
+                size: 24.0,
+              ),
             ],
           ),
           const SizedBox(height: 16.0),
-          _buildBenefitRow(Icons.support_agent, '24/7 Priority Support Desk', 'Immediate chat responses & premium ticket assignments.'),
+          _buildBenefitRow(
+            Icons.support_agent,
+            '24/7 Priority Support Desk',
+            'Immediate chat responses & premium ticket assignments.',
+          ),
           const SizedBox(height: 12.0),
-          _buildBenefitRow(Icons.design_services_outlined, 'Tailored Luxury Itineraries', 'Custom safaris, yachts, and private dining layouts built to order.'),
+          _buildBenefitRow(
+            Icons.design_services_outlined,
+            'Tailored Luxury Itineraries',
+            'Custom safaris, yachts, and private dining layouts built to order.',
+          ),
         ],
       ),
     );
@@ -459,7 +552,11 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.0),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13.0,
+                ),
               ),
               const SizedBox(height: 2.0),
               Text(
@@ -578,15 +675,23 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
     );
   }
 
-  Widget _buildMessageRow(BuildContext context, ConciergeMessage msg, String agentPhotoUrl) {
+  Widget _buildMessageRow(
+    BuildContext context,
+    ConciergeMessage msg,
+    String agentPhotoUrl,
+  ) {
     final isMe = msg.senderType == 'user';
-    final bubbleColor = isMe ? AppColors.primary : AppColors.outlineVariant.withValues(alpha: 0.5);
+    final bubbleColor = isMe
+        ? AppColors.primary
+        : AppColors.outlineVariant.withValues(alpha: 0.5);
     final textColor = isMe ? Colors.white : AppColors.onSurface;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isMe
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isMe) ...[
@@ -600,14 +705,21 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
           ],
           Flexible(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14.0,
+                vertical: 10.0,
+              ),
               decoration: BoxDecoration(
                 color: bubbleColor,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(AppRadii.md),
                   topRight: const Radius.circular(AppRadii.md),
-                  bottomLeft: isMe ? const Radius.circular(AppRadii.md) : Radius.zero,
-                  bottomRight: isMe ? Radius.zero : const Radius.circular(AppRadii.md),
+                  bottomLeft: isMe
+                      ? const Radius.circular(AppRadii.md)
+                      : Radius.zero,
+                  bottomRight: isMe
+                      ? Radius.zero
+                      : const Radius.circular(AppRadii.md),
                 ),
               ),
               child: Column(
@@ -629,7 +741,11 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                   if (msg.text.isNotEmpty)
                     Text(
                       msg.text,
-                      style: TextStyle(color: textColor, fontSize: 13.0, height: 1.4),
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 13.0,
+                        height: 1.4,
+                      ),
                     ),
                 ],
               ),
@@ -658,9 +774,16 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
         child: Row(
           children: [
             _isUploadingAttachment
-                ? const SizedBox(width: 24.0, height: 24.0, child: CircularProgressIndicator(strokeWidth: 2.0))
+                ? const SizedBox(
+                    width: 24.0,
+                    height: 24.0,
+                    child: CircularProgressIndicator(strokeWidth: 2.0),
+                  )
                 : IconButton(
-                    icon: const Icon(Icons.attach_file, color: AppColors.onSurfaceVariant),
+                    icon: const Icon(
+                      Icons.attach_file,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                     onPressed: () => _pickAttachment(uid, conciergeId),
                   ),
             Expanded(
@@ -670,7 +793,13 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                 textInputAction: TextInputAction.send,
                 maxLength: 1000,
                 maxLines: null,
-                buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null,
+                buildCounter:
+                    (
+                      context, {
+                      required currentLength,
+                      required isFocused,
+                      maxLength,
+                    }) => null,
                 onSubmitted: (_) => _sendMessage(uid, conciergeId),
                 decoration: const InputDecoration(
                   hintText: 'Type a message...',

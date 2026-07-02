@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'app_colors.dart';
 
 /// App elevation and BoxShadow constants.
 class AppShadows {
@@ -10,7 +11,7 @@ class AppShadows {
   /// Level 2: Cards, widgets
   static const List<BoxShadow> level2 = [
     BoxShadow(
-      color: Color(0x0D002349), // Navy with 5% opacity
+      color: AppColors.level2Shadow,
       blurRadius: 20.0,
       offset: Offset(0, 4),
     ),
@@ -19,7 +20,7 @@ class AppShadows {
   /// Level 3: Floating buttons, dialogs, modals, payment overlays
   static const List<BoxShadow> level3 = [
     BoxShadow(
-      color: Color(0x1A002349), // Navy with 10% opacity
+      color: AppColors.level3Shadow,
       blurRadius: 32.0,
       offset: Offset(0, 8),
     ),

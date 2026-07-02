@@ -10,6 +10,7 @@ class PrimaryButton extends StatelessWidget {
   final double? width;
   final double height;
   final bool isPill;
+  final Key? buttonKey;
 
   const PrimaryButton({
     super.key,
@@ -19,6 +20,7 @@ class PrimaryButton extends StatelessWidget {
     this.width = double.infinity,
     this.height = 54.0,
     this.isPill = false,
+    this.buttonKey,
   });
 
   @override
@@ -32,6 +34,7 @@ class PrimaryButton extends StatelessWidget {
       child: Opacity(
         opacity: onPressed == null || isLoading ? 0.38 : 1.0,
         child: ElevatedButton(
+          key: buttonKey,
           onPressed: isLoading ? null : onPressed,
           style: theme.elevatedButtonTheme.style?.copyWith(
             shape: WidgetStateProperty.all(

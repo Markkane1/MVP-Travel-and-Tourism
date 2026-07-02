@@ -38,7 +38,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final _cardNumberController = TextEditingController();
   final _expiryController = TextEditingController();
   final _cvvController = TextEditingController();
-  
+
   bool _saveCard = false;
   bool _isProcessing = false;
   String? _errorMessage;
@@ -90,7 +90,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   }
 
                   final cleanNo = cardNo.replaceAll(RegExp(r'\s+'), '');
-                  final last4 = cleanNo.length >= 4 ? cleanNo.substring(cleanNo.length - 4) : '9999';
+                  final last4 = cleanNo.length >= 4
+                      ? cleanNo.substring(cleanNo.length - 4)
+                      : '9999';
 
                   await checkoutRepo.savePaymentMethod(
                     uid: authUser.uid,
@@ -155,6 +157,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      key: const Key('checkout_screen'),
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
@@ -182,7 +185,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         error: (err, stack) => Center(
           child: ErrorStateView(
             message: err.toString(),
-            onRetry: () => ref.refresh(bookingDetailsProvider(widget.bookingId)),
+            onRetry: () =>
+                ref.refresh(bookingDetailsProvider(widget.bookingId)),
           ),
         ),
         data: (booking) {
@@ -205,7 +209,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   children: [
                     // 1. Error Banner
                     if (_errorMessage != null) ...[
-                      ErrorBannerWidget(errorMessage: _errorMessage ?? AppStrings.checkout.paymentFailed),
+                      ErrorBannerWidget(
+                        errorMessage:
+                            _errorMessage ?? AppStrings.checkout.paymentFailed,
+                      ),
                       AppSpacing.gapMd,
                     ],
 
@@ -214,7 +221,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     AppSpacing.gapLg,
 
                     // 3. Apple & Google Pay Digital Wallets (visual only with DEMO badge)
-                    DigitalWalletsWidget(booking: booking, onPay: _processPayment),
+                    DigitalWalletsWidget(
+                      booking: booking,
+                      onPay: _processPayment,
+                    ),
                     AppSpacing.gapLg,
 
                     // 4. Divider
@@ -247,11 +257,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     );
   }
 
-  
-  
-  
-  
-  
   Widget _buildCreditCardForm() {
     return AppCard(
       child: Column(
@@ -260,9 +265,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           Text(
             'Credit or Debit Card',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.onSurface,
-                ),
+              fontWeight: FontWeight.bold,
+              color: AppColors.onSurface,
+            ),
           ),
           AppSpacing.gapMd,
           AppTextField(
@@ -315,8 +320,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 child: Text(
                   AppStrings.checkout.saveCardLabel,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppColors.onSurfaceVariant,
-                      ),
+                    color: AppColors.onSurfaceVariant,
+                  ),
                 ),
               ),
             ],
@@ -328,7 +333,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   Widget _buildBankTransferRow(Booking booking) {
     return GestureDetector(
-      onTap: () => context.push('/booking/${booking.id}/checkout/bank', extra: booking.totalPrice),
+      onTap: () => context.push(
+        '/booking/${booking.id}/checkout/bank',
+        extra: booking.totalPrice,
+      ),
       child: AppCard(
         child: Row(
           children: [
@@ -350,7 +358,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     );
   }
 
-  
   Widget _buildStickyBottomBar(Booking booking) {
     final double total = booking.totalPrice;
 
@@ -361,7 +368,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         decoration: const BoxDecoration(
           color: Colors.white,
           boxShadow: AppShadows.level3,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadii.lg),
+          ),
         ),
         child: SafeArea(
           top: false,
@@ -369,10 +378,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               PrimaryButton(
-                label: 'Pay \$${total.toInt().toString().replaceAllMapped(
-                      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                      (Match m) => '${m[1]},',
-                    )} →',
+                buttonKey: const Key('checkout_pay_button'),
+                label:
+                    'Pay \$${total.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} →',
                 onPressed: () => _processPayment(booking),
                 // Hidden debug toggle enabled on long-press only in debug builds
                 // Using standard Gesture wrapper in build pipeline to capture trigger
@@ -388,7 +396,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       'DEBUG: Long-press here to toggle payment failure scenario',
                       style: TextStyle(
                         fontSize: 9.0,
-                        color: AppColors.onSurfaceVariant.withValues(alpha: 0.5),
+                        color: AppColors.onSurfaceVariant.withValues(
+                          alpha: 0.5,
+                        ),
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -401,7 +411,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ),
     );
   }
-
-  }
+}
 
 /// Dynamic rotating ring graphic.

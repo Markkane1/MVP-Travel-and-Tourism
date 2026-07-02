@@ -12,7 +12,6 @@ import '../../../../core/widgets/section_header.dart';
 import '../../../explore/domain/review.dart';
 import '../../../search/search.dart';
 
-
 import '../../data/tour_details_repository.dart';
 
 /// Detailed view of a single selected Tour package.
@@ -35,10 +34,12 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
     final theme = Theme.of(context);
     final tourDetail = ref.watch(tourDetailsProvider(widget.tourId));
     final tourReviewsVal = ref.watch(tourReviewsProvider(widget.tourId));
-    final savedTours = ref.watch(optimisticSavedToursProvider).value ?? <String>{};
+    final savedTours =
+        ref.watch(optimisticSavedToursProvider).value ?? <String>{};
     final isSaved = savedTours.contains(widget.tourId);
 
     return Scaffold(
+      key: const Key('tour_details_screen'),
       backgroundColor: AppColors.background,
       body: tourDetail.when(
         data: (tour) {
@@ -66,7 +67,9 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                       width: double.infinity,
                       decoration: const BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(AppRadii.xl),
+                        ),
                       ),
                       padding: const EdgeInsets.all(AppSpacing.lg),
                       child: Column(
@@ -106,7 +109,11 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                           // Rating and Location
                           Row(
                             children: [
-                              const Icon(Icons.star, color: AppColors.warning, size: 18.0),
+                              const Icon(
+                                Icons.star,
+                                color: AppColors.warning,
+                                size: 18.0,
+                              ),
                               const SizedBox(width: 4.0),
                               Text(
                                 '${tour.ratingAverage} · ${tour.destination}',
@@ -121,9 +128,15 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                           // Metadata horizontal icons row
                           Row(
                             children: [
-                              _buildMetadataIcon(Icons.calendar_today, '${tour.durationDays} Days'),
+                              _buildMetadataIcon(
+                                Icons.calendar_today,
+                                '${tour.durationDays} Days',
+                              ),
                               const SizedBox(width: 20.0),
-                              _buildMetadataIcon(Icons.people, 'Max ${tour.maxParticipants} People'),
+                              _buildMetadataIcon(
+                                Icons.people,
+                                'Max ${tour.maxParticipants} People',
+                              ),
                             ],
                           ),
                           const Divider(height: 32.0),
@@ -142,7 +155,9 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                               color: AppColors.onSurfaceVariant,
                             ),
                             maxLines: _isOverviewExpanded ? null : 4,
-                            overflow: _isOverviewExpanded ? null : TextOverflow.ellipsis,
+                            overflow: _isOverviewExpanded
+                                ? null
+                                : TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4.0),
                           GestureDetector(
@@ -180,32 +195,38 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                             ),
                           ),
                           AppSpacing.gapMd,
-                          ...tour.inclusions.map((inc) => Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.check_circle_outline,
-                                      color: AppColors.success,
-                                      size: 20.0,
+                          ...tour.inclusions.map(
+                            (inc) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.check_circle_outline,
+                                    color: AppColors.success,
+                                    size: 20.0,
+                                  ),
+                                  const SizedBox(width: 8.0),
+                                  Expanded(
+                                    child: Text(
+                                      inc,
+                                      style: theme.textTheme.bodyMedium,
                                     ),
-                                    const SizedBox(width: 8.0),
-                                    Expanded(
-                                      child: Text(
-                                        inc,
-                                        style: theme.textTheme.bodyMedium,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                           const Divider(height: 32.0),
 
                           // Reviews segment
                           tourReviewsVal.when(
-                            data: (reviews) => _buildReviewsSegment(reviews, theme),
-                            loading: () => const Center(child: CircularProgressIndicator()),
-                            error: (err, stack) => const Text('Failed to load reviews.'),
+                            data: (reviews) =>
+                                _buildReviewsSegment(reviews, theme),
+                            loading: () => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            error: (err, stack) =>
+                                const Text('Failed to load reviews.'),
                           ),
                         ],
                       ),
@@ -272,21 +293,29 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                   children: [
                     // Back button in translucent circle
                     CircleAvatar(
-                      backgroundColor: AppColors.onSurface.withValues(alpha: 0.4),
+                      backgroundColor: AppColors.onSurface.withValues(
+                        alpha: 0.4,
+                      ),
                       radius: 20.0,
                       child: Semantics(
                         label: 'Go back',
                         button: true,
                         child: IconButton(
                           tooltip: 'Go back',
-                          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20.0),
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                            size: 20.0,
+                          ),
                           onPressed: () => context.pop(),
                         ),
                       ),
                     ),
                     // Bookmark toggle in translucent circle
                     CircleAvatar(
-                      backgroundColor: AppColors.onSurface.withValues(alpha: 0.4),
+                      backgroundColor: AppColors.onSurface.withValues(
+                        alpha: 0.4,
+                      ),
                       radius: 20.0,
                       child: Semantics(
                         label: isSaved ? 'Remove from saved' : 'Save tour',
@@ -307,7 +336,11 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                               onFailure: (exception) {
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Bookmark sync error: ${exception.message}')),
+                                    SnackBar(
+                                      content: Text(
+                                        'Bookmark sync error: ${exception.message}',
+                                      ),
+                                    ),
                                   );
                                 }
                               },
@@ -330,7 +363,10 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: const BoxDecoration(
                     border: Border(
-                      top: BorderSide(color: AppColors.outlineVariant, width: 1.0),
+                      top: BorderSide(
+                        color: AppColors.outlineVariant,
+                        width: 1.0,
+                      ),
                     ),
                   ),
                   child: Row(
@@ -357,8 +393,10 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                       const SizedBox(width: 16.0),
                       Expanded(
                         child: PrimaryButton(
+                          buttonKey: const Key('tour_details_book_button'),
                           label: 'Book Now',
-                          onPressed: () => context.push('/tour/${widget.tourId}/book'),
+                          onPressed: () =>
+                              context.push('/tour/${widget.tourId}/book'),
                         ),
                       ),
                     ],
@@ -376,7 +414,8 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
               const Text('Failed to load tour details.'),
               const SizedBox(height: 8.0),
               ElevatedButton(
-                onPressed: () => ref.invalidate(tourDetailsProvider(widget.tourId)),
+                onPressed: () =>
+                    ref.invalidate(tourDetailsProvider(widget.tourId)),
                 child: const Text('Retry'),
               ),
             ],
@@ -409,7 +448,8 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: displayCount,
           itemBuilder: (context, index) {
-            final Map<String, dynamic> step = itinerary[index] as Map<String, dynamic>;
+            final Map<String, dynamic> step =
+                itinerary[index] as Map<String, dynamic>;
             final String title = step['title'] as String? ?? '';
             final String description = step['description'] as String? ?? '';
             final int day = step['day'] as int? ?? (index + 1);
@@ -486,7 +526,11 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                 _isItineraryExpanded = !_isItineraryExpanded;
               });
             },
-            child: Text(_isItineraryExpanded ? 'Collapse Itinerary' : 'View Full Itinerary'),
+            child: Text(
+              _isItineraryExpanded
+                  ? 'Collapse Itinerary'
+                  : 'View Full Itinerary',
+            ),
           ),
       ],
     );
@@ -507,9 +551,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeader(
-          title: 'Reviews (${reviews.length})',
-        ),
+        SectionHeader(title: 'Reviews (${reviews.length})'),
         AppSpacing.gapMd,
         SizedBox(
           height: 130.0,
@@ -550,7 +592,10 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              RatingStars(rating: review.overallRating, starSize: 12.0),
+                              RatingStars(
+                                rating: review.overallRating,
+                                starSize: 12.0,
+                              ),
                             ],
                           ),
                         ),

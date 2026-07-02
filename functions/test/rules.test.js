@@ -224,7 +224,7 @@ test('storage allows own image upload, blocks other user upload, and keeps conci
   );
 });
 
-test('user-path images stay publicly readable under the current storage model', async () => {
+test('user-path images stay private to the owning user', async () => {
   await testEnv.withSecurityRulesDisabled(async (context) => {
     await context.storage(bucketUrl)
       .ref('users/alice/profile.png')
@@ -233,10 +233,14 @@ test('user-path images stay publicly readable under the current storage model', 
       });
   });
 
-  const publicStorage = testEnv.unauthenticatedContext().storage(bucketUrl);
-  const url = await assertSucceeds(
-    publicStorage.ref('users/alice/profile.png').getDownloadURL(),
+  const aliceStorage = authedStorage('alice');
+  const bobStorage = authedStorage('bob');
+
+  await assertSucceeds(
+    aliceStorage.ref('users/alice/profile.png').getDownloadURL(),
   );
 
-  assert.equal(typeof url, 'string');
+  await assertFails(
+    bobStorage.ref('users/alice/profile.png').getDownloadURL(),
+  );
 });

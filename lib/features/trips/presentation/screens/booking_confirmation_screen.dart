@@ -31,10 +31,12 @@ class BookingConfirmationScreen extends ConsumerStatefulWidget {
   const BookingConfirmationScreen({super.key, required this.bookingId});
 
   @override
-  ConsumerState<BookingConfirmationScreen> createState() => _BookingConfirmationScreenState();
+  ConsumerState<BookingConfirmationScreen> createState() =>
+      _BookingConfirmationScreenState();
 }
 
-class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationScreen> {
+class _BookingConfirmationScreenState
+    extends ConsumerState<BookingConfirmationScreen> {
   LatLng? _mapCenter;
   bool _isGeocoding = false;
 
@@ -50,11 +52,16 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
     });
 
     try {
-      final List<geo.Location> locations = await geo.locationFromAddress(booking.pickupLocation);
+      final List<geo.Location> locations = await geo.locationFromAddress(
+        booking.pickupLocation,
+      );
       if (locations.isNotEmpty) {
         if (mounted) {
           setState(() {
-            _mapCenter = LatLng(locations.first.latitude, locations.first.longitude);
+            _mapCenter = LatLng(
+              locations.first.latitude,
+              locations.first.longitude,
+            );
             _isGeocoding = false;
           });
         }
@@ -95,7 +102,8 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
   void _addToCalendar(Booking booking, Tour tour) {
     final Event event = Event(
       title: tour.title,
-      description: 'Booking Reference: ${booking.bookingReferenceCode ?? booking.id}\nPickup Location: ${booking.pickupLocation}',
+      description:
+          'Booking Reference: ${booking.bookingReferenceCode ?? booking.id}\nPickup Location: ${booking.pickupLocation}',
       location: booking.pickupLocation,
       startDate: booking.tourDate,
       endDate: booking.tourDate.add(Duration(days: tour.durationDays)),
@@ -108,7 +116,8 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
   Future<void> _downloadPdfReceipt(Booking booking, Tour tour) async {
     final doc = pw.Document();
 
-    final dateStr = '${booking.tourDate.day}/${booking.tourDate.month}/${booking.tourDate.year}';
+    final dateStr =
+        '${booking.tourDate.day}/${booking.tourDate.month}/${booking.tourDate.year}';
     final guests = booking.adults + booking.children;
 
     doc.addPage(
@@ -121,36 +130,72 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 // Header / Letterhead
-                pw.Text('MVP Travel and Tourism LLC', style: const pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
-                pw.Text('Luxury Expeditions & Custom Travel Services', style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey)),
+                pw.Text(
+                  'MVP Travel and Tourism LLC',
+                  style: const pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.Text(
+                  'Luxury Expeditions & Custom Travel Services',
+                  style: const pw.TextStyle(
+                    fontSize: 10,
+                    color: PdfColors.grey,
+                  ),
+                ),
                 pw.SizedBox(height: 8.0),
                 pw.Divider(thickness: 1.5),
                 pw.SizedBox(height: 24.0),
 
                 // Document Title
                 pw.Center(
-                  child: pw.Text('BOOKING RECEIPT', style: const pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, letterSpacing: 1.0)),
+                  child: pw.Text(
+                    'BOOKING RECEIPT',
+                    style: const pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
                 ),
                 pw.SizedBox(height: 24.0),
 
                 // Details
-                _buildPdfRow('Booking Reference:', booking.bookingReferenceCode ?? booking.id),
+                _buildPdfRow(
+                  'Booking Reference:',
+                  booking.bookingReferenceCode ?? booking.id,
+                ),
                 _buildPdfRow('Tour:', tour.title),
                 _buildPdfRow('Destination:', tour.destination),
                 _buildPdfRow('Date:', dateStr),
-                _buildPdfRow('Participants:', '$guests ($guests Adults, 0 Children)'),
-                if (booking.privateVehicle) _buildPdfRow('Transportation:', 'Private Vehicle Upgrade Included'),
+                _buildPdfRow(
+                  'Participants:',
+                  '$guests ($guests Adults, 0 Children)',
+                ),
+                if (booking.privateVehicle)
+                  _buildPdfRow(
+                    'Transportation:',
+                    'Private Vehicle Upgrade Included',
+                  ),
                 _buildPdfRow('Pickup Location:', booking.pickupLocation),
                 pw.Divider(thickness: 0.5),
                 pw.SizedBox(height: 12.0),
-                _buildPdfRow('Total Price:', '\$${booking.totalPrice.toInt().toString()} ${booking.currency.toUpperCase()}', isBold: true),
+                _buildPdfRow(
+                  'Total Price:',
+                  '\$${booking.totalPrice.toInt().toString()} ${booking.currency.toUpperCase()}',
+                  isBold: true,
+                ),
 
                 pw.Spacer(),
                 pw.Divider(thickness: 0.5),
                 pw.Center(
                   child: pw.Text(
                     'Thank you for booking with MVP Travel. For inquiries, email support@mvptravel.com.',
-                    style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey),
+                    style: const pw.TextStyle(
+                      fontSize: 9,
+                      color: PdfColors.grey,
+                    ),
                   ),
                 ),
               ],
@@ -160,7 +205,10 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
       ),
     );
 
-    await Printing.sharePdf(bytes: await doc.save(), filename: 'booking_receipt_${booking.bookingReferenceCode}.pdf');
+    await Printing.sharePdf(
+      bytes: await doc.save(),
+      filename: 'booking_receipt_${booking.bookingReferenceCode}.pdf',
+    );
   }
 
   pw.Widget _buildPdfRow(String label, String value, {bool isBold = false}) {
@@ -169,8 +217,20 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
-          pw.Text(label, style: pw.TextStyle(fontSize: 12, fontWeight: isBold ? pw.FontWeight.bold : pw.FontWeight.normal)),
-          pw.Text(value, style: const pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
+          pw.Text(
+            label,
+            style: pw.TextStyle(
+              fontSize: 12,
+              fontWeight: isBold ? pw.FontWeight.bold : pw.FontWeight.normal,
+            ),
+          ),
+          pw.Text(
+            value,
+            style: const pw.TextStyle(
+              fontSize: 12,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -183,6 +243,7 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
     final user = ref.watch(authServiceProvider).currentUser;
 
     return Scaffold(
+      key: const Key('booking_confirmation_screen'),
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
@@ -207,9 +268,15 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
               child: CircleAvatar(
                 radius: 16.0,
                 backgroundColor: AppColors.primaryContainer,
-                backgroundImage: user?.photoUrl != null ? NetworkImage(user!.photoUrl!) : null,
+                backgroundImage: user?.photoUrl != null
+                    ? NetworkImage(user!.photoUrl!)
+                    : null,
                 child: user?.photoUrl == null
-                    ? const Icon(Icons.person, size: 18.0, color: AppColors.primary)
+                    ? const Icon(
+                        Icons.person,
+                        size: 18.0,
+                        color: AppColors.primary,
+                      )
                     : null,
               ),
             ),
@@ -221,7 +288,8 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
         error: (err, stack) => Center(
           child: ErrorStateView(
             message: err.toString(),
-            onRetry: () => ref.refresh(bookingDetailsProvider(widget.bookingId)),
+            onRetry: () =>
+                ref.refresh(bookingDetailsProvider(widget.bookingId)),
           ),
         ),
         data: (booking) {
@@ -233,7 +301,8 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
 
           return tourState.when(
             loading: () => const Center(child: LoadingIndicator()),
-            error: (err, stack) => Center(child: Text('Error loading tour: $err')),
+            error: (err, stack) =>
+                Center(child: Text('Error loading tour: $err')),
             data: (tour) {
               if (tour == null) {
                 return const Center(child: Text('Tour not found.'));
@@ -242,10 +311,12 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
               // Trigger geocoding process
               _initGeocoding(booking, tour);
 
-              final dateStr = '${booking.tourDate.day}/${booking.tourDate.month}/${booking.tourDate.year}';
+              final dateStr =
+                  '${booking.tourDate.day}/${booking.tourDate.month}/${booking.tourDate.year}';
               final guestsCount = booking.adults + booking.children;
               final guestsLabel = guestsCount == 1 ? 'Guest' : 'Guests';
-              final step3Text = '3 — Prepare for Adventure: Review the ${tour.category.toLowerCase()} preparation guide in your profile.';
+              final step3Text =
+                  '3 — Prepare for Adventure: Review the ${tour.category.toLowerCase()} preparation guide in your profile.';
 
               return SingleChildScrollView(
                 padding: const EdgeInsets.only(
@@ -265,7 +336,11 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
-                        child: Icon(Icons.check, color: Colors.white, size: 32.0),
+                        child: Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 32.0,
+                        ),
                       ),
                     ),
                     AppSpacing.gapMd,
@@ -287,7 +362,13 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
                     AppSpacing.gapLg,
 
                     // Tour Card
-                    _buildConfirmedTourCard(booking, tour, dateStr, guestsCount, guestsLabel),
+                    _buildConfirmedTourCard(
+                      booking,
+                      tour,
+                      dateStr,
+                      guestsCount,
+                      guestsLabel,
+                    ),
                     AppSpacing.gapLg,
 
                     // Logistics Section
@@ -303,10 +384,15 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
                       onPressed: () => _addToCalendar(booking, tour),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.secondary,
-                        side: const BorderSide(color: AppColors.secondary, width: 1.5),
+                        side: const BorderSide(
+                          color: AppColors.secondary,
+                          width: 1.5,
+                        ),
                         minimumSize: const Size(double.infinity, 50.0),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadii.defaultRadius),
+                          borderRadius: BorderRadius.circular(
+                            AppRadii.defaultRadius,
+                          ),
                         ),
                       ),
                       child: Row(
@@ -326,10 +412,15 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
                       onPressed: () => _downloadPdfReceipt(booking, tour),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.onSurfaceVariant,
-                        side: const BorderSide(color: AppColors.outline, width: 1.0),
+                        side: const BorderSide(
+                          color: AppColors.outline,
+                          width: 1.0,
+                        ),
                         minimumSize: const Size(double.infinity, 50.0),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadii.defaultRadius),
+                          borderRadius: BorderRadius.circular(
+                            AppRadii.defaultRadius,
+                          ),
                         ),
                       ),
                       child: Row(
@@ -348,6 +439,9 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
 
                     // Back to Home
                     PrimaryButton(
+                      buttonKey: const Key(
+                        'booking_confirmation_back_home_button',
+                      ),
                       label: AppStrings.trips.backToHomeButton,
                       onPressed: () => context.go('/explore'),
                     ),
@@ -361,7 +455,13 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
     );
   }
 
-  Widget _buildConfirmedTourCard(Booking booking, Tour tour, String dateStr, int guestsCount, String guestsLabel) {
+  Widget _buildConfirmedTourCard(
+    Booking booking,
+    Tour tour,
+    String dateStr,
+    int guestsCount,
+    String guestsLabel,
+  ) {
     final theme = Theme.of(context);
     return AppCard(
       child: Column(
@@ -386,7 +486,10 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
                 top: 12.0,
                 left: 12.0,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10.0,
+                    vertical: 4.0,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.secondary,
                     borderRadius: BorderRadius.circular(AppRadii.sm),
@@ -418,8 +521,14 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
           _buildTourCardRow(Icons.calendar_today_outlined, dateStr),
           _buildTourCardRow(Icons.people_outline, '$guestsCount $guestsLabel'),
           if (booking.privateVehicle)
-            _buildTourCardRow(Icons.airport_shuttle_outlined, 'Private Vehicle Service'),
-          _buildTourCardRow(Icons.confirmation_number_outlined, booking.bookingReferenceCode ?? booking.id),
+            _buildTourCardRow(
+              Icons.airport_shuttle_outlined,
+              'Private Vehicle Service',
+            ),
+          _buildTourCardRow(
+            Icons.confirmation_number_outlined,
+            booking.bookingReferenceCode ?? booking.id,
+          ),
         ],
       ),
     );
@@ -436,8 +545,8 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
+                color: AppColors.onSurfaceVariant,
+              ),
             ),
           ),
         ],
@@ -453,7 +562,11 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
         children: [
           Row(
             children: [
-              const Icon(Icons.location_on_outlined, color: AppColors.primary, size: 22.0),
+              const Icon(
+                Icons.location_on_outlined,
+                color: AppColors.primary,
+                size: 22.0,
+              ),
               const SizedBox(width: 8.0),
               Text(
                 AppStrings.trips.logisticsSection,
@@ -523,12 +636,19 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.outline, width: 1.0),
                 shape: const StadiumBorder(),
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 8.0,
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.map, size: 16.0, color: AppColors.onSurfaceVariant),
+                  const Icon(
+                    Icons.map,
+                    size: 16.0,
+                    color: AppColors.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 6.0),
                   Text(
                     AppStrings.trips.viewInMapsButton,

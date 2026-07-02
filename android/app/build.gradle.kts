@@ -19,7 +19,10 @@ if (keyPropertiesFile.exists()) {
 android {
     namespace = "com.mvptravelandtourism.app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+
+    buildFeatures {
+        resValues = true
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

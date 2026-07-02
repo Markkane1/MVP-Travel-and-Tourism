@@ -28,7 +28,8 @@ class TripsScreen extends ConsumerStatefulWidget {
   ConsumerState<TripsScreen> createState() => _TripsScreenState();
 }
 
-class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProviderStateMixin {
+class _TripsScreenState extends ConsumerState<TripsScreen>
+    with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
   @override
@@ -40,7 +41,11 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
     } else if (widget.initialSegment == 'history') {
       initialIndex = 1;
     }
-    _tabController = TabController(length: 3, vsync: this, initialIndex: initialIndex);
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: initialIndex,
+    );
   }
 
   @override
@@ -69,7 +74,10 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
               onPressed: () => Navigator.pop(context, true),
               child: Text(
                 AppStrings.trips.cancelConfirmText,
-                style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: AppColors.error,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -80,7 +88,9 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
     if (confirm != true) return;
 
     try {
-      final res = await ref.read(tripsRepositoryProvider).cancelBooking(bookingId);
+      final res = await ref
+          .read(tripsRepositoryProvider)
+          .cancelBooking(bookingId);
       res.when(
         onSuccess: (_) {
           if (mounted) {
@@ -91,9 +101,9 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
         },
         onFailure: (exception) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(exception.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(exception.message)));
           }
         },
       );
@@ -118,7 +128,9 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
               content: const Text('Tour removed from saved list.'),
               action: SnackBarAction(
                 label: 'Undo',
-                onPressed: () => ref.read(optimisticSavedToursProvider.notifier).toggleSave(tour.id),
+                onPressed: () => ref
+                    .read(optimisticSavedToursProvider.notifier)
+                    .toggleSave(tour.id),
               ),
             ),
           );
@@ -127,7 +139,9 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
       onFailure: (exception) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to unsave tour: ${exception.message}')),
+            SnackBar(
+              content: Text('Failed to unsave tour: ${exception.message}'),
+            ),
           );
         }
       },
@@ -148,6 +162,7 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
     final bookingsState = ref.watch(userBookingsProvider(user.uid));
 
     return Scaffold(
+      key: const Key('trips_screen'),
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
@@ -168,9 +183,15 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
               child: CircleAvatar(
                 radius: 16.0,
                 backgroundColor: AppColors.primaryContainer,
-                backgroundImage: user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+                backgroundImage: user.photoUrl != null
+                    ? NetworkImage(user.photoUrl!)
+                    : null,
                 child: user.photoUrl == null
-                    ? const Icon(Icons.person, size: 18.0, color: AppColors.primary)
+                    ? const Icon(
+                        Icons.person,
+                        size: 18.0,
+                        color: AppColors.primary,
+                      )
                     : null,
               ),
             ),
@@ -181,7 +202,10 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
           indicatorColor: AppColors.secondary, // Gold indicator
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.onSurfaceVariant,
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.0),
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 13.0,
+          ),
           tabs: [
             Tab(text: AppStrings.trips.segmentUpcoming),
             Tab(text: AppStrings.trips.segmentHistory),
@@ -195,11 +219,19 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
           // 1. Upcoming Segment
           bookingsState.when(
             loading: () => const Center(child: LoadingIndicator()),
-            error: (err, stack) => Center(child: ErrorStateView(message: err.toString(), onRetry: () => ref.refresh(userBookingsProvider(user.uid)))),
+            error: (err, stack) => Center(
+              child: ErrorStateView(
+                message: err.toString(),
+                onRetry: () => ref.refresh(userBookingsProvider(user.uid)),
+              ),
+            ),
             data: (list) {
               final upcoming = list.where((b) {
-                final isFuture = b.tourDate.isAfter(DateTime.now().subtract(const Duration(days: 1)));
-                return (b.status == 'pending' || b.status == 'confirmed') && isFuture;
+                final isFuture = b.tourDate.isAfter(
+                  DateTime.now().subtract(const Duration(days: 1)),
+                );
+                return (b.status == 'pending' || b.status == 'confirmed') &&
+                    isFuture;
               }).toList();
 
               if (upcoming.isEmpty) {
@@ -211,7 +243,7 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
                 itemCount: upcoming.length,
                 itemBuilder: (context, index) {
                   final booking = upcoming[index];
-                  return _buildUpcomingCard(booking);
+                  return _buildUpcomingCard(booking, index);
                 },
               );
             },
@@ -220,11 +252,19 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
           // 2. History Segment
           bookingsState.when(
             loading: () => const Center(child: LoadingIndicator()),
-            error: (err, stack) => Center(child: ErrorStateView(message: err.toString(), onRetry: () => ref.refresh(userBookingsProvider(user.uid)))),
+            error: (err, stack) => Center(
+              child: ErrorStateView(
+                message: err.toString(),
+                onRetry: () => ref.refresh(userBookingsProvider(user.uid)),
+              ),
+            ),
             data: (list) {
               final history = list.where((b) {
-                final isPast = b.tourDate.isBefore(DateTime.now().subtract(const Duration(days: 1)));
-                return b.status == 'completed' || (b.status == 'confirmed' && isPast);
+                final isPast = b.tourDate.isBefore(
+                  DateTime.now().subtract(const Duration(days: 1)),
+                );
+                return b.status == 'completed' ||
+                    (b.status == 'confirmed' && isPast);
               }).toList();
 
               if (history.isEmpty) {
@@ -236,31 +276,38 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
                 itemCount: history.length,
                 itemBuilder: (context, index) {
                   final booking = history[index];
-                  return _buildHistoryCard(booking);
+                  return _buildHistoryCard(booking, index);
                 },
               );
             },
           ),
 
           // 3. Saved Tours Segment
-          ref.watch(savedToursListProvider).when(
-            loading: () => const Center(child: LoadingIndicator()),
-            error: (err, stack) => Center(child: ErrorStateView(message: err.toString(), onRetry: () => ref.refresh(savedToursListProvider))),
-            data: (savedTours) {
-              if (savedTours.isEmpty) {
-                return Center(child: Text(AppStrings.trips.emptySaved));
-              }
+          ref
+              .watch(savedToursListProvider)
+              .when(
+                loading: () => const Center(child: LoadingIndicator()),
+                error: (err, stack) => Center(
+                  child: ErrorStateView(
+                    message: err.toString(),
+                    onRetry: () => ref.refresh(savedToursListProvider),
+                  ),
+                ),
+                data: (savedTours) {
+                  if (savedTours.isEmpty) {
+                    return Center(child: Text(AppStrings.trips.emptySaved));
+                  }
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(AppSpacing.containerMargin),
-                itemCount: savedTours.length,
-                itemBuilder: (context, index) {
-                  final tour = savedTours[index];
-                  return _buildSavedTourCard(tour);
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(AppSpacing.containerMargin),
+                    itemCount: savedTours.length,
+                    itemBuilder: (context, index) {
+                      final tour = savedTours[index];
+                      return _buildSavedTourCard(tour);
+                    },
+                  );
                 },
-              );
-            },
-          ),
+              ),
         ],
       ),
     );
@@ -278,7 +325,8 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
             border: Border.all(
               color: AppColors.outlineVariant,
               width: 1.5,
-              style: BorderStyle.solid, // Custom dashed borders can be simulated with CustomPaint, standard solid looks extremely clean
+              style: BorderStyle
+                  .solid, // Custom dashed borders can be simulated with CustomPaint, standard solid looks extremely clean
             ),
           ),
           child: Column(
@@ -287,16 +335,16 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
               Text(
                 AppStrings.trips.emptyUpcomingTitle,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
               ),
               const SizedBox(height: 8.0),
               Text(
                 AppStrings.trips.emptyUpcomingBody,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
+                  color: AppColors.onSurfaceVariant,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16.0),
@@ -311,14 +359,16 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
     );
   }
 
-  Widget _buildUpcomingCard(Booking booking) {
+  Widget _buildUpcomingCard(Booking booking, int index) {
     final theme = Theme.of(context);
-    final dateStr = '${booking.tourDate.day}/${booking.tourDate.month}/${booking.tourDate.year}';
+    final dateStr =
+        '${booking.tourDate.day}/${booking.tourDate.month}/${booking.tourDate.year}';
     final isConfirmed = booking.status == 'confirmed';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: AppCard(
+        key: Key('trip_card_$index'),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -356,7 +406,10 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                              vertical: 3.0,
+                            ),
                             decoration: BoxDecoration(
                               color: isConfirmed
                                   ? AppColors.successContainer
@@ -388,7 +441,11 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
                 ),
               ],
             ),
-            const Divider(height: 24.0, color: AppColors.outlineVariant, thickness: 1.0),
+            const Divider(
+              height: 24.0,
+              color: AppColors.outlineVariant,
+              thickness: 1.0,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -424,14 +481,16 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
     );
   }
 
-  Widget _buildHistoryCard(Booking booking) {
+  Widget _buildHistoryCard(Booking booking, int index) {
     final theme = Theme.of(context);
-    final dateStr = '${booking.tourDate.day}/${booking.tourDate.month}/${booking.tourDate.year}';
+    final dateStr =
+        '${booking.tourDate.day}/${booking.tourDate.month}/${booking.tourDate.year}';
     final isReviewedState = ref.watch(tourReviewedProvider(booking.tourId));
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: AppCard(
+        key: Key('trip_history_card_$index'),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -477,7 +536,11 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
                 ),
               ],
             ),
-            const Divider(height: 24.0, color: AppColors.outlineVariant, thickness: 1.0),
+            const Divider(
+              height: 24.0,
+              color: AppColors.outlineVariant,
+              thickness: 1.0,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -504,7 +567,11 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
                   )
                 else
                   isReviewedState.when(
-                    loading: () => const SizedBox(width: 24.0, height: 24.0, child: CircularProgressIndicator(strokeWidth: 2.0)),
+                    loading: () => const SizedBox(
+                      width: 24.0,
+                      height: 24.0,
+                      child: CircularProgressIndicator(strokeWidth: 2.0),
+                    ),
                     error: (e, s) => const SizedBox.shrink(),
                     data: (reviewed) {
                       if (reviewed) {
@@ -518,7 +585,8 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
                         );
                       }
                       return TextButton(
-                        onPressed: () => context.push('/trips/${booking.id}/review'),
+                        onPressed: () =>
+                            context.push('/trips/${booking.id}/review'),
                         style: TextButton.styleFrom(padding: EdgeInsets.zero),
                         child: Text(
                           AppStrings.trips.leaveReviewButton,
@@ -587,7 +655,10 @@ class _TripsScreenState extends ConsumerState<TripsScreen> with SingleTickerProv
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.favorite, color: AppColors.error),
+                        icon: const Icon(
+                          Icons.favorite,
+                          color: AppColors.error,
+                        ),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                         onPressed: () => _unsaveTour(tour),

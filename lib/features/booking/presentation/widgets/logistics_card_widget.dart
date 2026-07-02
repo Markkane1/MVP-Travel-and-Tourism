@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 import '../../../../core/theme/app_radii.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -34,6 +33,7 @@ class LogisticsCardWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppTextField(
+            fieldKey: const Key('booking_pickup_field'),
             controller: pickupController,
             labelText: AppStrings.booking.pickupLocationLabel,
             hintText: AppStrings.booking.pickupLocationHint,

@@ -13,7 +13,9 @@ class FirestoreService {
     required T Function(Map<String, dynamic> json) fromJson,
     required Map<String, dynamic> Function(T value) toJson,
   }) async {
-    final docRef = _firestore.doc(path).withConverter<T>(
+    final docRef = _firestore
+        .doc(path)
+        .withConverter<T>(
           fromFirestore: (snapshot, _) => fromJson(snapshot.data() ?? {}),
           toFirestore: (value, _) => toJson(value),
         );
@@ -28,11 +30,7 @@ class FirestoreService {
     required Map<String, dynamic> Function(T value) toJson,
     bool merge = true,
   }) async {
-    final docRef = _firestore.doc(path).withConverter<T>(
-          fromFirestore: (snapshot, _) => throw UnimplementedError(),
-          toFirestore: (value, _) => toJson(value),
-        );
-    await docRef.set(data, SetOptions(merge: merge));
+    await _firestore.doc(path).set(toJson(data), SetOptions(merge: merge));
   }
 
   /// Updates existing fields inside a document at the path.
@@ -44,9 +42,7 @@ class FirestoreService {
   }
 
   /// Deletes the document at the specified path.
-  Future<void> delete({
-    required String path,
-  }) async {
+  Future<void> delete({required String path}) async {
     await _firestore.doc(path).delete();
   }
 
@@ -56,7 +52,9 @@ class FirestoreService {
     required T Function(Map<String, dynamic> json) fromJson,
     required Map<String, dynamic> Function(T value) toJson,
   }) {
-    final docRef = _firestore.doc(path).withConverter<T>(
+    final docRef = _firestore
+        .doc(path)
+        .withConverter<T>(
           fromFirestore: (snapshot, _) => fromJson(snapshot.data() ?? {}),
           toFirestore: (value, _) => toJson(value),
         );
@@ -70,7 +68,9 @@ class FirestoreService {
     required Map<String, dynamic> Function(T value) toJson,
     Query<T> Function(Query<T> query)? queryBuilder,
   }) async {
-    Query<T> query = _firestore.collection(path).withConverter<T>(
+    Query<T> query = _firestore
+        .collection(path)
+        .withConverter<T>(
           fromFirestore: (snapshot, _) => fromJson(snapshot.data() ?? {}),
           toFirestore: (value, _) => toJson(value),
         );
@@ -88,7 +88,9 @@ class FirestoreService {
     required Map<String, dynamic> Function(T value) toJson,
     Query<T> Function(Query<T> query)? queryBuilder,
   }) {
-    Query<T> query = _firestore.collection(path).withConverter<T>(
+    Query<T> query = _firestore
+        .collection(path)
+        .withConverter<T>(
           fromFirestore: (snapshot, _) => fromJson(snapshot.data() ?? {}),
           toFirestore: (value, _) => toJson(value),
         );
@@ -96,8 +98,8 @@ class FirestoreService {
       query = queryBuilder(query);
     }
     return query.snapshots().map(
-          (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
-        );
+      (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
+    );
   }
 }
 

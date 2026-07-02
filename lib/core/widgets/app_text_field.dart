@@ -4,6 +4,7 @@ import '../theme/app_colors.dart';
 /// Reusable stylized text input field.
 class AppTextField extends StatefulWidget {
   final TextEditingController? controller;
+  final Key? fieldKey;
   final String labelText;
   final String? hintText;
   final String? errorText;
@@ -21,6 +22,7 @@ class AppTextField extends StatefulWidget {
   const AppTextField({
     super.key,
     this.controller,
+    this.fieldKey,
     required this.labelText,
     this.hintText,
     this.errorText,
@@ -57,12 +59,13 @@ class _AppTextFieldState extends State<AppTextField> {
       children: [
         Text(
           widget.labelText,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: AppColors.onSurface,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge?.copyWith(color: AppColors.onSurface),
         ),
         const SizedBox(height: 8.0),
         TextFormField(
+          key: widget.fieldKey,
           controller: widget.controller,
           obscureText: _obscureText,
           enabled: widget.enabled,
@@ -73,15 +76,17 @@ class _AppTextFieldState extends State<AppTextField> {
           onFieldSubmitted: widget.onFieldSubmitted,
           validator: widget.validator,
           onChanged: widget.onChanged,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.onSurface,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.onSurface),
           decoration: InputDecoration(
             hintText: widget.hintText,
             errorText: widget.errorText,
             prefixIcon: widget.prefixIcon != null
                 ? IconTheme(
-                    data: const IconThemeData(color: AppColors.onSurfaceVariant),
+                    data: const IconThemeData(
+                      color: AppColors.onSurfaceVariant,
+                    ),
                     child: widget.prefixIcon!,
                   )
                 : null,

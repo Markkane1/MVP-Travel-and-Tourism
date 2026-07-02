@@ -37,10 +37,7 @@ class AppBottomNav extends StatelessWidget {
       decoration: const BoxDecoration(
         color: AppColors.surfaceContainerLowest, // White
         border: Border(
-          top: BorderSide(
-            color: AppColors.surfaceContainer,
-            width: 1.0,
-          ),
+          top: BorderSide(color: AppColors.surfaceContainer, width: 1.0),
         ),
       ),
       padding: EdgeInsets.only(
@@ -55,6 +52,7 @@ class AppBottomNav extends StatelessWidget {
 
           return Expanded(
             child: InkWell(
+              key: Key('bottom_nav_${item.label.toLowerCase()}'),
               onTap: () => onTap(index),
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
@@ -66,12 +64,16 @@ class AppBottomNav extends StatelessWidget {
                     curve: Curves.easeInOut,
                     padding: const EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
-                      color: isActive ? AppColors.primary : Colors.transparent, // Navy circle if active
+                      color: isActive
+                          ? AppColors.primary
+                          : Colors.transparent, // Navy circle if active
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       isActive ? item.activeIcon : item.inactiveIcon,
-                      color: isActive ? AppColors.onPrimary : AppColors.onSurfaceVariant,
+                      color: isActive
+                          ? AppColors.onPrimary
+                          : AppColors.onSurfaceVariant,
                       size: 24.0,
                     ),
                   ),
@@ -79,7 +81,9 @@ class AppBottomNav extends StatelessWidget {
                   Text(
                     item.label,
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: isActive ? AppColors.primary : AppColors.onSurfaceVariant,
+                      color: isActive
+                          ? AppColors.primary
+                          : AppColors.onSurfaceVariant,
                       fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                     ),
                   ),
