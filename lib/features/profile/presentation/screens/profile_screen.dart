@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/routing/route_paths.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radii.dart';
@@ -207,7 +208,7 @@ class ProfileScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 12.0),
         OutlinedButton(
-          onPressed: () => context.push('/profile/edit'),
+          onPressed: () => context.push(RoutePaths.editProfile),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.primary,
             side: const BorderSide(color: AppColors.primary),
@@ -393,7 +394,7 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 16.0),
           Center(
             child: OutlinedButton(
-              onPressed: () => context.push('/profile/tier-benefits'),
+              onPressed: () => context.push(RoutePaths.tierBenefits),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.outline),
                 shape: const StadiumBorder(),
@@ -441,7 +442,7 @@ class ProfileScreen extends ConsumerWidget {
                 Icons.credit_card_outlined,
                 AppStrings.profile.rowPaymentMethods,
                 'Saved payment credentials',
-                () => context.push('/profile/payment-methods'),
+                () => context.push(RoutePaths.paymentMethods),
               ),
               _buildOverviewDivider(),
               _buildOverviewRow(
@@ -449,7 +450,7 @@ class ProfileScreen extends ConsumerWidget {
                 Icons.settings_suggest_outlined,
                 AppStrings.profile.rowPreferences,
                 'Travel preferences & configurations',
-                () => context.push('/profile/preferences'),
+                () => context.push(RoutePaths.travelPreferences),
               ),
             ],
           ),
@@ -516,7 +517,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16.0),
               GestureDetector(
-                onTap: () => context.push('/profile/travel-map'),
+                onTap: () => context.push(RoutePaths.travelMap),
                 child: Container(
                   width: double.infinity,
                   height: 110.0,
@@ -598,7 +599,7 @@ class ProfileScreen extends ConsumerWidget {
                 Icons.security_outlined,
                 AppStrings.profile.rowSecurity,
                 'Security parameters & deletion',
-                () => context.push('/profile/security'),
+                () => context.push(RoutePaths.securityPrivacy),
               ),
               _buildOverviewDivider(),
               _buildOverviewRow(
@@ -606,7 +607,7 @@ class ProfileScreen extends ConsumerWidget {
                 Icons.notifications_active_outlined,
                 AppStrings.profile.rowNotificationPrefs,
                 'App notification filters',
-                () => context.push('/profile/notification-settings'),
+                () => context.push(RoutePaths.notificationSettings),
               ),
               _buildOverviewDivider(),
               _buildOverviewRow(
@@ -614,7 +615,7 @@ class ProfileScreen extends ConsumerWidget {
                 Icons.help_outline,
                 AppStrings.profile.rowHelp,
                 'Support centre, terms & policies',
-                () => context.push('/profile/help'),
+                () => context.push(RoutePaths.helpSupport),
               ),
               _buildOverviewDivider(),
               ListTile(
@@ -661,7 +662,7 @@ class ProfileScreen extends ConsumerWidget {
     if (confirm == true) {
       await ref.read(authControllerProvider.notifier).logout();
       if (context.mounted) {
-        context.go('/auth');
+        context.go(RoutePaths.auth);
       }
     }
   }

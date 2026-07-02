@@ -231,32 +231,32 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const PaymentMethodsScreen(),
       ),
       GoRoute(
-        path: '/profile/preferences',
+        path: RoutePaths.travelPreferences,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const TravelPreferencesScreen(),
       ),
       GoRoute(
-        path: '/profile/tier-benefits',
+        path: RoutePaths.tierBenefits,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const TierBenefitsScreen(),
       ),
       GoRoute(
-        path: '/profile/travel-map',
+        path: RoutePaths.travelMap,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const TravelMapScreen(),
       ),
       GoRoute(
-        path: '/profile/security',
+        path: RoutePaths.securityPrivacy,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const SecurityPrivacyScreen(),
       ),
       GoRoute(
-        path: '/profile/notification-settings',
+        path: RoutePaths.notificationSettings,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const NotificationSettingsScreen(),
       ),
       GoRoute(
-        path: '/profile/help',
+        path: RoutePaths.helpSupport,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const HelpSupportScreen(),
       ),

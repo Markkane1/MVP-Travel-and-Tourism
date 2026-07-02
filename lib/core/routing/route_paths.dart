@@ -23,6 +23,12 @@ class RoutePaths {
   static const String reviewSuccess = '/trips/:bookingId/review/success';
   static const String editProfile = '/profile/edit';
   static const String paymentMethods = '/profile/payments';
+  static const String travelPreferences = '/profile/preferences';
+  static const String tierBenefits = '/profile/tier-benefits';
+  static const String travelMap = '/profile/travel-map';
+  static const String securityPrivacy = '/profile/security';
+  static const String notificationSettings = '/profile/notification-settings';
+  static const String helpSupport = '/profile/help';
   static const String notifications = '/notifications';
   static const String legalTerms = '/legal/terms';
   static const String legalPrivacy = '/legal/privacy';

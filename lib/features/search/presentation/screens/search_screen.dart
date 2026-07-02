@@ -3,6 +3,7 @@ import '../../../../core/theme/app_radii.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -117,7 +118,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
 
     context.push(
-      Uri(path: '/search/results', queryParameters: queryParams).toString(),
+      Uri(path: RoutePaths.searchResults, queryParameters: queryParams).toString(),
     );
   }
 
@@ -220,7 +221,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               setState(() {
                                 _selectedCategory = category;
                               });
-                              context.push('/search/results?category=${Uri.encodeComponent(category)}');
+                              context.push('${RoutePaths.searchResults}?category=${Uri.encodeComponent(category)}');
                             }
                           },
                           backgroundColor: AppColors.surfaceContainerLow,

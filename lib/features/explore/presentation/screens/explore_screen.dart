@@ -3,6 +3,7 @@ import '../../../../core/theme/app_radii.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/section_header.dart';
@@ -124,7 +125,7 @@ class ExploreScreen extends ConsumerWidget {
               // 3. Category selector row
               CategorySelector(
                 onCategorySelected: (category) {
-                  context.push('/search/results?category=${Uri.encodeComponent(category)}');
+                  context.push('${RoutePaths.searchResults}?category=${Uri.encodeComponent(category)}');
                 },
               ),
               AppSpacing.gapLg,
@@ -136,7 +137,7 @@ class ExploreScreen extends ConsumerWidget {
                   SectionHeader(
                     title: 'Featured Tours',
                     actionLabel: 'See All',
-                    onActionPressed: () => context.push('/search/results?featured=true'),
+                    onActionPressed: () => context.push('${RoutePaths.searchResults}?featured=true'),
                   ),
                   AppSpacing.gapMd,
                   featured.when(
@@ -175,7 +176,7 @@ class ExploreScreen extends ConsumerWidget {
                   SectionHeader(
                     title: 'Popular Destinations',
                     actionLabel: 'See All',
-                    onActionPressed: () => context.push('/search/results?featured=true'),
+                    onActionPressed: () => context.push('${RoutePaths.searchResults}?featured=true'),
                   ),
                   AppSpacing.gapMd,
                   popular.when(

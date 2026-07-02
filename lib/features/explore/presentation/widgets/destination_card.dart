@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_radii.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../domain/tour.dart';
@@ -17,7 +18,7 @@ class DestinationCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return GestureDetector(
-      onTap: () => context.push('/search/results?destination=${Uri.encodeComponent(tour.destination.split(',').first)}'),
+      onTap: () => context.push('${RoutePaths.searchResults}?destination=${Uri.encodeComponent(tour.destination.split(',').first)}'),
       child: Container(
         width: 170.0,
         margin: const EdgeInsets.only(right: 16.0),

@@ -54,6 +54,7 @@ functions/lib/
 
 # Local rules/emulator scratch workspace
 test/rules_tests/
+test/golden/failures/
 
 # Local documents generated during audits/planning
 /Documents/
