@@ -19,13 +19,13 @@ export const sendPushOnNotificationCreated = onDocumentCreated(
       // 1. Retrieve the target user's fcmToken from their profile
       const userDoc = await db.collection('users').doc(userId).get();
       if (!userDoc.exists) {
-        console.log(`User ${userId} doc does not exist.`);
+        console.log(`Push target user doc does not exist.`);
         return;
       }
 
       const fcmToken = userDoc.data()?.fcmToken;
       if (!fcmToken) {
-        console.log(`No fcmToken saved on profile for user ${userId}. Skipping push payload.`);
+        console.log(`No fcmToken saved on profile. Skipping push payload.`);
         return;
       }
 
@@ -58,9 +58,9 @@ export const sendPushOnNotificationCreated = onDocumentCreated(
 
       // 3. Dispatch the payload through admin messaging
       const response = await admin.messaging().send(message);
-      console.log(`Successfully dispatched push notification to user ${userId}. Message ID: ${response}`);
+      console.log(`Successfully dispatched push notification. Message ID: ${response}`);
     } catch (e) {
-      console.error(`Error sending push notification to user ${userId}:`, e);
+      console.error(`Error sending push notification:`, e);
     }
   }
 );

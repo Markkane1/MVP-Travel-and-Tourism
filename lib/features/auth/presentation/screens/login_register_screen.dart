@@ -145,7 +145,7 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: 48.0),
-                    // Display Header Wordmark (two-line stacked to match Horizon Elite)
+                    // Display header wordmark in the stacked branded layout.
                     Text(
                       'MVP\nTravel',
                       textAlign: TextAlign.center,
@@ -240,7 +240,7 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(AppSpacing.base),
                           margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: AppColors.errorContainer,
                             borderRadius: AppRadii.borderDefault,
                           ),

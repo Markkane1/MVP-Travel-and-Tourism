@@ -8,12 +8,15 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_radii.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../../core/widgets/app_text_field.dart';
+
 import '../../../../core/widgets/section_header.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_state_view.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/services/auth_service.dart';
+import '../widgets/hero_card_widget.dart';
+import '../widgets/logistics_card_widget.dart';
+
 import '../../../explore/domain/tour.dart';
 import '../../../tour_details/tour_details.dart';
 import '../../domain/booking.dart';
@@ -256,7 +259,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 1. Hero card
-                    _buildHeroCard(tour),
+                    HeroCardWidget(tour: tour),
                     AppSpacing.gapLg,
 
                     // 2. Select Date
@@ -292,7 +295,18 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       icon: Icons.location_on,
                     ),
                     AppSpacing.gapSm,
-                    _buildLogisticsCard(),
+                    LogisticsCardWidget(
+                      pickupController: _pickupController,
+                      specialRequestsController: _specialRequestsController,
+                      validationWarning: _validationWarning,
+                      onPickupChanged: (_) {
+                        if (_validationWarning != null) {
+                          setState(() {
+                            _validationWarning = null;
+                          });
+                        }
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -306,75 +320,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     );
   }
 
-  Widget _buildHeroCard(Tour tour) {
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadii.lg),
-          image: DecorationImage(
-            image: NetworkImage(tour.heroImageUrl),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Stack(
-          children: [
-            // Dark gradient scrim
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppRadii.lg),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.1),
-                      Colors.black.withValues(alpha: 0.7),
-                    ],
-                    stops: const [0.5, 0.75, 1.0],
-                  ),
-                ),
-              ),
-            ),
-            // Premium experience badge
-            Positioned(
-              top: AppSpacing.sm,
-              left: AppSpacing.sm,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary,
-                  borderRadius: BorderRadius.circular(AppRadii.full),
-                ),
-                child: Text(
-                  AppStrings.booking.premiumBadge,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                ),
-              ),
-            ),
-            // Tour Title
-            Positioned(
-              bottom: AppSpacing.md,
-              left: AppSpacing.md,
-              right: AppSpacing.md,
-              child: Text(
-                tour.title,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildCalendarCard(Tour tour) {
     return Container(
@@ -593,7 +538,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   boxShadow: isSelected
                       ? [ BoxShadow(color: AppColors.primaryContainer.withValues(alpha: 0.05),
                             blurRadius: 4,
-                            offset: Offset(0, 2),
+                            offset: const Offset(0, 2),
                           )
                         ]
                       : null,
@@ -615,43 +560,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     );
   }
 
-  Widget _buildLogisticsCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadii.lg),
-        boxShadow: AppShadows.level2,
-      ),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppTextField(
-            controller: _pickupController,
-            labelText: AppStrings.booking.pickupLocationLabel,
-            hintText: AppStrings.booking.pickupLocationHint,
-            prefixIcon: const Icon(Icons.hotel, size: 20.0),
-            onChanged: (_) {
-              if (_validationWarning != null) {
-                setState(() {
-                  _validationWarning = null;
-                });
-              }
-            },
-          ),
-          AppSpacing.gapMd,
-          AppTextField(
-            controller: _specialRequestsController,
-            labelText: AppStrings.booking.specialRequestsLabel,
-            hintText: AppStrings.booking.specialRequestsHint,
-            maxLines: 4,
-            keyboardType: TextInputType.multiline,
-            textInputAction: TextInputAction.newline,
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildStickyBottomSummary(Tour tour) {
     final double total = _calculateTotal(tour);

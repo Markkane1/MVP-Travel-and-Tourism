@@ -259,7 +259,7 @@ class ExploreScreen extends ConsumerWidget {
       child: Container(
         height: height,
         width: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.surfaceContainerHigh,
           borderRadius: AppRadii.borderLg,
         ),
@@ -275,7 +275,7 @@ class ExploreScreen extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.errorContainer,
           borderRadius: AppRadii.borderLg,
         ),

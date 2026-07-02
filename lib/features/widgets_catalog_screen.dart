@@ -342,7 +342,7 @@ class _WidgetsCatalogScreenState extends State<WidgetsCatalogScreen> {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppColors.surfaceContainerHigh,
                       borderRadius: AppRadii.borderDefault,
                     ),

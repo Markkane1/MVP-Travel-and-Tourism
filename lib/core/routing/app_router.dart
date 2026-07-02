@@ -145,7 +145,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.searchResults,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const PlaceholderScreen(title: 'Search Results'),
+        builder: (context, state) => SearchResultsScreen(
+          queryParameters: state.uri.queryParameters,
+        ),
       ),
       GoRoute(
         path: RoutePaths.tourDetails,

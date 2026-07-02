@@ -145,7 +145,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                                   width: double.infinity,
                                   padding: const EdgeInsets.all(AppSpacing.base),
                                   margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: AppColors.errorContainer,
                                     borderRadius: AppRadii.borderDefault,
                                   ),

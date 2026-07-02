@@ -325,6 +325,7 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
                       labelText: 'Comments',
                       hintText: 'Tell us about your highlight moments...',
                       maxLines: 5,
+                      maxLength: 1000,
                     ),
                     AppSpacing.gapLg,
 

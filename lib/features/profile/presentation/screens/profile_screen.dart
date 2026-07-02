@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_radii.dart';
-import '../../../../core/theme/app_shadows.dart';
-import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/loading_indicator.dart';
-import '../../../../core/widgets/error_state_view.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/services/auth_service.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radii.dart';
+import '../../../../core/theme/app_shadows.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/error_state_view.dart';
+import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/notification_bell_button.dart';
 import '../../../auth/auth.dart';
 import '../../../booking/booking.dart';
 import '../../../search/search.dart';
-import '../../../../core/widgets/notification_bell_button.dart';
 import '../../data/profile_repository.dart';
 
 /// Defined Map of benefits per tier status.
@@ -23,13 +23,13 @@ const Map<String, List<String>> tierBenefits = {
     'Standard Support Chat Access',
     'Earn Loyalty Points on All Bookings',
     'Self-service Cancellation Options',
-    'General Destination Access'
+    'General Destination Access',
   ],
   'Elite Horizon': [
     '24/7 Personal Concierge Access',
     'Private Airport Lounge Access',
     'Priority Expedited Boarding',
-    'Complimentary Luxury Upgrades'
+    'Complimentary Luxury Upgrades',
   ],
 };
 
@@ -81,12 +81,10 @@ class ProfileScreen extends ConsumerWidget {
           final String tier = profile['tier'] ?? 'Standard';
           final String? photoUrl = profile['photoUrl'] ?? user.photoUrl;
 
-          // Fetch dynamic stats from bookings
           return bookingsState.when(
             loading: () => const Center(child: LoadingIndicator()),
             error: (err, stack) => Center(child: Text('Error loading stats: $err')),
             data: (bookings) {
-              // Bucket upcoming / completed
               final upcomingBookings = bookings.where((b) {
                 final isFuture = b.tourDate.isAfter(DateTime.now().subtract(const Duration(days: 1)));
                 return (b.status == 'pending' || b.status == 'confirmed') && isFuture;
@@ -98,13 +96,10 @@ class ProfileScreen extends ConsumerWidget {
               }).toList();
 
               final int activeCount = upcomingBookings.length;
-              
-              // Destinations visited: distinct destinations in completed bookings
               final Set<String> visitedDests = completedBookings
                   .map((b) => b.tourSnapshot.destination.split(',').last.trim())
                   .toSet();
               final int destinationsVisited = visitedDests.length;
-
               final int savedCount = savedIdsState.value?.length ?? 0;
 
               return SingleChildScrollView(
@@ -114,27 +109,16 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 child: Column(
                   children: [
-                    // 1. Profile Header Profile details
                     _buildProfileHeader(context, name, email, photoUrl, loyaltyPoints),
                     AppSpacing.gapLg,
-
-                    // 2. Current Tier Card
                     _buildCurrentTierCard(context, tier),
                     AppSpacing.gapLg,
-
-                    // 3. Next Milestone Card
                     _buildNextMilestoneCard(context, loyaltyPoints, tier),
                     AppSpacing.gapLg,
-
-                    // 4. Account Overview Actions
                     _buildAccountOverview(context, activeCount, savedCount),
                     AppSpacing.gapLg,
-
-                    // 5. Travel Summary Stats
                     _buildTravelSummaryCard(context, destinationsVisited, activeCount, profile),
                     AppSpacing.gapLg,
-
-                    // 6. Settings & Support
                     _buildSettingsSection(context, ref),
                     const SizedBox(height: 40.0),
                   ],
@@ -157,7 +141,6 @@ class ProfileScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     return Column(
       children: [
-        // Avatar stack
         GestureDetector(
           onTap: () => _viewFullAvatar(context, photoUrl),
           child: Stack(
@@ -170,14 +153,13 @@ class ProfileScreen extends ConsumerWidget {
                     ? const Icon(Icons.person, size: 48.0, color: AppColors.primary)
                     : null,
               ),
-              // Verified status overlap icon badge
               Positioned(
                 bottom: 0,
                 right: 0,
                 child: Container(
                   padding: const EdgeInsets.all(4.0),
                   decoration: const BoxDecoration(
-                    color: AppColors.secondary, // Gold verified icon
+                    color: AppColors.secondary,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -200,7 +182,6 @@ class ProfileScreen extends ConsumerWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 6.0),
-        // Amber Member Pill
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
           decoration: BoxDecoration(
@@ -286,16 +267,14 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildCurrentTierCard(BuildContext context, String tier) {
     final theme = Theme.of(context);
-    final String displayTier = tier == 'Elite Horizon'
-        ? 'Elite Horizon Status'
-        : '$tier Status';
+    final String displayTier = tier == 'Elite Horizon' ? 'Elite Horizon Status' : '$tier Status';
     final List<String> benefits = tierBenefits[tier] ?? tierBenefits['Standard']!;
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.primary, // Dark Navy
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(AppRadii.defaultRadius),
         boxShadow: AppShadows.level2,
       ),
@@ -313,19 +292,18 @@ class ProfileScreen extends ConsumerWidget {
                   letterSpacing: 1.0,
                 ),
               ),
-              const Icon(Icons.stars, color: AppColors.secondary, size: 24.0), // Gold Star Icon
+              const Icon(Icons.stars, color: AppColors.secondary, size: 24.0),
             ],
           ),
           const SizedBox(height: 8.0),
           Text(
             displayTier,
             style: theme.textTheme.headlineSmall?.copyWith(
-              color: AppColors.secondary, // Gold
+              color: AppColors.secondary,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 16.0),
-          // Tier benefits list
           ...benefits.map((benefit) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -350,7 +328,7 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildNextMilestoneCard(BuildContext context, int loyaltyPoints, String tier) {
     final theme = Theme.of(context);
-    
+
     int nextTierThreshold = 5000;
     String nextTierName = 'Elite Horizon';
     double percentage = 0.0;
@@ -381,9 +359,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8.0),
           Text(
-            pointsNeeded > 0
-                ? '$pointsNeeded points to $nextTierName'
-                : 'Highest Tier Status Achieved!',
+            pointsNeeded > 0 ? '$pointsNeeded points to $nextTierName' : 'Highest Tier Status Achieved!',
             style: theme.textTheme.titleMedium?.copyWith(
               color: AppColors.onSurface,
               fontWeight: FontWeight.bold,
@@ -704,7 +680,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  // Copy helper variables
   static const String statDestinations = 'Destinations';
   static const String statMiles = 'Miles Traveled';
   static const String statBookings = 'Active Trips';

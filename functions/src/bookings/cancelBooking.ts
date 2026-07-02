@@ -42,7 +42,7 @@ export async function cancelBookingLogic(
       status: 'cancelled',
     });
 
-    // TODO: trigger refund once real payment integration exists
+    // Refund handling is intentionally omitted in the demo payment flow.
     // Per rules: do not reference stripePaymentIntentId or any payment-provider refund API in mock.
 
     // 3. Write a notifications/{uid}/items document

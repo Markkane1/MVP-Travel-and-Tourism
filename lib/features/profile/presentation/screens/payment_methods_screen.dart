@@ -1,4 +1,4 @@
-// TODO: replace with real Stripe payment-method management (SetupIntent + customer.paymentMethods) once live payment processing is integrated. This screen currently stores only user-entered display data, never real card data.
+// Demo-only payment method manager. This screen stores display metadata only, never real card data.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

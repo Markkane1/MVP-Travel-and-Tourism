@@ -134,7 +134,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         scrolledUnderElevation: 0,
         leading: const IconButton(
           icon: Icon(Icons.menu, color: AppColors.onSurface),
-          onPressed: null, // TODO: future navigation drawer settings
+          onPressed: null,
         ),
         title: Text(
           'Search',

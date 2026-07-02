@@ -465,7 +465,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                           const SizedBox(height: 4.0),
                           Text(
                             description,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: AppColors.outline,
                               fontSize: 13.0,
                             ),
@@ -509,8 +509,6 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
       children: [
         SectionHeader(
           title: 'Reviews (${reviews.length})',
-          actionLabel: 'See All',
-          onActionPressed: () {}, // TODO: See All page for reviews
         ),
         AppSpacing.gapMd,
         SizedBox(

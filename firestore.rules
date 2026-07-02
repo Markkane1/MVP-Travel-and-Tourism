@@ -32,13 +32,19 @@ service cloud.firestore {
       allow create: if isAuthenticated()
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.status == 'pending'
-        && !request.resource.data.keys().hasAny(['stripePaymentIntentId', 'bookingReferenceCode', 'reviewed']);
+        && !request.resource.data.keys().hasAny(['stripePaymentIntentId', 'bookingReferenceCode', 'reviewed'])
+        // Enforce max string length on free-text fields
+        && (!request.resource.data.keys().hasAll(['pickupLocation']) || request.resource.data.pickupLocation.size() <= 200)
+        && (!request.resource.data.keys().hasAll(['specialRequests']) || request.resource.data.specialRequests.size() <= 500);
         
       // Client updates cannot modify status, payment tokens, reference codes, or review completion.
       allow update: if isAuthenticated()
         && resource.data.userId == request.auth.uid
         && request.resource.data.userId == resource.data.userId
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'stripePaymentIntentId', 'bookingReferenceCode', 'reviewed']);
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'stripePaymentIntentId', 'bookingReferenceCode', 'reviewed'])
+        // Enforce max string length on free-text fields during updates too
+        && (!request.resource.data.keys().hasAll(['pickupLocation']) || request.resource.data.pickupLocation.size() <= 200)
+        && (!request.resource.data.keys().hasAll(['specialRequests']) || request.resource.data.specialRequests.size() <= 500);
         
       allow delete: if false;
     }
@@ -57,7 +63,9 @@ service cloud.firestore {
           && exists(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId))
           && get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.userId == request.auth.uid
           && get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.tourId == tourId
-          && get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.status == 'completed';
+          && get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.status == 'completed'
+          // Enforce comment max length server-side (matches client 1000-char limit)
+          && request.resource.data.comment.size() <= 1000;
           
         allow update, delete: if false;
       }
@@ -69,7 +77,13 @@ service cloud.firestore {
       allow write: if false;
       
       match /messages/{messageId} {
-        allow read, write: if isOwner(uid);
+        allow read: if isOwner(uid);
+        // Allow users to write their own messages only, with max text length enforced server-side.
+        allow create: if isOwner(uid)
+          && request.resource.data.senderType == 'user'
+          && request.resource.data.text.size() <= 1000;
+        // Prevent editing or deleting sent messages.
+        allow update, delete: if false;
       }
     }
 

@@ -668,6 +668,9 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                 controller: _inputController,
                 focusNode: _focusNode,
                 textInputAction: TextInputAction.send,
+                maxLength: 1000,
+                maxLines: null,
+                buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null,
                 onSubmitted: (_) => _sendMessage(uid, conciergeId),
                 decoration: const InputDecoration(
                   hintText: 'Type a message...',

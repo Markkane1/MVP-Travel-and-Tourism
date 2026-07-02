@@ -44,7 +44,7 @@ class DestinationCard extends StatelessWidget {
                       horizontal: 8.0,
                       vertical: 4.0,
                     ),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: AppRadii.borderDefault,
                     ),

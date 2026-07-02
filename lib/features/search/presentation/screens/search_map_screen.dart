@@ -108,7 +108,7 @@ class _SearchMapScreenState extends State<SearchMapScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
+                      shape: const RoundedRectangleBorder(
                         borderRadius: AppRadii.borderMd,
                       ),
                     ),
