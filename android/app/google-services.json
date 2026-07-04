@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "296884534205",
+    "project_id": "mvp-travels",
+    "storage_bucket": "mvp-travels.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:296884534205:android:7744c95be4faec6c9ab0d4",
+        "android_client_info": {
+          "package_name": "com.mvptravelandtourism.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "296884534205-3jatgt2ivvhhvjpn5uveqpnmh6bmo3h5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAVGVgVlSujIbrgGmj5R4_6PP8BJP97Ok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "296884534205-3jatgt2ivvhhvjpn5uveqpnmh6bmo3h5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "296884534205-u12g1jphm2e7ffbdq2gg74mbcsh9qv9j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mvptravelandtourism.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

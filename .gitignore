@@ -21,9 +21,9 @@ app.*.map.json
 
 # Firebase / secrets / local config
 .env
-**/google-services.json
-**/GoogleService-Info.plist
-**/firebase_options*.dart
+# **/google-services.json
+# **/GoogleService-Info.plist
+# **/firebase_options*.dart
 android/local.properties
 android/key.properties
 
