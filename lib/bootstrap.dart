@@ -22,8 +22,22 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   unawaited(runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // Initialize Firebase Core
-    await Firebase.initializeApp(options: Env.firebaseOptions);
+    // Android can auto-create the default app via FirebaseInitProvider.
+    try {
+      Firebase.app();
+    } on FirebaseException catch (error) {
+      if (error.code != 'no-app') {
+        rethrow;
+      }
+      try {
+        await Firebase.initializeApp(options: Env.firebaseOptions);
+      } on FirebaseException catch (initializeError) {
+        if (initializeError.code != 'duplicate-app') {
+          rethrow;
+        }
+        Firebase.app();
+      }
+    }
 
     // Initialize Firebase Crashlytics
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(Env.isProd);

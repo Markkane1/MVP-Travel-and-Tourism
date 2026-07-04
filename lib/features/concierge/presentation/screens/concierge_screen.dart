@@ -605,6 +605,7 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
               'Book Private Jet',
               'Charter private flights.',
               "I'd like to book a private jet for...",
+              cardKey: const Key('concierge_quick_help_private_jet'),
             ),
             _buildQuickHelpCard(
               context,
@@ -639,9 +640,11 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
     String title,
     String subtitle,
     String prefillText,
+    {Key? cardKey}
   ) {
     final theme = Theme.of(context);
     return GestureDetector(
+      key: cardKey,
       onTap: () => _prefillInput(prefillText),
       child: AppCard(
         child: Column(

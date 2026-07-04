@@ -19,7 +19,7 @@ class BookingRepository {
   }
 
   /// Creates a new booking document in `pending` status.
-  /// 
+  ///
   /// Per Firestore security rules, client-side writes:
   /// 1. Must have status == 'pending'
   /// 2. Must not contain 'stripePaymentIntentId' or 'bookingReferenceCode'
@@ -36,30 +36,42 @@ class BookingRepository {
       // Convert DateTime objects to Firestore Timestamps for native Firestore querying
       data['tourDate'] = Timestamp.fromDate(booking.tourDate.toUtc());
       data['createdAt'] = Timestamp.fromDate(booking.createdAt.toUtc());
+      data['tourSnapshot'] = booking.tourSnapshot.toJson();
 
       await _firestore.collection('bookings').doc(booking.id).set(data);
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Booking creation failed: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Booking creation failed: ${e.toString()}'),
+      );
     }
   }
 
   /// Streams a single booking by its ID from Firestore.
   Stream<Booking?> watchBooking(String bookingId) {
-    return _firestore.collection('bookings').doc(bookingId).snapshots().map((doc) {
-      if (!doc.exists) return null;
-      final data = doc.data()!;
-      data['id'] = doc.id;
+    return _firestore
+        .collection('bookings')
+        .doc(bookingId)
+        .snapshots()
+        .map((doc) {
+          if (!doc.exists) return null;
+          final data = doc.data()!;
+          data['id'] = doc.id;
 
-      if (data['tourDate'] is Timestamp) {
-        data['tourDate'] = (data['tourDate'] as Timestamp).toDate().toIso8601String();
-      }
-      if (data['createdAt'] is Timestamp) {
-        data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
-      }
+          if (data['tourDate'] is Timestamp) {
+            data['tourDate'] = (data['tourDate'] as Timestamp)
+                .toDate()
+                .toIso8601String();
+          }
+          if (data['createdAt'] is Timestamp) {
+            data['createdAt'] = (data['createdAt'] as Timestamp)
+                .toDate()
+                .toIso8601String();
+          }
 
-      return Booking.fromJson(data);
-    }).mapAppException('Failed to load booking');
+          return Booking.fromJson(data);
+        })
+        .mapAppException('Failed to load booking');
   }
 
   /// Streams all bookings for a specific user from Firestore.
@@ -67,23 +79,30 @@ class BookingRepository {
     return _firestore
         .collection('bookings')
         .where('userId', isEqualTo: userId)
-        .orderBy('tourDate', descending: false)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
+          final bookings = snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
 
-        if (data['tourDate'] is Timestamp) {
-          data['tourDate'] = (data['tourDate'] as Timestamp).toDate().toIso8601String();
-        }
-        if (data['createdAt'] is Timestamp) {
-          data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
-        }
+            if (data['tourDate'] is Timestamp) {
+              data['tourDate'] = (data['tourDate'] as Timestamp)
+                  .toDate()
+                  .toIso8601String();
+            }
+            if (data['createdAt'] is Timestamp) {
+              data['createdAt'] = (data['createdAt'] as Timestamp)
+                  .toDate()
+                  .toIso8601String();
+            }
 
-        return Booking.fromJson(data);
-      }).toList();
-    }).mapAppException('Failed to load bookings');
+            return Booking.fromJson(data);
+          }).toList();
+
+          bookings.sort((a, b) => a.tourDate.compareTo(b.tourDate));
+          return bookings;
+        })
+        .mapAppException('Failed to load bookings');
   }
 }
 

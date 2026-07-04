@@ -11,6 +11,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
+import '../../../../core/config/env.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_radii.dart';
@@ -241,6 +242,7 @@ class _BookingConfirmationScreenState
     final bookingState = ref.watch(bookingDetailsProvider(widget.bookingId));
     final theme = Theme.of(context);
     final user = ref.watch(authServiceProvider).currentUser;
+    final hasUserPhoto = (user?.photoUrl ?? '').isNotEmpty;
 
     return Scaffold(
       key: const Key('booking_confirmation_screen'),
@@ -268,10 +270,10 @@ class _BookingConfirmationScreenState
               child: CircleAvatar(
                 radius: 16.0,
                 backgroundColor: AppColors.primaryContainer,
-                backgroundImage: user?.photoUrl != null
+                backgroundImage: hasUserPhoto
                     ? NetworkImage(user!.photoUrl!)
                     : null,
-                child: user?.photoUrl == null
+                child: !hasUserPhoto
                     ? const Icon(
                         Icons.person,
                         size: 18.0,
@@ -556,6 +558,7 @@ class _BookingConfirmationScreenState
 
   Widget _buildLogisticsSection(Booking booking) {
     final theme = Theme.of(context);
+    final hasMapsApiKey = Env.googleMapsApiKey.isNotEmpty;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -606,7 +609,8 @@ class _BookingConfirmationScreenState
                 borderRadius: BorderRadius.circular(AppRadii.md),
                 child: _mapCenter == null
                     ? const Center(child: LoadingIndicator())
-                    : GoogleMap(
+                    : hasMapsApiKey
+                    ? GoogleMap(
                         initialCameraPosition: CameraPosition(
                           target: _mapCenter!,
                           zoom: 14.0,
@@ -623,7 +627,8 @@ class _BookingConfirmationScreenState
                         rotateGesturesEnabled: false,
                         tiltGesturesEnabled: false,
                         myLocationButtonEnabled: false,
-                      ),
+                      )
+                    : _buildMapPlaceholder(booking.pickupLocation),
               ),
             ),
           ),
@@ -705,6 +710,40 @@ class _BookingConfirmationScreenState
           fontSize: 13.0,
           height: 1.4,
         ),
+      ),
+    );
+  }
+
+  Widget _buildMapPlaceholder(String pickupLocation) {
+    return Container(
+      color: AppColors.surfaceContainerLow,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.map_outlined,
+            size: 36.0,
+            color: AppColors.onSurfaceVariant,
+          ),
+          const SizedBox(height: 12.0),
+          Text(
+            pickupLocation,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppColors.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6.0),
+          Text(
+            'Map preview unavailable in this build.',
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.onSurfaceVariant),
+          ),
+        ],
       ),
     );
   }

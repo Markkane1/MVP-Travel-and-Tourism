@@ -1,4 +1,4 @@
-package com.mvptravelandtourism.app.mvp_travel
+package com.mvptravelandtourism.app
 
 import io.flutter.embedding.android.FlutterActivity
 

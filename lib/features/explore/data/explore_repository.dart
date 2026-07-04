@@ -106,14 +106,29 @@ Stream<List<Review>> recentReviews(Ref ref) {
 }
 
 Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
-  if (data['ratingAverage'] is num) {
-    data['ratingAverage'] = (data['ratingAverage'] as num).toDouble();
-  } else {
-    data['ratingAverage'] = 0.0;
-  }
-  if (data['ratingCount'] == null) {
-    data['ratingCount'] = 0;
-  }
+  data['title'] = data['title'] as String? ?? '';
+  data['destination'] = data['destination'] as String? ?? '';
+  data['category'] = data['category'] as String? ?? '';
+  data['badges'] = (data['badges'] as List?)?.cast<String>() ?? const <String>[];
+  data['heroImageUrl'] = data['heroImageUrl'] as String? ?? '';
+  data['galleryImageUrls'] =
+      (data['galleryImageUrls'] as List?)?.cast<String>() ?? const <String>[];
+  data['currency'] = data['currency'] as String? ?? 'USD';
+  data['ratingAverage'] = (data['ratingAverage'] as num?)?.toDouble() ?? 0.0;
+  data['ratingCount'] = (data['ratingCount'] as num?)?.toInt() ?? 0;
+  data['durationDays'] = (data['durationDays'] as num?)?.toInt() ?? 0;
+  data['maxParticipants'] = (data['maxParticipants'] as num?)?.toInt() ?? 0;
+  data['overview'] = data['overview'] as String? ?? '';
+  data['itinerary'] =
+      (data['itinerary'] as List?)
+          ?.whereType<Map>()
+          .map((step) => Map<String, dynamic>.from(step))
+          .toList() ??
+      const <Map<String, dynamic>>[];
+  data['inclusions'] =
+      (data['inclusions'] as List?)?.cast<String>() ?? const <String>[];
+  data['latitude'] = (data['latitude'] as num?)?.toDouble() ?? 0.0;
+  data['longitude'] = (data['longitude'] as num?)?.toDouble() ?? 0.0;
   if (data['availableDates'] is List) {
     data['availableDates'] = (data['availableDates'] as List).map((timestamp) {
       if (timestamp is Timestamp) {
@@ -121,24 +136,25 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
       }
       return timestamp;
     }).toList();
+  } else {
+    data['availableDates'] = const <String>[];
   }
-  if (data['pricePerPerson'] is int) {
-    data['pricePerPerson'] = (data['pricePerPerson'] as int).toDouble();
-  }
-  if (data['privateVehicleSurcharge'] is int) {
-    data['privateVehicleSurcharge'] = (data['privateVehicleSurcharge'] as int).toDouble();
-  }
+  data['pricePerPerson'] = (data['pricePerPerson'] as num?)?.toDouble() ?? 0.0;
+  data['privateVehicleSurcharge'] =
+      (data['privateVehicleSurcharge'] as num?)?.toDouble() ?? 0.0;
   if (data['groupSizeOptions'] is List) {
     data['groupSizeOptions'] = (data['groupSizeOptions'] as List).map((opt) {
       if (opt is Map) {
         final newOpt = Map<String, dynamic>.from(opt);
-        if (newOpt['priceModifier'] is int) {
-          newOpt['priceModifier'] = (newOpt['priceModifier'] as int).toDouble();
-        }
+        newOpt['priceModifier'] =
+            (newOpt['priceModifier'] as num?)?.toDouble() ?? 0.0;
+        newOpt['maxSize'] = (newOpt['maxSize'] as num?)?.toInt() ?? 0;
         return newOpt;
       }
       return opt;
     }).toList();
+  } else {
+    data['groupSizeOptions'] = const <Map<String, dynamic>>[];
   }
   return data;
 }

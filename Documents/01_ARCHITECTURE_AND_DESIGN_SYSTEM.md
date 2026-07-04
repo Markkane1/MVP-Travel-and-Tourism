@@ -356,6 +356,14 @@ bookings/{bookingId}
   - reviewed: bool                 // function-owned flag set true after a submitted review is processed
   - createdAt: timestamp
 
+concierges/{conciergeId}
+  - name: string
+  - role: string
+  - specialty: string
+  - languages: string
+  - photoUrl: string
+  - isOnline: bool
+
 concierge_threads/{uid}
   - isTyping: bool                 // function-owned thread metadata for simulated concierge replies
 

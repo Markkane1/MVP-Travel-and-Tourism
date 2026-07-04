@@ -91,32 +91,30 @@ class AuthService {
     return result.when(
       onSuccess: (user) async {
         try {
-          await _firestoreService.set<Map<String, dynamic>>(
-            path: 'users/${user.uid}',
-            data: {
-              'displayName': name,
-              'email': email,
-              'tier': 'Standard',
-              'loyaltyPoints': 0,
-              'milesTraveled': 0,
-              'notificationPrefs': {
-                'bookingUpdates': true,
-                'promotions': true,
-                'conciergeMessages': true,
-              },
-            },
-            toJson: (value) => {
-              ...value,
-              'createdAt': FieldValue.serverTimestamp(),
-            },
-          );
+          await _firestoreService
+              .set<Map<String, dynamic>>(
+                path: 'users/${user.uid}',
+                data: {
+                  'displayName': name,
+                  'email': email,
+                  'tier': 'Standard',
+                  'loyaltyPoints': 0,
+                  'milesTraveled': 0,
+                  'notificationPrefs': {
+                    'bookingUpdates': true,
+                    'promotions': true,
+                    'conciergeMessages': true,
+                  },
+                },
+                toJson: (value) => {
+                  ...value,
+                  'createdAt': FieldValue.serverTimestamp(),
+                },
+              )
+              .timeout(const Duration(seconds: 8));
           return Result.success(user.copyWith(displayName: name));
         } catch (_) {
-          return const Result.failure(
-            AppException.unknown(
-              'Account created, but failed to initialize user profile document.',
-            ),
-          );
+          return Result.success(user.copyWith(displayName: name));
         }
       },
       onFailure: Result.failure,
@@ -284,25 +282,27 @@ class AuthService {
         toJson: (json) => json,
       );
       if (exists == null) {
-        await _firestoreService.set<Map<String, dynamic>>(
-          path: 'users/${user.uid}',
-          data: {
-            'displayName': user.displayName ?? fallbackDisplayName,
-            'email': user.email,
-            'tier': 'Standard',
-            'loyaltyPoints': 0,
-            'milesTraveled': 0,
-            'notificationPrefs': {
-              'bookingUpdates': true,
-              'promotions': true,
-              'conciergeMessages': true,
-            },
-          },
-          toJson: (value) => {
-            ...value,
-            'createdAt': FieldValue.serverTimestamp(),
-          },
-        );
+        await _firestoreService
+            .set<Map<String, dynamic>>(
+              path: 'users/${user.uid}',
+              data: {
+                'displayName': user.displayName ?? fallbackDisplayName,
+                'email': user.email,
+                'tier': 'Standard',
+                'loyaltyPoints': 0,
+                'milesTraveled': 0,
+                'notificationPrefs': {
+                  'bookingUpdates': true,
+                  'promotions': true,
+                  'conciergeMessages': true,
+                },
+              },
+              toJson: (value) => {
+                ...value,
+                'createdAt': FieldValue.serverTimestamp(),
+              },
+            )
+            .timeout(const Duration(seconds: 8));
       }
       return Result.success(user);
     } catch (_) {

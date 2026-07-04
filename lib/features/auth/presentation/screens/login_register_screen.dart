@@ -123,6 +123,14 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authControllerProvider, (_, next) {
+      next.whenData((user) {
+        if (user != null && mounted) {
+          context.go(RoutePaths.explore);
+        }
+      });
+    });
+
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -216,9 +224,6 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
                                           color: _isLogin
                                               ? AppColors.primary
                                               : Colors.transparent,
-                                          margin: const EdgeInsets.only(
-                                            bottom: -1.0,
-                                          ),
                                         ),
                                       ],
                                     ),
@@ -253,9 +258,6 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
                                           color: !_isLogin
                                               ? AppColors.primary
                                               : Colors.transparent,
-                                          margin: const EdgeInsets.only(
-                                            bottom: -1.0,
-                                          ),
                                         ),
                                       ],
                                     ),

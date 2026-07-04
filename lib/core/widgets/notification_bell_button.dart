@@ -2,11 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../routing/route_paths.dart';
 import '../theme/app_colors.dart';
 import '../services/notification_service.dart';
 
 class NotificationBellButton extends ConsumerWidget {
   const NotificationBellButton({super.key});
+
+  void _pushNotifications(BuildContext context) {
+    final uri = Uri(
+      path: RoutePaths.notifications,
+      queryParameters: {
+        'nonce': DateTime.now().microsecondsSinceEpoch.toString(),
+      },
+    );
+    context.push(uri.toString());
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,12 +27,12 @@ class NotificationBellButton extends ConsumerWidget {
       loading: () => IconButton(
         tooltip: 'Notifications',
         icon: const Icon(Icons.notifications_none, color: AppColors.onSurface),
-        onPressed: () => context.push('/notifications'),
+        onPressed: () => _pushNotifications(context),
       ),
       error: (e, s) => IconButton(
         tooltip: 'Notifications',
         icon: const Icon(Icons.notifications_none, color: AppColors.onSurface),
-        onPressed: () => context.push('/notifications'),
+        onPressed: () => _pushNotifications(context),
       ),
       data: (count) {
         return Stack(
@@ -30,7 +41,7 @@ class NotificationBellButton extends ConsumerWidget {
             IconButton(
               tooltip: 'Notifications',
               icon: const Icon(Icons.notifications_none, color: AppColors.onSurface),
-              onPressed: () => context.push('/notifications'),
+              onPressed: () => _pushNotifications(context),
             ),
             if (count > 0)
               Positioned(

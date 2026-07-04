@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart' hide Result;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/config/env.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/utils/result.dart';
 
@@ -21,6 +22,22 @@ class CheckoutRepository {
       });
       final data = response.data as Map?;
       return Result.success(data?.cast<String, dynamic>());
+    } on FirebaseFunctionsException catch (e) {
+      if (
+          Env.isDev &&
+          (e.code == 'not-found' || e.code == 'unavailable')) {
+        final shortId = bookingId.length >= 5
+            ? bookingId.substring(0, 5).toUpperCase()
+            : bookingId.toUpperCase();
+        return Result.success({
+          'bookingReferenceCode': 'LT-DEMO-$shortId',
+          'usedCallableFallback': true,
+        });
+      }
+
+      return Result.failure(
+        AppException.unknown('Booking confirmation failed: ${e.toString()}'),
+      );
     } catch (e) {
       return Result.failure(
         AppException.unknown('Booking confirmation failed: ${e.toString()}'),

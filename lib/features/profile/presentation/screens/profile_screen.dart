@@ -62,9 +62,7 @@ class ProfileScreen extends ConsumerWidget {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: const [
-          NotificationBellButton(),
-        ],
+        actions: const [NotificationBellButton()],
       ),
       body: firestoreState.when(
         loading: () => const Center(child: LoadingIndicator()),
@@ -76,7 +74,8 @@ class ProfileScreen extends ConsumerWidget {
         ),
         data: (profileDoc) {
           final profile = profileDoc ?? {};
-          final String name = profile['displayName'] ?? user.displayName ?? 'Valued Guest';
+          final String name =
+              profile['displayName'] ?? user.displayName ?? 'Valued Guest';
           final String email = profile['email'] ?? user.email;
           final int loyaltyPoints = profile['loyaltyPoints'] ?? 0;
           final String tier = profile['tier'] ?? 'Standard';
@@ -84,16 +83,23 @@ class ProfileScreen extends ConsumerWidget {
 
           return bookingsState.when(
             loading: () => const Center(child: LoadingIndicator()),
-            error: (err, stack) => Center(child: Text('Error loading stats: $err')),
+            error: (err, stack) =>
+                Center(child: Text('Error loading stats: $err')),
             data: (bookings) {
               final upcomingBookings = bookings.where((b) {
-                final isFuture = b.tourDate.isAfter(DateTime.now().subtract(const Duration(days: 1)));
-                return (b.status == 'pending' || b.status == 'confirmed') && isFuture;
+                final isFuture = b.tourDate.isAfter(
+                  DateTime.now().subtract(const Duration(days: 1)),
+                );
+                return (b.status == 'pending' || b.status == 'confirmed') &&
+                    isFuture;
               }).toList();
 
               final completedBookings = bookings.where((b) {
-                final isPast = b.tourDate.isBefore(DateTime.now().subtract(const Duration(days: 1)));
-                return b.status == 'completed' || (b.status == 'confirmed' && isPast);
+                final isPast = b.tourDate.isBefore(
+                  DateTime.now().subtract(const Duration(days: 1)),
+                );
+                return b.status == 'completed' ||
+                    (b.status == 'confirmed' && isPast);
               }).toList();
 
               final int activeCount = upcomingBookings.length;
@@ -110,7 +116,13 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 child: Column(
                   children: [
-                    _buildProfileHeader(context, name, email, photoUrl, loyaltyPoints),
+                    _buildProfileHeader(
+                      context,
+                      name,
+                      email,
+                      photoUrl,
+                      loyaltyPoints,
+                    ),
                     AppSpacing.gapLg,
                     _buildCurrentTierCard(context, tier),
                     AppSpacing.gapLg,
@@ -118,7 +130,12 @@ class ProfileScreen extends ConsumerWidget {
                     AppSpacing.gapLg,
                     _buildAccountOverview(context, activeCount, savedCount),
                     AppSpacing.gapLg,
-                    _buildTravelSummaryCard(context, destinationsVisited, activeCount, profile),
+                    _buildTravelSummaryCard(
+                      context,
+                      destinationsVisited,
+                      activeCount,
+                      profile,
+                    ),
                     AppSpacing.gapLg,
                     _buildSettingsSection(context, ref),
                     const SizedBox(height: 40.0),
@@ -140,6 +157,7 @@ class ProfileScreen extends ConsumerWidget {
     int loyaltyPoints,
   ) {
     final theme = Theme.of(context);
+    final hasPhoto = (photoUrl ?? '').isNotEmpty;
     return Column(
       children: [
         GestureDetector(
@@ -149,9 +167,13 @@ class ProfileScreen extends ConsumerWidget {
               CircleAvatar(
                 radius: 48.0,
                 backgroundColor: AppColors.primaryContainer,
-                backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
-                child: photoUrl == null
-                    ? const Icon(Icons.person, size: 48.0, color: AppColors.primary)
+                backgroundImage: hasPhoto ? NetworkImage(photoUrl!) : null,
+                child: !hasPhoto
+                    ? const Icon(
+                        Icons.person,
+                        size: 48.0,
+                        color: AppColors.primary,
+                      )
                     : null,
               ),
               Positioned(
@@ -213,7 +235,10 @@ class ProfileScreen extends ConsumerWidget {
             foregroundColor: AppColors.primary,
             side: const BorderSide(color: AppColors.primary),
             shape: const StadiumBorder(),
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 8.0,
+            ),
           ),
           child: Text(
             AppStrings.profile.editProfileButton,
@@ -225,6 +250,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   void _viewFullAvatar(BuildContext context, String? photoUrl) {
+    final hasPhoto = (photoUrl ?? '').isNotEmpty;
     showDialog(
       context: context,
       builder: (context) {
@@ -240,9 +266,10 @@ class ProfileScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(AppRadii.lg),
                     image: DecorationImage(
-                      image: photoUrl != null
-                          ? NetworkImage(photoUrl)
-                          : const AssetImage('assets/images/placeholder.png') as ImageProvider,
+                      image: hasPhoto
+                          ? NetworkImage(photoUrl!)
+                          : const AssetImage('assets/images/placeholder.png')
+                                as ImageProvider,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -268,8 +295,11 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildCurrentTierCard(BuildContext context, String tier) {
     final theme = Theme.of(context);
-    final String displayTier = tier == 'Elite Horizon' ? 'Elite Horizon Status' : '$tier Status';
-    final List<String> benefits = tierBenefits[tier] ?? tierBenefits['Standard']!;
+    final String displayTier = tier == 'Elite Horizon'
+        ? 'Elite Horizon Status'
+        : '$tier Status';
+    final List<String> benefits =
+        tierBenefits[tier] ?? tierBenefits['Standard']!;
 
     return Container(
       width: double.infinity,
@@ -310,12 +340,19 @@ class ProfileScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle_outline, color: AppColors.secondary, size: 16.0),
+                  const Icon(
+                    Icons.check_circle_outline,
+                    color: AppColors.secondary,
+                    size: 16.0,
+                  ),
                   const SizedBox(width: 8.0),
                   Expanded(
                     child: Text(
                       benefit,
-                      style: const TextStyle(color: Colors.white70, fontSize: 13.0),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13.0,
+                      ),
                     ),
                   ),
                 ],
@@ -327,7 +364,11 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNextMilestoneCard(BuildContext context, int loyaltyPoints, String tier) {
+  Widget _buildNextMilestoneCard(
+    BuildContext context,
+    int loyaltyPoints,
+    String tier,
+  ) {
     final theme = Theme.of(context);
 
     int nextTierThreshold = 5000;
@@ -341,7 +382,10 @@ class ProfileScreen extends ConsumerWidget {
     } else {
       nextTierThreshold = 15000;
       nextTierName = 'Horizon Legend';
-      percentage = ((loyaltyPoints - 5000) / (nextTierThreshold - 5000)).clamp(0.0, 1.0);
+      percentage = ((loyaltyPoints - 5000) / (nextTierThreshold - 5000)).clamp(
+        0.0,
+        1.0,
+      );
     }
 
     final pointsNeeded = nextTierThreshold - loyaltyPoints;
@@ -360,7 +404,9 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8.0),
           Text(
-            pointsNeeded > 0 ? '$pointsNeeded points to $nextTierName' : 'Highest Tier Status Achieved!',
+            pointsNeeded > 0
+                ? '$pointsNeeded points to $nextTierName'
+                : 'Highest Tier Status Achieved!',
             style: theme.textTheme.titleMedium?.copyWith(
               color: AppColors.onSurface,
               fontWeight: FontWeight.bold,
@@ -375,7 +421,9 @@ class ProfileScreen extends ConsumerWidget {
                   child: LinearProgressIndicator(
                     value: percentage,
                     backgroundColor: AppColors.outlineVariant,
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.secondary),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      AppColors.secondary,
+                    ),
                     minHeight: 8.0,
                   ),
                 ),
@@ -413,7 +461,11 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAccountOverview(BuildContext context, int activeCount, int savedCount) {
+  Widget _buildAccountOverview(
+    BuildContext context,
+    int activeCount,
+    int savedCount,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -483,13 +535,20 @@ class ProfileScreen extends ConsumerWidget {
           color: AppColors.onSurfaceVariant,
         ),
       ),
-      trailing: const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
+      trailing: const Icon(
+        Icons.chevron_right,
+        color: AppColors.onSurfaceVariant,
+      ),
       onTap: onTap,
     );
   }
 
   Widget _buildOverviewDivider() {
-    return const Divider(height: 8.0, color: AppColors.outlineVariant, thickness: 1.0);
+    return const Divider(
+      height: 8.0,
+      color: AppColors.outlineVariant,
+      thickness: 1.0,
+    );
   }
 
   Widget _buildTravelSummaryCard(
@@ -510,9 +569,21 @@ class ProfileScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatColumn(context, statDestinations, destinationsVisited.toString()),
-                  _buildStatColumn(context, statMiles, milesTraveled.toString()),
-                  _buildStatColumn(context, statBookings, activeCount.toString()),
+                  _buildStatColumn(
+                    context,
+                    statDestinations,
+                    destinationsVisited.toString(),
+                  ),
+                  _buildStatColumn(
+                    context,
+                    statMiles,
+                    milesTraveled.toString(),
+                  ),
+                  _buildStatColumn(
+                    context,
+                    statBookings,
+                    activeCount.toString(),
+                  ),
                 ],
               ),
               const SizedBox(height: 16.0),
@@ -628,7 +699,10 @@ class ProfileScreen extends ConsumerWidget {
                     color: AppColors.error,
                   ),
                 ),
-                trailing: const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
+                trailing: const Icon(
+                  Icons.chevron_right,
+                  color: AppColors.onSurfaceVariant,
+                ),
                 onTap: () => _confirmLogout(context, ref),
               ),
             ],
@@ -648,11 +722,20 @@ class ProfileScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel', style: TextStyle(color: AppColors.onSurfaceVariant)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.onSurfaceVariant),
+              ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Logout', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Logout',
+                style: TextStyle(
+                  color: AppColors.error,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         );
@@ -673,10 +756,10 @@ class ProfileScreen extends ConsumerWidget {
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppColors.onSurfaceVariant,
-              letterSpacing: 0.5,
-            ),
+          fontWeight: FontWeight.bold,
+          color: AppColors.onSurfaceVariant,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }

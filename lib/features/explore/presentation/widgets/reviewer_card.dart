@@ -14,6 +14,7 @@ class ReviewerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final hasPhoto = review.userPhotoUrl.isNotEmpty;
 
     return Container(
       width: 280.0,
@@ -33,7 +34,10 @@ class ReviewerCard extends StatelessWidget {
               // Avatar
               CircleAvatar(
                 radius: 20.0,
-                backgroundImage: NetworkImage(review.userPhotoUrl),
+                backgroundImage: hasPhoto
+                    ? NetworkImage(review.userPhotoUrl)
+                    : null,
+                child: hasPhoto ? null : const Icon(Icons.person),
               ),
               const SizedBox(width: 12.0),
               // Reviewer details
@@ -50,10 +54,7 @@ class ReviewerCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2.0),
-                    RatingStars(
-                      rating: review.overallRating,
-                      starSize: 14.0,
-                    ),
+                    RatingStars(rating: review.overallRating, starSize: 14.0),
                   ],
                 ),
               ),

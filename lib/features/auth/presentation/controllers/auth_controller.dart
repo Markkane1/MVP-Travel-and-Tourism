@@ -18,6 +18,9 @@ class AuthController extends _$AuthController {
 
     // Sync state changes from the stream to Riverpod provider state
     final subscription = _authService.authStateChanges.listen((user) {
+      if (!ref.mounted) {
+        return;
+      }
       state = AsyncValue.data(user);
     });
 
@@ -32,14 +35,14 @@ class AuthController extends _$AuthController {
   Future<Result<UserEntity>> login(String email, String password) async {
     state = const AsyncValue.loading();
     final result = await _authService.signInWithEmail(email, password);
-    result.when(
-      onSuccess: (user) {
-        state = AsyncValue.data(user);
-      },
-      onFailure: (exception) {
-        state = AsyncValue.error(exception, StackTrace.current);
-      },
-    );
+    if (ref.mounted) {
+      result.when(
+        onSuccess: (_) {},
+        onFailure: (exception) {
+          state = AsyncValue.error(exception, StackTrace.current);
+        },
+      );
+    }
     return result;
   }
 
@@ -58,11 +61,12 @@ class AuthController extends _$AuthController {
 
     return result.when(
       onSuccess: (user) {
-        state = AsyncValue.data(user);
         return Result.success(user);
       },
       onFailure: (exception) {
-        state = AsyncValue.error(exception, StackTrace.current);
+        if (ref.mounted) {
+          state = AsyncValue.error(exception, StackTrace.current);
+        }
         return Result.failure(exception);
       },
     );
@@ -75,11 +79,12 @@ class AuthController extends _$AuthController {
 
     return result.when(
       onSuccess: (user) {
-        state = AsyncValue.data(user);
         return Result.success(user);
       },
       onFailure: (exception) {
-        state = AsyncValue.error(exception, StackTrace.current);
+        if (ref.mounted) {
+          state = AsyncValue.error(exception, StackTrace.current);
+        }
         return Result.failure(exception);
       },
     );
@@ -92,11 +97,12 @@ class AuthController extends _$AuthController {
 
     return result.when(
       onSuccess: (user) {
-        state = AsyncValue.data(user);
         return Result.success(user);
       },
       onFailure: (exception) {
-        state = AsyncValue.error(exception, StackTrace.current);
+        if (ref.mounted) {
+          state = AsyncValue.error(exception, StackTrace.current);
+        }
         return Result.failure(exception);
       },
     );
@@ -106,14 +112,14 @@ class AuthController extends _$AuthController {
   Future<Result<void>> logout() async {
     state = const AsyncValue.loading();
     final result = await _authService.signOut();
-    result.when(
-      onSuccess: (_) {
-        state = const AsyncValue.data(null);
-      },
-      onFailure: (exception) {
-        state = AsyncValue.error(exception, StackTrace.current);
-      },
-    );
+    if (ref.mounted) {
+      result.when(
+        onSuccess: (_) {},
+        onFailure: (exception) {
+          state = AsyncValue.error(exception, StackTrace.current);
+        },
+      );
+    }
     return result;
   }
 

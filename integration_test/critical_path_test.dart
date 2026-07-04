@@ -20,6 +20,7 @@
 
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -34,14 +35,14 @@ void main() {
       tester,
     ) async {
       app.main();
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await _settle(tester, timeout: const Duration(seconds: 5));
 
       final email = 'test_${Random().nextInt(999999)}@mvptravel.test';
       const password = 'Test@12345!';
 
-      await _waitFor(tester, find.byKey(const Key('auth_toggle_register')));
-      await tester.tap(find.byKey(const Key('auth_toggle_register')));
-      await tester.pumpAndSettle();
+      await _ensureSignedOut(tester);
+      await _waitFor(tester, find.byKey(const Key('auth_screen')));
+      await _ensureRegisterMode(tester);
 
       await tester.enterText(
         find.byKey(const Key('auth_full_name_field')),
@@ -56,11 +57,21 @@ void main() {
         find.byKey(const Key('auth_confirm_password_field')),
         password,
       );
+      await tester.ensureVisible(find.byKey(const Key('auth_terms_checkbox')));
       await tester.tap(find.byKey(const Key('auth_terms_checkbox')));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
-      await tester.tap(find.byKey(const Key('auth_submit_button')));
-      await tester.pumpAndSettle(const Duration(seconds: 8));
+      await tester.ensureVisible(
+        find.byKey(const Key('auth_submit_button')).last,
+      );
+      await _settle(tester);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await _settle(tester);
+      await _pressElevatedButton(
+        tester,
+        find.byKey(const Key('auth_submit_button')).last,
+      );
+      await _settle(tester, timeout: const Duration(seconds: 8));
 
       expect(
         find.byKey(const Key('explore_screen')),
@@ -68,19 +79,19 @@ void main() {
         reason: 'Should land on Explore after registration',
       );
 
-      await tester.tap(find.byKey(const Key('bottom_nav_search')));
-      await tester.pumpAndSettle();
+      await tester.tap(find.text('Search').last);
+      await _settle(tester);
 
       await tester.enterText(
         find.byKey(const Key('search_query_field')),
         'Bora Bora',
       );
       await tester.testTextInput.receiveAction(TextInputAction.search);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await _settle(tester, timeout: const Duration(seconds: 5));
 
       await _waitFor(tester, find.byKey(const Key('search_result_card_0')));
       await tester.tap(find.byKey(const Key('search_result_card_0')));
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await _settle(tester, timeout: const Duration(seconds: 3));
 
       expect(
         find.byKey(const Key('tour_details_screen')),
@@ -89,30 +100,33 @@ void main() {
       );
 
       await tester.tap(find.byKey(const Key('tour_details_book_button')));
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await _settle(tester, timeout: const Duration(seconds: 2));
 
       expect(find.byKey(const Key('booking_screen')), findsOneWidget);
 
       await _waitFor(tester, find.byKey(const Key('booking_calendar_date_0')));
       await tester.tap(find.byKey(const Key('booking_calendar_date_0')));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
+      await tester.ensureVisible(
+        find.byKey(const Key('booking_adults_increment')),
+      );
       await tester.tap(find.byKey(const Key('booking_adults_increment')));
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       await tester.enterText(
         find.byKey(const Key('booking_pickup_field')),
         'Main Airport',
       );
-      await tester.pumpAndSettle();
+      await _settle(tester);
 
       await tester.tap(find.byKey(const Key('booking_continue_button')));
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await _settle(tester, timeout: const Duration(seconds: 3));
 
       expect(find.byKey(const Key('checkout_screen')), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('checkout_pay_button')));
-      await tester.pumpAndSettle(const Duration(seconds: 8));
+      await _settle(tester, timeout: const Duration(seconds: 8));
 
       expect(
         find.byKey(const Key('payment_success_screen')),
@@ -123,7 +137,7 @@ void main() {
       await tester.tap(
         find.byKey(const Key('payment_success_view_itinerary_button')),
       );
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await _settle(tester, timeout: const Duration(seconds: 3));
 
       expect(
         find.byKey(const Key('booking_confirmation_screen')),
@@ -131,15 +145,18 @@ void main() {
         reason: 'Should reach booking confirmation after success',
       );
 
+      await tester.ensureVisible(
+        find.byKey(const Key('booking_confirmation_back_home_button')),
+      );
       await tester.tap(
         find.byKey(const Key('booking_confirmation_back_home_button')),
       );
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await _settle(tester, timeout: const Duration(seconds: 3));
 
       expect(find.byKey(const Key('explore_screen')), findsOneWidget);
 
-      await tester.tap(find.byKey(const Key('bottom_nav_trips')));
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await tester.tap(find.text('Trips').last);
+      await _settle(tester, timeout: const Duration(seconds: 3));
 
       expect(find.byKey(const Key('trips_screen')), findsOneWidget);
       await _waitFor(tester, find.byKey(const Key('trip_card_0')));
@@ -150,6 +167,68 @@ void main() {
       );
     });
   });
+}
+
+Future<void> _ensureSignedOut(WidgetTester tester) async {
+  final authScreen = find.byKey(const Key('auth_screen'));
+  final exploreScreen = find.byKey(const Key('explore_screen'));
+  final startupDeadline = DateTime.now().add(const Duration(seconds: 15));
+
+  while (DateTime.now().isBefore(startupDeadline)) {
+    await tester.pump(const Duration(milliseconds: 200));
+    if (tester.any(authScreen)) {
+      return;
+    }
+    if (tester.any(exploreScreen)) {
+      await FirebaseAuth.instance.signOut();
+      await _settle(tester, timeout: const Duration(seconds: 5));
+      return;
+    }
+  }
+
+  expect(
+    authScreen,
+    findsOneWidget,
+    reason: 'Timed out waiting for auth or explore startup state.',
+  );
+}
+
+Future<void> _ensureRegisterMode(WidgetTester tester) async {
+  if (tester.any(find.byKey(const Key('auth_full_name_field')))) {
+    return;
+  }
+
+  final registerToggle = find.byKey(const Key('auth_toggle_register'));
+  if (tester.any(registerToggle)) {
+    await tester.tap(registerToggle);
+  } else {
+    await tester.tap(find.text('Register').last);
+  }
+  await _settle(tester);
+  await _waitFor(tester, find.byKey(const Key('auth_full_name_field')));
+}
+
+Future<void> _settle(
+  WidgetTester tester, {
+  Duration timeout = const Duration(seconds: 2),
+}) async {
+  await tester.pump();
+  try {
+    await tester.pumpAndSettle(
+      const Duration(milliseconds: 100),
+      EnginePhase.sendSemanticsUpdate,
+      timeout,
+    );
+  } on FlutterError {
+    await tester.pump(timeout);
+  }
+}
+
+Future<void> _pressElevatedButton(WidgetTester tester, Finder finder) async {
+  final button = tester.widget<ElevatedButton>(finder);
+  expect(button.onPressed, isNotNull, reason: 'Expected enabled button: $finder');
+  button.onPressed!.call();
+  await tester.pump();
 }
 
 Future<void> _waitFor(

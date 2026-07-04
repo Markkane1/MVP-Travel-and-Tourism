@@ -39,7 +39,7 @@ class TourCard extends StatelessWidget {
                   ),
                   child: Image.network(
                     tour.heroImageUrl,
-                    height: 140.0,
+                    height: 132.0,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),

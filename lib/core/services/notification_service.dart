@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../config/env.dart';
 import 'auth_service.dart';
 
 class NotificationService {
@@ -14,6 +15,10 @@ class NotificationService {
 
   /// Requests permissions and sets up FCM token updates for the user.
   Future<void> setupNotifications(String uid) async {
+    if (Env.skipNotificationSetup) {
+      return;
+    }
+
     try {
       // 1. Request notification permission
       final settings = await _fcm.requestPermission(

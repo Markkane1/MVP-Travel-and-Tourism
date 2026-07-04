@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/env.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/services/auth_service.dart';
@@ -17,7 +18,6 @@ class TravelMapScreen extends ConsumerStatefulWidget {
 }
 
 class _TravelMapScreenState extends ConsumerState<TravelMapScreen> {
-
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authServiceProvider).currentUser;
@@ -26,7 +26,9 @@ class _TravelMapScreenState extends ConsumerState<TravelMapScreen> {
     }
 
     final bookingsState = ref.watch(userBookingsProvider(user.uid));
-    final allToursState = ref.watch(searchResultsProvider(const SearchFilters()));
+    final allToursState = ref.watch(
+      searchResultsProvider(const SearchFilters()),
+    );
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -49,21 +51,30 @@ class _TravelMapScreenState extends ConsumerState<TravelMapScreen> {
         data: (bookings) {
           return allToursState.when(
             loading: () => const Center(child: LoadingIndicator()),
-            error: (err, stack) => Center(child: Text('Error loading tours: $err')),
+            error: (err, stack) =>
+                Center(child: Text('Error loading tours: $err')),
             data: (allTours) {
               // 1. Filter completed bookings
               final completed = bookings.where((b) {
-                final isPast = b.tourDate.isBefore(DateTime.now().subtract(const Duration(days: 1)));
-                return b.status == 'completed' || (b.status == 'confirmed' && isPast);
+                final isPast = b.tourDate.isBefore(
+                  DateTime.now().subtract(const Duration(days: 1)),
+                );
+                return b.status == 'completed' ||
+                    (b.status == 'confirmed' && isPast);
               }).toList();
 
               // 2. Generate markers from tour coordinates
               final Set<Marker> markers = {};
-              LatLng initialCenter = const LatLng(20.0, 0.0); // Global center default
+              LatLng initialCenter = const LatLng(
+                20.0,
+                0.0,
+              ); // Global center default
 
               for (var booking in completed) {
                 try {
-                  final tour = allTours.firstWhere((t) => t.id == booking.tourId);
+                  final tour = allTours.firstWhere(
+                    (t) => t.id == booking.tourId,
+                  );
                   final LatLng pos = LatLng(tour.latitude, tour.longitude);
                   initialCenter = pos; // Center on last found destination
                   markers.add(
@@ -79,6 +90,24 @@ class _TravelMapScreenState extends ConsumerState<TravelMapScreen> {
                 } catch (_) {
                   // Tour details not matching/found in current listings
                 }
+              }
+
+              if (Env.skipNotificationSetup) {
+                return DecoratedBox(
+                  decoration: const BoxDecoration(color: AppColors.surface),
+                  child: Center(
+                    child: Text(
+                      markers.isEmpty
+                          ? 'No completed trips to map yet.'
+                          : '${markers.length} completed destination${markers.length == 1 ? '' : 's'} ready for map view.',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: AppColors.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
               }
 
               return GoogleMap(

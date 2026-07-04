@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_radii.dart';
+import '../../../../core/routing/route_paths.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../domain/notification_item.dart';
@@ -13,7 +14,9 @@ import '../../data/notifications_repository.dart';
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
-  Map<String, List<NotificationItem>> _groupNotifications(List<NotificationItem> items) {
+  Map<String, List<NotificationItem>> _groupNotifications(
+    List<NotificationItem> items,
+  ) {
     final today = DateTime.now();
     final todayStart = DateTime(today.year, today.month, today.day);
 
@@ -45,14 +48,37 @@ class NotificationsScreen extends ConsumerWidget {
     }
   }
 
-  void _onNotificationTap(BuildContext context, WidgetRef ref, String uid, NotificationItem item) {
+  void _onNotificationTap(
+    BuildContext context,
+    WidgetRef ref,
+    String uid,
+    NotificationItem item,
+  ) {
     // 1. Mark as read
     ref.read(notificationsRepositoryProvider).markAsRead(uid, item.id);
 
     // 2. Deep link if present
     if (item.deepLink.isNotEmpty) {
-      context.push(item.deepLink);
+      _openDeepLink(context, item.deepLink);
     }
+  }
+
+  void _openDeepLink(BuildContext context, String deepLink) {
+    final path = Uri.parse(deepLink).path;
+    const shellRoutes = <String>{
+      RoutePaths.explore,
+      RoutePaths.search,
+      RoutePaths.trips,
+      RoutePaths.concierge,
+      RoutePaths.profile,
+    };
+
+    if (shellRoutes.contains(path)) {
+      context.go(deepLink);
+      return;
+    }
+
+    context.push(deepLink);
   }
 
   @override
@@ -81,7 +107,9 @@ class NotificationsScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => ref.read(notificationsRepositoryProvider).markAllAsRead(user.uid),
+            onPressed: () => ref
+                .read(notificationsRepositoryProvider)
+                .markAllAsRead(user.uid),
             child: const Text(
               'Mark all read',
               style: TextStyle(
@@ -94,7 +122,8 @@ class NotificationsScreen extends ConsumerWidget {
       ),
       body: notificationsState.when(
         loading: () => const Center(child: LoadingIndicator()),
-        error: (err, stack) => Center(child: Text('Error loading notifications: $err')),
+        error: (err, stack) =>
+            Center(child: Text('Error loading notifications: $err')),
         data: (items) {
           if (items.isEmpty) {
             return Center(
@@ -133,7 +162,11 @@ class NotificationsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 4.0, bottom: 12.0, top: 8.0),
+                    padding: const EdgeInsets.only(
+                      left: 4.0,
+                      bottom: 12.0,
+                      top: 8.0,
+                    ),
                     child: Text(
                       groupTitle,
                       style: theme.textTheme.labelMedium?.copyWith(
@@ -143,7 +176,10 @@ class NotificationsScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  ...groupItems.map((item) => _buildNotificationRow(context, ref, user.uid, item)),
+                  ...groupItems.map(
+                    (item) =>
+                        _buildNotificationRow(context, ref, user.uid, item),
+                  ),
                   const SizedBox(height: 16.0),
                 ],
               );
@@ -154,7 +190,12 @@ class NotificationsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNotificationRow(BuildContext context, WidgetRef ref, String uid, NotificationItem item) {
+  Widget _buildNotificationRow(
+    BuildContext context,
+    WidgetRef ref,
+    String uid,
+    NotificationItem item,
+  ) {
     final theme = Theme.of(context);
 
     IconData iconData = Icons.notifications_none_outlined;
@@ -187,7 +228,9 @@ class NotificationsScreen extends ConsumerWidget {
                 : AppColors.primaryContainer.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(AppRadii.defaultRadius),
             border: Border.all(
-              color: item.read ? AppColors.outlineVariant : AppColors.primary.withValues(alpha: 0.2),
+              color: item.read
+                  ? AppColors.outlineVariant
+                  : AppColors.primary.withValues(alpha: 0.2),
               width: 1.0,
             ),
           ),

@@ -1,5 +1,6 @@
 import '../../../../core/utils/result.dart';
 import '../../../../core/errors/app_exception.dart';
+import '../../../../core/config/env.dart';
 import '../../data/reviews_repository.dart';
 
 /// Sequenced multi-step use case to submit a tour review.
@@ -36,6 +37,26 @@ class SubmitReviewUseCase {
     return submitResult.when(
       onSuccess: (_) async {
         final waitResult = await _repository.waitForReviewProcessing(bookingId);
+        if (Env.isDev) {
+          return waitResult.when(
+            onSuccess: (_) => const Result.success(null),
+            onFailure: (_) async {
+              final fallbackResult = await _repository.finalizeReviewFallback(
+                userId: userId,
+                bookingId: bookingId,
+              );
+              return fallbackResult.when(
+                onSuccess: (_) => const Result.success(null),
+                onFailure: (exception) => Result.failure(
+                  AppException.unknown(
+                    'Failed to submit review and verify points credit: ${exception.message}',
+                  ),
+                ),
+              );
+            },
+          );
+        }
+
         return waitResult.when(
           onSuccess: (_) => const Result.success(null),
           onFailure: (exception) => Result.failure(

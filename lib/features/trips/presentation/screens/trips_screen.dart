@@ -32,20 +32,33 @@ class _TripsScreenState extends ConsumerState<TripsScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
+  int _segmentToIndex(String? segment) {
+    if (segment == 'saved') {
+      return 2;
+    }
+    if (segment == 'history') {
+      return 1;
+    }
+    return 0;
+  }
+
   @override
   void initState() {
     super.initState();
-    int initialIndex = 0;
-    if (widget.initialSegment == 'saved') {
-      initialIndex = 2;
-    } else if (widget.initialSegment == 'history') {
-      initialIndex = 1;
-    }
     _tabController = TabController(
       length: 3,
       vsync: this,
-      initialIndex: initialIndex,
+      initialIndex: _segmentToIndex(widget.initialSegment),
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant TripsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final nextIndex = _segmentToIndex(widget.initialSegment);
+    if (_tabController.index != nextIndex) {
+      _tabController.animateTo(nextIndex);
+    }
   }
 
   @override
@@ -152,6 +165,7 @@ class _TripsScreenState extends ConsumerState<TripsScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final user = ref.watch(authServiceProvider).currentUser;
+    final hasUserPhoto = (user?.photoUrl ?? '').isNotEmpty;
 
     if (user == null) {
       return const Scaffold(
@@ -183,10 +197,10 @@ class _TripsScreenState extends ConsumerState<TripsScreen>
               child: CircleAvatar(
                 radius: 16.0,
                 backgroundColor: AppColors.primaryContainer,
-                backgroundImage: user.photoUrl != null
+                backgroundImage: hasUserPhoto
                     ? NetworkImage(user.photoUrl!)
                     : null,
-                child: user.photoUrl == null
+                child: !hasUserPhoto
                     ? const Icon(
                         Icons.person,
                         size: 18.0,

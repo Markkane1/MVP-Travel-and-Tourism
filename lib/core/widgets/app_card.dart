@@ -22,20 +22,12 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: BoxDecoration(boxShadow: AppShadows.level2),
+      child: Material(
         color: backgroundColor,
         borderRadius: borderRadius,
-        boxShadow: AppShadows.level2,
-      ),
-      child: ClipRRect(
-        borderRadius: borderRadius,
-        child: Material(
-          color: Colors.transparent,
-          child: Padding(
-            padding: padding,
-            child: child,
-          ),
-        ),
+        clipBehavior: Clip.antiAlias,
+        child: Padding(padding: padding, child: child),
       ),
     );
   }

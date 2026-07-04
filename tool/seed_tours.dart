@@ -5,10 +5,10 @@ import 'dart:io';
 Future<void> main() async {
   print('Starting Firestore Seeding Script (Native Client)...');
 
-  // 1. Read Project Configuration from Dev Options
-  final configFile = File('lib/core/config/firebase_options_dev.dart');
+  // 1. Read Project Configuration from generated Firebase options
+  final configFile = File('lib/firebase_options.dart');
   if (!await configFile.exists()) {
-    print('Error: lib/core/config/firebase_options_dev.dart does not exist.');
+    print('Error: lib/firebase_options.dart does not exist.');
     print('Please run flutterfire configure first.');
     return;
   }
@@ -27,22 +27,29 @@ Future<void> main() async {
 
   print('Detected Project ID: $projectId');
 
-  if (apiKey.contains('placeholder')) {
-    print('Warning: Default options still contain placeholder key.');
-    print('Ensure firestore.rules permits write access temporarily, then proceed.');
-  }
-
-  // 2. Authenticate Anonymously via Firebase Auth REST API
-  print('Signing in anonymously to acquire client auth tokens...');
-  final authUrl = Uri.parse(
-    'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$apiKey',
-  );
+  final seedEmail = Platform.environment['SEED_EMAIL'];
+  final seedPassword = Platform.environment['SEED_PASSWORD'];
 
   String? idToken;
   try {
-    final response = await _postRequest(authUrl, {}, headers: {});
+    Map<String, dynamic>? response;
+    if ((seedEmail?.isNotEmpty ?? false) && (seedPassword?.isNotEmpty ?? false)) {
+      print('Signing in with demo user $seedEmail...');
+      response = await _authenticateEmailUser(
+        apiKey: apiKey,
+        email: seedEmail!,
+        password: seedPassword!,
+      );
+    } else {
+      print('Signing in anonymously to acquire client auth tokens...');
+      final authUrl = Uri.parse(
+        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$apiKey',
+      );
+      response = await _postRequest(authUrl, {}, headers: {});
+    }
+
     if (response == null) {
-      throw Exception('Failed to sign in anonymously.');
+      throw Exception('Failed to acquire auth token.');
     }
     idToken = response['idToken'] as String?;
     print('Signed in successfully! Local UID: ${response['localId']}');
@@ -146,6 +153,10 @@ Future<void> main() async {
       'ratingAverage': 4.9,
       'ratingCount': 210,
       'overview': 'Escape to your private overwater bungalow. Swim in turquoise lagoons, indulge in couples spa treatments, and enjoy candlelight dinners on private sandbanks.',
+      'itinerary': [
+        {'day': 1, 'title': 'Lagoon Arrival', 'description': 'Check into your overwater villa and unwind with a sunset cruise.'},
+        {'day': 2, 'title': 'Spa & Sandbank', 'description': 'Enjoy a spa session and private candlelight dinner on the sandbank.'},
+      ],
       'inclusions': ['Overwater villa accommodation', 'All-inclusive premium dining', 'Spa credit', 'Private catamaran charter'],
       'latitude': -16.5004,
       'longitude': -151.7415,
@@ -176,6 +187,10 @@ Future<void> main() async {
       'ratingAverage': 4.7,
       'ratingCount': 45,
       'overview': 'Sail between the outer Yasawa islands on a luxury motor yacht. Snorkel pristine reefs and picnic on untouched coral keys.',
+      'itinerary': [
+        {'day': 1, 'title': 'Yacht Welcome', 'description': 'Board your private yacht and cruise toward the Yasawa chain.'},
+        {'day': 2, 'title': 'Reefs & Keys', 'description': 'Snorkel vibrant reefs and enjoy a chef-prepared beach picnic.'},
+      ],
       'inclusions': ['Private yacht cabins', 'Chef service on board', 'Snorkeling equipment', 'Custom island tours'],
       'latitude': -17.7134,
       'longitude': 178.0650,
@@ -206,6 +221,10 @@ Future<void> main() async {
       'ratingAverage': 4.9,
       'ratingCount': 110,
       'overview': 'Relax on the sugar-white sandbanks of Zanzibar. Swim alongside wild dolphins and experience sunset dhow cruises with fresh seafood.',
+      'itinerary': [
+        {'day': 1, 'title': 'Beachfront Check-in', 'description': 'Arrive at the resort and settle in for a relaxed evening by the sea.'},
+        {'day': 2, 'title': 'Dhow & Dolphin Day', 'description': 'Cruise at sunset and join a guided dolphin-watching outing.'},
+      ],
       'inclusions': ['Boutique beachfront resort', 'Seafood dinners', 'Dolphin cruise', 'Local spice tour'],
       'latitude': -6.1659,
       'longitude': 39.2026,
@@ -236,6 +255,10 @@ Future<void> main() async {
       'ratingAverage': 4.9,
       'ratingCount': 340,
       'overview': 'Soak up the sun on private villa terraces. Includes glass-bottom lounges, premium scuba dives, and sunset massage treatments.',
+      'itinerary': [
+        {'day': 1, 'title': 'Villa Arrival', 'description': 'Check in to your luxury villa and enjoy a champagne sunset welcome.'},
+        {'day': 2, 'title': 'Dive & Unwind', 'description': 'Explore reef life with a private guide, then relax with a sunset massage.'},
+      ],
       'inclusions': ['Glass bottom villa stays', 'Private scuba guide', 'Couples massage session', 'Champagne breakfast'],
       'latitude': 3.2028,
       'longitude': 73.2207,
@@ -266,6 +289,10 @@ Future<void> main() async {
       'ratingAverage': 4.8,
       'ratingCount': 72,
       'overview': 'Hike and ski under the mighty Matterhorn. Rest in cozy luxury ski lodges, warm up with traditional cheese fondue, and travel on panoramic high-altitude trains.',
+      'itinerary': [
+        {'day': 1, 'title': 'Matterhorn Arrival', 'description': 'Arrive in Zermatt and settle into your chalet with alpine views.'},
+        {'day': 2, 'title': 'Glacier Adventure', 'description': 'Spend the day hiking or skiing, then return for fondue by the fire.'},
+      ],
       'inclusions': ['Luxury ski lodge chalet', 'Ski lift passes', 'Daily gourmet dinners', 'Glacier Express train ticket'],
       'latitude': 46.0207,
       'longitude': 7.7491,
@@ -296,6 +323,10 @@ Future<void> main() async {
       'ratingAverage': 4.9,
       'ratingCount': 195,
       'overview': 'Immerse yourself in Zen gardens, bamboo groves, and ancient tea ceremonies. Tour stunning shrines and rest at traditional hot-spring ryokans.',
+      'itinerary': [
+        {'day': 1, 'title': 'Temple Arrival', 'description': 'Arrive in Kyoto and begin with an evening stroll through Gion.'},
+        {'day': 2, 'title': 'Tea & Shrines', 'description': 'Visit bamboo groves, shrines, and end with a private tea ceremony.'},
+      ],
       'inclusions': ['Traditional Ryokan stay', 'Kaiseki dinners', 'Private tea master', 'Hot spring (onsen) access'],
       'latitude': 35.0116,
       'longitude': 135.7681,
@@ -380,6 +411,31 @@ Future<void> main() async {
   print('Database Seeding Complete!');
 }
 
+Future<Map<String, dynamic>?> _authenticateEmailUser({
+  required String apiKey,
+  required String email,
+  required String password,
+}) async {
+  final signInUrl = Uri.parse(
+    'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$apiKey',
+  );
+  final payload = {
+    'email': email,
+    'password': password,
+    'returnSecureToken': true,
+  };
+
+  final existingUser = await _postRequest(signInUrl, payload, headers: {});
+  if (existingUser != null) {
+    return existingUser;
+  }
+
+  final signUpUrl = Uri.parse(
+    'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$apiKey',
+  );
+  return _postRequest(signUpUrl, payload, headers: {});
+}
+
 Future<Map<String, dynamic>?> _postRequest(
   Uri uri,
   Map<String, dynamic> body, {
@@ -412,8 +468,10 @@ Future<Map<String, dynamic>?> _postRequest(
 Map<String, dynamic> encodeFirestoreValue(dynamic value) {
   if (value is String) {
     return {'stringValue': value};
-  } else if (value is num) {
-    return {'doubleValue': value.toDouble()};
+  } else if (value is int) {
+    return {'integerValue': value.toString()};
+  } else if (value is double) {
+    return {'doubleValue': value};
   } else if (value is bool) {
     return {'booleanValue': value};
   } else if (value is DateTime) {

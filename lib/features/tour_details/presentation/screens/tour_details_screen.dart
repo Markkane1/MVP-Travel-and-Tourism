@@ -359,9 +359,9 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                 right: 0,
                 bottom: 0,
                 child: Container(
-                  color: Colors.white,
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: const BoxDecoration(
+                    color: Colors.white,
                     border: Border(
                       top: BorderSide(
                         color: AppColors.outlineVariant,
@@ -439,6 +439,10 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
   }
 
   Widget _buildItineraryTimeline(List<dynamic> itinerary) {
+    if (itinerary.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final displayCount = _isItineraryExpanded ? itinerary.length : 1;
 
     return Column(
@@ -576,7 +580,12 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                       children: [
                         CircleAvatar(
                           radius: 16.0,
-                          backgroundImage: NetworkImage(review.userPhotoUrl),
+                          backgroundImage: review.userPhotoUrl.isNotEmpty
+                              ? NetworkImage(review.userPhotoUrl)
+                              : null,
+                          child: review.userPhotoUrl.isNotEmpty
+                              ? null
+                              : const Icon(Icons.person, size: 16.0),
                         ),
                         const SizedBox(width: 8.0),
                         Expanded(

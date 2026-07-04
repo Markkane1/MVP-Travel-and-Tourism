@@ -458,61 +458,64 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             borderRadius: AppRadii.borderLg,
                             border: Border.all(color: AppColors.outlineVariant),
                           ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.md,
-                              vertical: AppSpacing.sm,
-                            ),
-                            leading: ClipRRect(
-                              borderRadius: AppRadii.borderMd,
-                              child: Image.network(
-                                tour.heroImageUrl,
-                                width: 56.0,
-                                height: 56.0,
-                                fit: BoxFit.cover,
+                          child: Material(
+                            color: Colors.transparent,
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.md,
+                                vertical: AppSpacing.sm,
                               ),
-                            ),
-                            title: Row(
-                              children: [
-                                Icon(
-                                  badgeIcon,
-                                  size: 12.0,
-                                  color: AppColors.secondary,
+                              leading: ClipRRect(
+                                borderRadius: AppRadii.borderMd,
+                                child: Image.network(
+                                  tour.heroImageUrl,
+                                  width: 56.0,
+                                  height: 56.0,
+                                  fit: BoxFit.cover,
                                 ),
-                                const SizedBox(width: 4.0),
-                                Text(
-                                  badge,
-                                  style: theme.textTheme.labelSmall?.copyWith(
+                              ),
+                              title: Row(
+                                children: [
+                                  Icon(
+                                    badgeIcon,
+                                    size: 12.0,
                                     color: AppColors.secondary,
-                                    fontWeight: FontWeight.bold,
                                   ),
-                                ),
-                              ],
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 2.0),
-                                Text(
-                                  tour.title,
-                                  style: theme.textTheme.bodyLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
+                                  const SizedBox(width: 4.0),
+                                  Text(
+                                    badge,
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: AppColors.secondary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 2.0),
-                                Text(
-                                  '${tour.durationDays} Days • Premium experience',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: AppColors.onSurfaceVariant,
+                                ],
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 2.0),
+                                  Text(
+                                    tour.title,
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 2.0),
+                                  Text(
+                                    '${tour.durationDays} Days • Premium experience',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: AppColors.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              trailing: const Icon(
+                                Icons.chevron_right,
+                                color: AppColors.onSurfaceVariant,
+                              ),
+                              onTap: () => context.push('/tour/${tour.id}'),
                             ),
-                            trailing: const Icon(
-                              Icons.chevron_right,
-                              color: AppColors.onSurfaceVariant,
-                            ),
-                            onTap: () => context.push('/tour/${tour.id}'),
                           ),
                         );
                       },
