@@ -85,8 +85,8 @@ android {
                 // Replace this before submitting to Play Store
                 signingConfigs.getByName("debug")
             }
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
         }
     }
 }

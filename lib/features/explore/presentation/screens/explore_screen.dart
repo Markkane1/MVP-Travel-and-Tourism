@@ -47,11 +47,11 @@ class ExploreScreen extends ConsumerWidget {
           icon: const Icon(Icons.search, color: AppColors.onSurface),
           onPressed: () => context.push('/search'),
         ),
-        title: Text(
-          'MVP Travel',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
+        title: SizedBox(
+          height: 34.0,
+          child: Image.asset(
+            'assets/icons/app_logo_full.png',
+            fit: BoxFit.contain,
           ),
         ),
         centerTitle: true,

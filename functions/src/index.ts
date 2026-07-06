@@ -74,3 +74,4 @@ export { onConciergeMessageCreated } from './concierge/onConciergeMessageCreated
 export { onReviewSubmitted } from './reviews/onReviewSubmitted';
 export { sendPushOnNotificationCreated } from './notifications/sendPushOnNotificationCreated';
 export { enforcePasswordPolicy } from './auth/enforcePasswordPolicy';
+export { setAdminClaims } from './admin/setAdminClaims';

@@ -11,6 +11,15 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == uid;
     }
 
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+
+    match /staff_profiles/{uid} {
+      allow read: if isAdmin() || isOwner(uid);
+      allow write: if isAdmin();
+    }
+
     // User Profile Subtree: read/write permitted only to the authenticated profile owner.
     match /users/{uid} {
       allow read, write: if isOwner(uid);

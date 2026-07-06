@@ -165,15 +165,11 @@ class _LoginRegisterScreenState extends ConsumerState<LoginRegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: 48.0),
-                    // Display header wordmark in the stacked branded layout.
-                    Text(
-                      'MVP\nTravel',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.displayLarge?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                        height: 1.1,
-                        letterSpacing: -1.0,
+                    SizedBox(
+                      width: 280.0,
+                      child: Image.asset(
+                        'assets/icons/app_logo_full.png',
+                        fit: BoxFit.contain,
                       ),
                     ),
                     AppSpacing.gapLg,

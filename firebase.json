@@ -1,1 +1,49 @@
-{"functions":{"source":"functions"},"firestore":{"rules":"firestore.rules"},"storage":{"rules":"storage.rules"},"flutter":{"platforms":{"android":{"default":{"projectId":"mvp-travels","appId":"1:296884534205:android:7744c95be4faec6c9ab0d4","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"mvp-travels","configurations":{"android":"1:296884534205:android:7744c95be4faec6c9ab0d4","ios":"1:296884534205:ios:382182a38a1996599ab0d4","web":"1:296884534205:web:864d0a8dd8ae709b9ab0d4"}}}}}}
+{
+  "functions": {
+    "source": "functions"
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "hosting": [
+    {
+      "target": "admin",
+      "public": "admin_app/build/web",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    }
+  ],
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "mvp-travels",
+          "appId": "1:296884534205:android:7744c95be4faec6c9ab0d4",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "mvp-travels",
+          "configurations": {
+            "android": "1:296884534205:android:7744c95be4faec6c9ab0d4",
+            "ios": "1:296884534205:ios:382182a38a1996599ab0d4",
+            "web": "1:296884534205:web:864d0a8dd8ae709b9ab0d4"
+          }
+        }
+      }
+    }
+  }
+}

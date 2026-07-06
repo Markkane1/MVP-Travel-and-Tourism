@@ -26,6 +26,8 @@ app.*.map.json
 # **/firebase_options*.dart
 android/local.properties
 android/key.properties
+*.jks
+*.keystore
 
 # Android generated output
 android/.gradle/
