@@ -6,11 +6,13 @@ class AuthState {
   final bool isLoading;
   final User? user;
   final bool isAdmin;
+  final bool isSuperAdmin;
 
   AuthState({
     required this.isLoading,
     this.user,
     this.isAdmin = false,
+    this.isSuperAdmin = false,
   });
 }
 
@@ -19,16 +21,17 @@ class AuthNotifier extends Notifier<AuthState> {
   AuthState build() {
     FirebaseAuth.instance.authStateChanges().listen((user) async {
       if (user == null) {
-        state = AuthState(isLoading: false, user: null, isAdmin: false);
+        state = AuthState(isLoading: false, user: null, isAdmin: false, isSuperAdmin: false);
       } else {
         // Fetch claims
         try {
           final idTokenResult = await user.getIdTokenResult(true);
           final isAdmin = idTokenResult.claims?['admin'] == true;
-          state = AuthState(isLoading: false, user: user, isAdmin: isAdmin);
+          final isSuperAdmin = idTokenResult.claims?['super_admin'] == true;
+          state = AuthState(isLoading: false, user: user, isAdmin: isAdmin, isSuperAdmin: isSuperAdmin);
         } catch (e) {
           debugPrint('Error fetching claims: $e');
-          state = AuthState(isLoading: false, user: user, isAdmin: false);
+          state = AuthState(isLoading: false, user: user, isAdmin: false, isSuperAdmin: false);
         }
       }
     });

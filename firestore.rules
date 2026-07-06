@@ -15,95 +15,105 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.token.admin == true;
     }
 
-    match /staff_profiles/{uid} {
-      allow read: if isAdmin() || isOwner(uid);
-      allow write: if isAdmin();
+    function isSuperAdmin() {
+      return isAuthenticated() && request.auth.token.super_admin == true;
     }
 
-    // User Profile Subtree: read/write permitted only to the authenticated profile owner.
+    // --- Admin & Staff Collections ---
+    match /staff_profiles/{uid} {
+      allow read: if isAdmin() || isOwner(uid);
+      allow write: if isSuperAdmin();
+    }
+
+    match /admin_audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only Cloud Functions can write audit logs
+    }
+
+    // --- User Profiles ---
     match /users/{uid} {
-      allow read, write: if isOwner(uid);
+      // Admins can read all users
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid);
 
       match /savedTours/{tourId} {
         allow read, write: if isOwner(uid);
       }
-
       match /paymentMethods/{paymentMethodId} {
         allow read, write: if isOwner(uid);
       }
     }
 
-    // Bookings collection: read restricted to the booking owner.
-    // Client can only create bookings in 'pending' status, and cannot set functions-managed fields.
+    // --- Bookings ---
     match /bookings/{bookingId} {
-      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
       
       allow create: if isAuthenticated()
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.status == 'pending'
         && !request.resource.data.keys().hasAny(['stripePaymentIntentId', 'bookingReferenceCode', 'reviewed'])
-        // Enforce max string length on free-text fields
         && (!request.resource.data.keys().hasAll(['pickupLocation']) || request.resource.data.pickupLocation.size() <= 200)
         && (!request.resource.data.keys().hasAll(['specialRequests']) || request.resource.data.specialRequests.size() <= 500);
         
-      // Client updates cannot modify status, payment tokens, reference codes, or review completion.
       allow update: if isAuthenticated()
         && resource.data.userId == request.auth.uid
         && request.resource.data.userId == resource.data.userId
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'stripePaymentIntentId', 'bookingReferenceCode', 'reviewed'])
-        // Enforce max string length on free-text fields during updates too
         && (!request.resource.data.keys().hasAll(['pickupLocation']) || request.resource.data.pickupLocation.size() <= 200)
         && (!request.resource.data.keys().hasAll(['specialRequests']) || request.resource.data.specialRequests.size() <= 500);
 
-      allow create, update: if isAuthenticated();
-        
       allow delete: if false;
     }
 
-    // Tours catalog: publicly readable, writable only by admin SDK/backend.
+    // --- Tours Catalog ---
     match /tours/{tourId} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow write: if isAdmin();
 
-      // Reviews: publicly readable, writable only by the owner of a 'completed' booking for this tour.
       match /reviews/{reviewId} {
         allow read: if true;
-        
-        allow create: if isAuthenticated();
-          
-        allow update, delete: if isAuthenticated();
+        allow create, update, delete: if isAuthenticated(); // Simplified for v1, could be constrained to booking completion
       }
     }
 
-    match /concierges/{conciergeId} {
+    // --- Services Catalog ---
+    match /services/{serviceId} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
-    // Travel Concierge chat threads: user-scoped read/write.
+    // --- Concierge ---
+    match /concierges/{conciergeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /concierge_threads/{uid} {
-      allow read: if isOwner(uid);
-      allow write: if isAuthenticated();
+      // Admins can read all threads
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if false; // Metadata updates via Cloud Functions
       
       match /messages/{messageId} {
-        allow read: if isOwner(uid);
-        // Allow users to write their own messages only, with max text length enforced server-side.
+        allow read: if isOwner(uid) || isAdmin();
+        
+        // Users can send messages directly. Admins use Cloud Function `adminReplyToConciergeThread`.
         allow create: if isOwner(uid)
           && request.resource.data.senderType == 'user'
           && request.resource.data.text.size() <= 1000;
-        // Prevent editing or deleting sent messages.
+          
         allow update, delete: if false;
       }
     }
 
+    // --- Notifications ---
     match /notifications/{uid} {
-      allow read: if isOwner(uid);
+      allow read: if isOwner(uid) || isAdmin();
       allow write: if false;
       
       match /items/{notificationId} {
-        allow read: if isOwner(uid);
+        allow read: if isOwner(uid) || isAdmin();
         allow update: if isOwner(uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
-        allow create: if isAuthenticated();
+        allow create: if false; // Handled by Cloud Functions
         allow delete: if false;
       }
     }

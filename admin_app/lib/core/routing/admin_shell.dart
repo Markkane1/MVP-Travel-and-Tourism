@@ -7,117 +7,6 @@ class AdminShell extends ConsumerWidget {
   final Widget child;
   const AdminShell({super.key, required this.child});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            const Text('MVP Travel Admin'),
-            const SizedBox(width: 32),
-            // Simple Breadcrumbs
-            Text(
-              ' / ${_calculateBreadcrumb(context)}',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white70,
-                  ),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: PopupMenuButton<String>(
-              onSelected: (value) {
-                if (value == 'logout') {
-                  ref.read(authProvider.notifier).logout();
-                }
-              },
-              itemBuilder: (BuildContext context) {
-                return [
-                  const PopupMenuItem<String>(
-                    value: 'profile',
-                    child: Text('My Profile'),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'logout',
-                    child: Text('Sign Out'),
-                  ),
-                ];
-              },
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 16,
-                    backgroundColor: Colors.white24,
-                    child: Icon(Icons.person, color: Colors.white, size: 20),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    ref.watch(authProvider).user?.email ?? 'Admin',
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  const Icon(Icons.arrow_drop_down),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Row(
-        children: [
-          NavigationRail(
-            extended: true,
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.dashboard),
-                label: Text('Dashboard'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.tour),
-                label: Text('Tours'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.design_services),
-                label: Text('Services'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.book_online),
-                label: Text('Bookings'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.people),
-                label: Text('Users'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.support_agent),
-                label: Text('Concierge'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.notifications),
-                label: Text('Notifications'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.admin_panel_settings),
-                label: Text('Staff'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.history),
-                label: Text('Audit Logs'),
-              ),
-            ],
-            selectedIndex: _calculateSelectedIndex(context),
-            onDestinationSelected: (int index) {
-              _onItemTapped(index, context);
-            },
-          ),
-          const VerticalDivider(thickness: 1, width: 1),
-          Expanded(child: child),
-        ],
-      ),
-    );
-  }
-
   static int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/dashboard')) return 0;
@@ -130,20 +19,6 @@ class AdminShell extends ConsumerWidget {
     if (location.startsWith('/staff')) return 7;
     if (location.startsWith('/audit')) return 8;
     return 0;
-  }
-
-  static String _calculateBreadcrumb(BuildContext context) {
-    final String location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/dashboard')) return 'Dashboard';
-    if (location.startsWith('/tours')) return 'Tours Management';
-    if (location.startsWith('/services')) return 'Services Config';
-    if (location.startsWith('/bookings')) return 'Bookings Operations';
-    if (location.startsWith('/users')) return 'Users';
-    if (location.startsWith('/concierge')) return 'Concierge Hub';
-    if (location.startsWith('/notifications')) return 'Push Notifications';
-    if (location.startsWith('/staff')) return 'Staff & Access';
-    if (location.startsWith('/audit')) return 'Security Audit';
-    return '';
   }
 
   void _onItemTapped(int index, BuildContext context) {
@@ -176,5 +51,72 @@ class AdminShell extends ConsumerWidget {
         context.go('/audit');
         break;
     }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+    final isSuperAdmin = authState.isSuperAdmin;
+
+    final destinations = [
+      const NavigationRailDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: Text('Dashboard')),
+      const NavigationRailDestination(icon: Icon(Icons.explore_outlined), selectedIcon: Icon(Icons.explore), label: Text('Tours')),
+      const NavigationRailDestination(icon: Icon(Icons.room_service_outlined), selectedIcon: Icon(Icons.room_service), label: Text('Services')),
+      const NavigationRailDestination(icon: Icon(Icons.book_online_outlined), selectedIcon: Icon(Icons.book_online), label: Text('Bookings')),
+      const NavigationRailDestination(icon: Icon(Icons.people_outline), selectedIcon: Icon(Icons.people), label: Text('Users')),
+      const NavigationRailDestination(icon: Icon(Icons.support_agent_outlined), selectedIcon: Icon(Icons.support_agent), label: Text('Concierge')),
+      const NavigationRailDestination(icon: Icon(Icons.campaign_outlined), selectedIcon: Icon(Icons.campaign), label: Text('Notifications')),
+      if (isSuperAdmin) const NavigationRailDestination(icon: Icon(Icons.manage_accounts_outlined), selectedIcon: Icon(Icons.manage_accounts), label: Text('Staff')),
+      // Keep audit if it existed before
+      const NavigationRailDestination(icon: Icon(Icons.security_outlined), selectedIcon: Icon(Icons.security), label: Text('Audit Logs')),
+    ];
+
+    int selectedIndex = _calculateSelectedIndex(context);
+    // If superAdmin is false, and index is on Staff or Audit, it might be off by 1 since we conditionally exclude Staff.
+    // Let's just adjust index logic for non-superAdmins
+    if (!isSuperAdmin) {
+      if (selectedIndex == 7) {
+        // trying to access staff without permission! The router should handle this really, but let's fall back to 0
+        selectedIndex = 0;
+      } else if (selectedIndex == 8) {
+        // audit log shifts to index 7 because staff was removed
+        selectedIndex = 7;
+      }
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('MVP Travel Admin'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: TextButton.icon(
+              onPressed: () => ref.read(authProvider.notifier).logout(),
+              icon: const Icon(Icons.logout, color: Colors.white),
+              label: const Text('Logout', style: TextStyle(color: Colors.white)),
+            ),
+          ),
+        ],
+      ),
+      body: Row(
+        children: [
+          NavigationRail(
+            selectedIndex: selectedIndex < destinations.length ? selectedIndex : 0,
+            onDestinationSelected: (index) {
+              // Map index back to correct route if superAdmin is false
+              int targetIndex = index;
+              if (!isSuperAdmin && index >= 7) {
+                 targetIndex = index + 1;
+              }
+              _onItemTapped(targetIndex, context);
+            },
+            labelType: NavigationRailLabelType.all,
+            destinations: destinations,
+          ),
+          const VerticalDivider(thickness: 1, width: 1),
+          Expanded(child: child),
+        ],
+      ),
+    );
   }
 }

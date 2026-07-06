@@ -27,13 +27,16 @@ export const setAdminClaimsLogic = async (
     const userRecord = await admin.auth().getUserByEmail(targetEmail);
 
     // 3. Set the custom claim
-    await admin.auth().setCustomUserClaims(userRecord.uid, { admin: true });
+    // If it's the bootstrap user, give them super_admin too.
+    const claims = isBootstrap ? { admin: true, super_admin: true } : { admin: true };
+    await admin.auth().setCustomUserClaims(userRecord.uid, claims);
 
     // 4. Create/Update a staff profile document
     const db = admin.firestore();
     await db.collection('staff_profiles').doc(userRecord.uid).set({
       email: targetEmail,
-      role: 'admin',
+      role: isBootstrap ? 'super_admin' : 'admin',
+      isActive: true,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
 

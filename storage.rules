@@ -2,20 +2,37 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+
     // Scopes storage access to user-specific folders
     match /users/{uid}/{allPaths=**} {
-      allow read: if request.auth != null && request.auth.uid == uid;
+      allow read: if isAuthenticated() && (request.auth.uid == uid || isAdmin());
       
       // Uploads restricted to the owner, size limit < 10MB, and content must be image.
-      allow write: if request.auth != null 
+      allow write: if isAuthenticated() 
                    && request.auth.uid == uid
                    && request.resource.size < 10 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
     }
 
     match /concierge_threads/{uid}/attachments/{allPaths=**} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if request.auth != null && request.auth.uid == uid
+      allow read: if isAuthenticated() && (request.auth.uid == uid || isAdmin());
+      allow write: if isAuthenticated() 
+                   && (request.auth.uid == uid || isAdmin())
+                   && request.resource.size < 10 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // Admin paths
+    match /admin/{allPaths=**} {
+      allow read: if true; // Public can read tour/service images
+      allow write: if isAdmin()
                    && request.resource.size < 10 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
     }

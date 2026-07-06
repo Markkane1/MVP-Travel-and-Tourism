@@ -4,36 +4,60 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/tour.dart';
 import '../providers/tours_providers.dart';
 
-class AddTourDialog extends ConsumerStatefulWidget {
-  const AddTourDialog({super.key});
+class EditTourDialog extends ConsumerStatefulWidget {
+  final Tour tour;
+  const EditTourDialog({super.key, required this.tour});
 
   @override
-  ConsumerState<AddTourDialog> createState() => _AddTourDialogState();
+  ConsumerState<EditTourDialog> createState() => _EditTourDialogState();
 }
 
-class _AddTourDialogState extends ConsumerState<AddTourDialog> {
+class _EditTourDialogState extends ConsumerState<EditTourDialog> {
   final _formKey = GlobalKey<FormState>();
 
-  final _titleController = TextEditingController();
-  final _destinationController = TextEditingController();
-  final _priceController = TextEditingController();
-  final _durationController = TextEditingController();
-  final _heroUrlController = TextEditingController();
-  final _galleryUrlsController = TextEditingController();
-  final _badgesController = TextEditingController();
-  final _maxParticipantsController = TextEditingController(text: '10');
-  final _ratingAvgController = TextEditingController(text: '0.0');
-  final _ratingCountController = TextEditingController(text: '0');
-  final _overviewController = TextEditingController();
-  final _inclusionsController = TextEditingController();
-  final _privateVehicleSurchargeController = TextEditingController(text: '0.0');
-  final _itineraryJsonController = TextEditingController(text: '[]');
-  final _groupSizeJsonController = TextEditingController(text: '[]');
+  late final TextEditingController _titleController;
+  late final TextEditingController _destinationController;
+  late final TextEditingController _priceController;
+  late final TextEditingController _durationController;
+  late final TextEditingController _heroUrlController;
+  late final TextEditingController _galleryUrlsController;
+  late final TextEditingController _badgesController;
+  late final TextEditingController _maxParticipantsController;
+  late final TextEditingController _ratingAvgController;
+  late final TextEditingController _ratingCountController;
+  late final TextEditingController _overviewController;
+  late final TextEditingController _inclusionsController;
+  late final TextEditingController _privateVehicleSurchargeController;
+  late final TextEditingController _itineraryJsonController;
+  late final TextEditingController _groupSizeJsonController;
 
-  String _selectedCategory = 'Safari';
+  late String _selectedCategory;
   final List<String> _categories = ['Safari', 'Beach', 'Mountain', 'City', 'Cultural'];
 
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.tour.title);
+    _destinationController = TextEditingController(text: widget.tour.destination);
+    _priceController = TextEditingController(text: widget.tour.pricePerPerson.toString());
+    _durationController = TextEditingController(text: widget.tour.durationDays.toString());
+    _heroUrlController = TextEditingController(text: widget.tour.heroImageUrl);
+    _galleryUrlsController = TextEditingController(text: widget.tour.galleryImageUrls.join(', '));
+    _badgesController = TextEditingController(text: widget.tour.badges.join(', '));
+    _maxParticipantsController = TextEditingController(text: widget.tour.maxParticipants.toString());
+    _ratingAvgController = TextEditingController(text: widget.tour.ratingAverage.toString());
+    _ratingCountController = TextEditingController(text: widget.tour.ratingCount.toString());
+    _overviewController = TextEditingController(text: widget.tour.overview);
+    _inclusionsController = TextEditingController(text: widget.tour.inclusions.join(', '));
+    _privateVehicleSurchargeController = TextEditingController(text: widget.tour.privateVehicleSurcharge.toString());
+    
+    _itineraryJsonController = TextEditingController(text: jsonEncode(widget.tour.itinerary));
+    _groupSizeJsonController = TextEditingController(text: jsonEncode(widget.tour.groupSizeOptions));
+
+    _selectedCategory = _categories.contains(widget.tour.category) ? widget.tour.category : _categories.first;
+  }
 
   @override
   void dispose() {
@@ -70,26 +94,26 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
         if (parsedG is List) groupSizeParsed = List<Map<String, dynamic>>.from(parsedG);
       } catch (_) {}
 
-      final newTour = Tour(
+      final updatedTour = widget.tour.copyWith(
         title: _titleController.text.trim(),
         destination: _destinationController.text.trim(),
         category: _selectedCategory,
-        pricePerPerson: double.tryParse(_priceController.text) ?? 0.0,
-        durationDays: int.tryParse(_durationController.text) ?? 1,
-        heroImageUrl: _heroUrlController.text.trim().isEmpty ? 'https://via.placeholder.com/800x600?text=Placeholder+Hero' : _heroUrlController.text.trim(),
+        pricePerPerson: double.tryParse(_priceController.text) ?? widget.tour.pricePerPerson,
+        durationDays: int.tryParse(_durationController.text) ?? widget.tour.durationDays,
+        heroImageUrl: _heroUrlController.text.trim(),
         galleryImageUrls: _galleryUrlsController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
         badges: _badgesController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
         inclusions: _inclusionsController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
-        maxParticipants: int.tryParse(_maxParticipantsController.text) ?? 10,
-        ratingAverage: double.tryParse(_ratingAvgController.text) ?? 0.0,
-        ratingCount: int.tryParse(_ratingCountController.text) ?? 0,
+        maxParticipants: int.tryParse(_maxParticipantsController.text) ?? widget.tour.maxParticipants,
+        ratingAverage: double.tryParse(_ratingAvgController.text) ?? widget.tour.ratingAverage,
+        ratingCount: int.tryParse(_ratingCountController.text) ?? widget.tour.ratingCount,
         overview: _overviewController.text.trim(),
-        privateVehicleSurcharge: double.tryParse(_privateVehicleSurchargeController.text) ?? 0.0,
+        privateVehicleSurcharge: double.tryParse(_privateVehicleSurchargeController.text) ?? widget.tour.privateVehicleSurcharge,
         itinerary: itineraryParsed,
         groupSizeOptions: groupSizeParsed,
       );
 
-      await ref.read(toursApiProvider).addTour(newTour);
+      await ref.read(toursApiProvider).updateTour(updatedTour);
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: \$e')));
@@ -101,7 +125,7 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add New Tour'),
+      title: const Text('Edit Tour'),
       content: SizedBox(
         width: 600,
         child: Form(
@@ -252,7 +276,7 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
           onPressed: _isSubmitting ? null : _submitForm,
           child: _isSubmitting 
               ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-              : const Text('Create Tour'),
+              : const Text('Save Changes'),
         ),
       ],
     );
