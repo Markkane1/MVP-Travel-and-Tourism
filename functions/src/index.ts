@@ -81,3 +81,4 @@ export { adminUpdateUser } from './admin/adminUpdateUser';
 export { adminReplyToConciergeThread } from './admin/adminReplyToConciergeThread';
 export { adminSendNotification } from './admin/adminSendNotification';
 export { adminManageStaff } from './admin/adminManageStaff';
+export { adminDeleteUser } from './admin/adminDeleteUser';

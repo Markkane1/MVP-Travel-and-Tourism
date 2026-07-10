@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user.dart';
 import '../providers/users_providers.dart';
 
@@ -71,7 +72,45 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
               Text('Email: \${u.email}'),
               Text("Display Name: \${u.displayName ?? 'N/A'}"),
               if (u.createdAt != null) Text('Joined: \${u.createdAt}'),
-              const Divider(),
+              const SizedBox(height: 16),
+              
+              const Text('User Insights', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              if (u.preferences != null && u.preferences!.isNotEmpty)
+                Text('Preferences: \${u.preferences.toString()}'),
+              if (u.preferences == null || u.preferences!.isEmpty)
+                const Text('Preferences: None stated'),
+              
+              const SizedBox(height: 8),
+              Text('Saved Tours: \${u.savedTours.length} tours saved'),
+              if (u.savedTours.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0, top: 4.0),
+                  child: Text(u.savedTours.join(', '), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                ),
+              
+              const Text('Bookings Summary:', style: TextStyle(fontWeight: FontWeight.bold)),
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection('bookings').where('userId', isEqualTo: u.id).snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error loading bookings', style: const TextStyle(color: Colors.red));
+                  }
+                  final docs = snapshot.data?.docs ?? [];
+                  if (docs.isEmpty) return const Text('No bookings found.');
+                  final activeCount = docs.where((d) => (d.data() as Map<String, dynamic>)['status'] == 'confirmed').length;
+                  return Text('${docs.length} total booking(s), $activeCount active/confirmed');
+                },
+              ),
+              
+              const Divider(height: 32),
+              
               const Text('Update User Status', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(

@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions for authentication checks
+    // ─── Helper functions ───────────────────────────────────────────────────
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -16,25 +16,37 @@ service cloud.firestore {
     }
 
     function isSuperAdmin() {
-      return isAuthenticated() && request.auth.token.super_admin == true;
+      return isAuthenticated() && request.auth.token.role == 'super_admin';
     }
 
-    // --- Admin & Staff Collections ---
+    // ─── Staff & Admin Collections ──────────────────────────────────────────
     match /staff_profiles/{uid} {
       allow read: if isAdmin() || isOwner(uid);
-      allow write: if isSuperAdmin();
+      // super_admin can create/update staff profiles directly (no Cloud Function needed)
+      allow create, update: if isSuperAdmin();
+      allow delete: if false;
     }
 
+    // Audit logs: admins can read; admin clients write their own audit entries.
+    // No update or delete — audit logs are append-only.
     match /admin_audit_logs/{logId} {
       allow read: if isAdmin();
-      allow write: if false; // Only Cloud Functions can write audit logs
+      allow create: if isAdmin();
+      allow update, delete: if false;
     }
 
-    // --- User Profiles ---
+    // ─── User Profiles ──────────────────────────────────────────────────────
     match /users/{uid} {
-      // Admins can read all users
       allow read: if isOwner(uid) || isAdmin();
-      allow write: if isOwner(uid);
+
+      // Users manage their own profile; admins can only update safe fields.
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid)
+        || (isAdmin()
+          && request.resource.data.diff(resource.data)
+             .affectedKeys()
+             .hasOnly(['tier', 'loyaltyPoints', 'conciergeId', 'updatedAt']));
+      allow delete: if false;
 
       match /savedTours/{tourId} {
         allow read, write: if isOwner(uid);
@@ -44,76 +56,96 @@ service cloud.firestore {
       }
     }
 
-    // --- Bookings ---
+    // ─── Bookings ────────────────────────────────────────────────────────────
     match /bookings/{bookingId} {
-      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
-      
+      allow read: if isAdmin()
+        || (isAuthenticated() && resource.data.userId == request.auth.uid);
+
       allow create: if isAuthenticated()
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.status == 'pending'
         && !request.resource.data.keys().hasAny(['stripePaymentIntentId', 'bookingReferenceCode', 'reviewed'])
         && (!request.resource.data.keys().hasAll(['pickupLocation']) || request.resource.data.pickupLocation.size() <= 200)
         && (!request.resource.data.keys().hasAll(['specialRequests']) || request.resource.data.specialRequests.size() <= 500);
-        
-      allow update: if isAuthenticated()
-        && resource.data.userId == request.auth.uid
-        && request.resource.data.userId == resource.data.userId
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'stripePaymentIntentId', 'bookingReferenceCode', 'reviewed'])
-        && (!request.resource.data.keys().hasAll(['pickupLocation']) || request.resource.data.pickupLocation.size() <= 200)
-        && (!request.resource.data.keys().hasAll(['specialRequests']) || request.resource.data.specialRequests.size() <= 500);
+
+      // Customers update their own non-sensitive fields; admins update status + admin metadata.
+      allow update: if (isAuthenticated()
+          && resource.data.userId == request.auth.uid
+          && request.resource.data.userId == resource.data.userId
+          && !request.resource.data.diff(resource.data).affectedKeys()
+             .hasAny(['status', 'stripePaymentIntentId', 'bookingReferenceCode', 'reviewed'])
+          && (!request.resource.data.keys().hasAll(['pickupLocation']) || request.resource.data.pickupLocation.size() <= 200)
+          && (!request.resource.data.keys().hasAll(['specialRequests']) || request.resource.data.specialRequests.size() <= 500))
+        || (isAdmin()
+          && request.resource.data.diff(resource.data)
+             .affectedKeys()
+             .hasOnly(['status', 'adminNotes', 'lastAdminActionAt', 'lastAdminActionBy', 'refundRequested', 'refundReason']));
 
       allow delete: if false;
     }
 
-    // --- Tours Catalog ---
+    // ─── Tours Catalog ───────────────────────────────────────────────────────
     match /tours/{tourId} {
       allow read: if true;
       allow write: if isAdmin();
 
       match /reviews/{reviewId} {
         allow read: if true;
-        allow create, update, delete: if isAuthenticated(); // Simplified for v1, could be constrained to booking completion
+        allow create, update, delete: if isAuthenticated();
       }
     }
 
-    // --- Services Catalog ---
+    // ─── Services Catalog ────────────────────────────────────────────────────
     match /services/{serviceId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // --- Concierge ---
+    // ─── Concierge ────────────────────────────────────────────────────────────
     match /concierges/{conciergeId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
     match /concierge_threads/{uid} {
-      // Admins can read all threads
       allow read: if isOwner(uid) || isAdmin();
-      allow write: if false; // Metadata updates via Cloud Functions
-      
+      // Admins can update thread metadata (lastMessageAt, isResolved) directly.
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid)
+        || (isAdmin()
+          && request.resource.data.diff(resource.data)
+             .affectedKeys()
+             .hasOnly(['lastMessageAt', 'isResolved', 'updatedAt']));
+      allow delete: if false;
+
       match /messages/{messageId} {
         allow read: if isOwner(uid) || isAdmin();
-        
-        // Users can send messages directly. Admins use Cloud Function `adminReplyToConciergeThread`.
-        allow create: if isOwner(uid)
-          && request.resource.data.senderType == 'user'
-          && request.resource.data.text.size() <= 1000;
-          
+
+        // Users send as 'user'; admins send as 'staff'.
+        allow create: if (isOwner(uid)
+            && request.resource.data.senderType == 'user'
+            && request.resource.data.text.size() <= 1000)
+          || (isAdmin()
+            && request.resource.data.senderType == 'staff'
+            && request.resource.data.text.size() <= 2000);
+
         allow update, delete: if false;
       }
     }
 
-    // --- Notifications ---
+    // ─── Notifications ────────────────────────────────────────────────────────
     match /notifications/{uid} {
       allow read: if isOwner(uid) || isAdmin();
-      allow write: if false;
-      
+      // Admins can create the root notification doc if needed.
+      allow create: if isAdmin();
+      allow update, delete: if false;
+
       match /items/{notificationId} {
         allow read: if isOwner(uid) || isAdmin();
-        allow update: if isOwner(uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
-        allow create: if false; // Handled by Cloud Functions
+        // Users can mark as read; admins can create notification items directly.
+        allow create: if isAdmin();
+        allow update: if isOwner(uid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
         allow delete: if false;
       }
     }

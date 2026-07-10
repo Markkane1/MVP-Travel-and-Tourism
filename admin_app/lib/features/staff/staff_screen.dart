@@ -11,8 +11,8 @@ class StaffScreen extends ConsumerStatefulWidget {
 
 class _StaffScreenState extends ConsumerState<StaffScreen> {
   Future<void> _showCreateStaffDialog() async {
+    final uidController = TextEditingController();
     final emailController = TextEditingController();
-    final passwordController = TextEditingController();
     String selectedRole = 'admin';
     bool isSubmitting = false;
 
@@ -22,33 +22,60 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Add Staff Member'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: emailController,
-                    decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: passwordController,
-                    decoration: const InputDecoration(labelText: 'Initial Password', border: OutlineInputBorder()),
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    value: selectedRole,
-                    decoration: const InputDecoration(labelText: 'Role', border: OutlineInputBorder()),
-                    items: const [
-                      DropdownMenuItem(value: 'admin', child: Text('Admin')),
-                      DropdownMenuItem(value: 'super_admin', child: Text('Super Admin')),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) setState(() => selectedRole = val);
-                    },
-                  ),
-                ],
+              title: const Text('Register Staff Member'),
+              content: SizedBox(
+                width: 420,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade50,
+                        border: Border.all(color: Colors.amber.shade300),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        '⚠️  Step 1: Go to Firebase Console → Authentication → Add user manually.\n\n'
+                        'Step 2: Copy the new user\'s UID and paste it below to register their staff profile.',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: uidController,
+                      decoration: const InputDecoration(
+                        labelText: 'Firebase Auth UID',
+                        hintText: 'Paste the UID from Firebase Console',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: selectedRole,
+                      decoration: const InputDecoration(
+                        labelText: 'Role',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                        DropdownMenuItem(value: 'super_admin', child: Text('Super Admin')),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) setState(() => selectedRole = val);
+                      },
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -59,19 +86,19 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
                   onPressed: isSubmitting ? null : () async {
                     setState(() => isSubmitting = true);
                     try {
-                      await ref.read(staffApiProvider).createStaff(
+                      await ref.read(staffApiProvider).registerStaffProfile(
+                        uid: uidController.text.trim(),
                         email: emailController.text.trim(),
-                        password: passwordController.text,
                         role: selectedRole,
                       );
                       if (context.mounted) Navigator.of(context).pop();
                     } catch (e) {
-                      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: \$e')));
+                      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
                     } finally {
                       setState(() => isSubmitting = false);
                     }
                   },
-                  child: isSubmitting ? const CircularProgressIndicator() : const Text('Create'),
+                  child: isSubmitting ? const CircularProgressIndicator() : const Text('Register'),
                 ),
               ],
             );
@@ -80,6 +107,7 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
       },
     );
   }
+
 
   Future<void> _updateRole(String uid, String currentRole) async {
     String selectedRole = currentRole;

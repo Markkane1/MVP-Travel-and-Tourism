@@ -29,6 +29,7 @@ abstract class Tour with _$Tour {
     @Default([]) List<DateTime> availableDates,
     @Default(0.0) double privateVehicleSurcharge,
     @Default([]) List<Map<String, dynamic>> groupSizeOptions,
+    @Default(true) bool isActive,
   }) = _Tour;
 
   factory Tour.fromJson(Map<String, dynamic> json) => _$TourFromJson(json);

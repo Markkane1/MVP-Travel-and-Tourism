@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../models/booking.dart';
 import '../providers/bookings_providers.dart';
 
@@ -37,14 +36,14 @@ class _BookingDetailDialogState extends ConsumerState<BookingDetailDialog> {
   Future<void> _issueRefund() async {
     setState(() => _isLoading = true);
     try {
-      await ref.read(bookingsApiProvider).issueRefund(
+      await ref.read(bookingsApiProvider).requestRefund(
         widget.booking.id,
         'Refunded via admin dashboard',
       );
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: \$e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -53,7 +52,6 @@ class _BookingDetailDialogState extends ConsumerState<BookingDetailDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormatter = NumberFormat.currency(symbol: '\$');
     final b = widget.booking;
 
     return AlertDialog(

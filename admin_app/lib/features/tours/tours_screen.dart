@@ -112,8 +112,11 @@ class ToursScreen extends ConsumerWidget {
                                 DataCell(Chip(label: Text(tour.category))),
                                 DataCell(Text('\$${tour.pricePerPerson.toStringAsFixed(2)}')),
                                 DataCell(Text('${tour.durationDays} days')),
-                                // Check if tour model natively exposes isActive. Assuming API uses it or it's active if no archivedAt. Let's just put active for now.
-                                const DataCell(Chip(label: Text('Active'), backgroundColor: Colors.green, labelStyle: TextStyle(color: Colors.white))),
+                                DataCell(
+                                  tour.isActive 
+                                    ? const Chip(label: Text('Active'), backgroundColor: Colors.green, labelStyle: TextStyle(color: Colors.white))
+                                    : const Chip(label: Text('Archived'), backgroundColor: Colors.grey, labelStyle: TextStyle(color: Colors.white)),
+                                ),
                                 DataCell(
                                   Row(
                                     children: [
@@ -121,10 +124,11 @@ class ToursScreen extends ConsumerWidget {
                                         icon: const Icon(Icons.edit, size: 20),
                                         onPressed: () => _showEditTourDialog(context, tour),
                                       ),
-                                      IconButton(
-                                        icon: const Icon(Icons.archive, size: 20, color: Colors.red),
-                                        onPressed: () => _confirmArchive(context, ref, tour.id),
-                                      ),
+                                      if (tour.isActive)
+                                        IconButton(
+                                          icon: const Icon(Icons.archive, size: 20, color: Colors.red),
+                                          onPressed: () => _confirmArchive(context, ref, tour.id),
+                                        ),
                                     ],
                                   ),
                                 ),

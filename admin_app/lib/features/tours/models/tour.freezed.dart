@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Tour {
 
-@JsonKey(includeToJson: false) String get id; String get title; String get destination; String get category; List<String> get badges; String get heroImageUrl; List<String> get galleryImageUrls; double get pricePerPerson; String get currency; int get durationDays; int get maxParticipants; double get ratingAverage; int get ratingCount; String get overview; List<Map<String, dynamic>> get itinerary; List<String> get inclusions; double get latitude; double get longitude; List<DateTime> get availableDates; double get privateVehicleSurcharge; List<Map<String, dynamic>> get groupSizeOptions;
+@JsonKey(includeToJson: false) String get id; String get title; String get destination; String get category; List<String> get badges; String get heroImageUrl; List<String> get galleryImageUrls; double get pricePerPerson; String get currency; int get durationDays; int get maxParticipants; double get ratingAverage; int get ratingCount; String get overview; List<Map<String, dynamic>> get itinerary; List<String> get inclusions; double get latitude; double get longitude; List<DateTime> get availableDates; double get privateVehicleSurcharge; List<Map<String, dynamic>> get groupSizeOptions; bool get isActive;
 /// Create a copy of Tour
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $TourCopyWith<Tour> get copyWith => _$TourCopyWithImpl<Tour>(this as Tour, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Tour&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.category, category) || other.category == category)&&const DeepCollectionEquality().equals(other.badges, badges)&&(identical(other.heroImageUrl, heroImageUrl) || other.heroImageUrl == heroImageUrl)&&const DeepCollectionEquality().equals(other.galleryImageUrls, galleryImageUrls)&&(identical(other.pricePerPerson, pricePerPerson) || other.pricePerPerson == pricePerPerson)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.durationDays, durationDays) || other.durationDays == durationDays)&&(identical(other.maxParticipants, maxParticipants) || other.maxParticipants == maxParticipants)&&(identical(other.ratingAverage, ratingAverage) || other.ratingAverage == ratingAverage)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&(identical(other.overview, overview) || other.overview == overview)&&const DeepCollectionEquality().equals(other.itinerary, itinerary)&&const DeepCollectionEquality().equals(other.inclusions, inclusions)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&const DeepCollectionEquality().equals(other.availableDates, availableDates)&&(identical(other.privateVehicleSurcharge, privateVehicleSurcharge) || other.privateVehicleSurcharge == privateVehicleSurcharge)&&const DeepCollectionEquality().equals(other.groupSizeOptions, groupSizeOptions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Tour&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.category, category) || other.category == category)&&const DeepCollectionEquality().equals(other.badges, badges)&&(identical(other.heroImageUrl, heroImageUrl) || other.heroImageUrl == heroImageUrl)&&const DeepCollectionEquality().equals(other.galleryImageUrls, galleryImageUrls)&&(identical(other.pricePerPerson, pricePerPerson) || other.pricePerPerson == pricePerPerson)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.durationDays, durationDays) || other.durationDays == durationDays)&&(identical(other.maxParticipants, maxParticipants) || other.maxParticipants == maxParticipants)&&(identical(other.ratingAverage, ratingAverage) || other.ratingAverage == ratingAverage)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&(identical(other.overview, overview) || other.overview == overview)&&const DeepCollectionEquality().equals(other.itinerary, itinerary)&&const DeepCollectionEquality().equals(other.inclusions, inclusions)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&const DeepCollectionEquality().equals(other.availableDates, availableDates)&&(identical(other.privateVehicleSurcharge, privateVehicleSurcharge) || other.privateVehicleSurcharge == privateVehicleSurcharge)&&const DeepCollectionEquality().equals(other.groupSizeOptions, groupSizeOptions)&&(identical(other.isActive, isActive) || other.isActive == isActive));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,title,destination,category,const DeepCollectionEquality().hash(badges),heroImageUrl,const DeepCollectionEquality().hash(galleryImageUrls),pricePerPerson,currency,durationDays,maxParticipants,ratingAverage,ratingCount,overview,const DeepCollectionEquality().hash(itinerary),const DeepCollectionEquality().hash(inclusions),latitude,longitude,const DeepCollectionEquality().hash(availableDates),privateVehicleSurcharge,const DeepCollectionEquality().hash(groupSizeOptions)]);
+int get hashCode => Object.hashAll([runtimeType,id,title,destination,category,const DeepCollectionEquality().hash(badges),heroImageUrl,const DeepCollectionEquality().hash(galleryImageUrls),pricePerPerson,currency,durationDays,maxParticipants,ratingAverage,ratingCount,overview,const DeepCollectionEquality().hash(itinerary),const DeepCollectionEquality().hash(inclusions),latitude,longitude,const DeepCollectionEquality().hash(availableDates),privateVehicleSurcharge,const DeepCollectionEquality().hash(groupSizeOptions),isActive]);
 
 @override
 String toString() {
-  return 'Tour(id: $id, title: $title, destination: $destination, category: $category, badges: $badges, heroImageUrl: $heroImageUrl, galleryImageUrls: $galleryImageUrls, pricePerPerson: $pricePerPerson, currency: $currency, durationDays: $durationDays, maxParticipants: $maxParticipants, ratingAverage: $ratingAverage, ratingCount: $ratingCount, overview: $overview, itinerary: $itinerary, inclusions: $inclusions, latitude: $latitude, longitude: $longitude, availableDates: $availableDates, privateVehicleSurcharge: $privateVehicleSurcharge, groupSizeOptions: $groupSizeOptions)';
+  return 'Tour(id: $id, title: $title, destination: $destination, category: $category, badges: $badges, heroImageUrl: $heroImageUrl, galleryImageUrls: $galleryImageUrls, pricePerPerson: $pricePerPerson, currency: $currency, durationDays: $durationDays, maxParticipants: $maxParticipants, ratingAverage: $ratingAverage, ratingCount: $ratingCount, overview: $overview, itinerary: $itinerary, inclusions: $inclusions, latitude: $latitude, longitude: $longitude, availableDates: $availableDates, privateVehicleSurcharge: $privateVehicleSurcharge, groupSizeOptions: $groupSizeOptions, isActive: $isActive)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $TourCopyWith<$Res>  {
   factory $TourCopyWith(Tour value, $Res Function(Tour) _then) = _$TourCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(includeToJson: false) String id, String title, String destination, String category, List<String> badges, String heroImageUrl, List<String> galleryImageUrls, double pricePerPerson, String currency, int durationDays, int maxParticipants, double ratingAverage, int ratingCount, String overview, List<Map<String, dynamic>> itinerary, List<String> inclusions, double latitude, double longitude, List<DateTime> availableDates, double privateVehicleSurcharge, List<Map<String, dynamic>> groupSizeOptions
+@JsonKey(includeToJson: false) String id, String title, String destination, String category, List<String> badges, String heroImageUrl, List<String> galleryImageUrls, double pricePerPerson, String currency, int durationDays, int maxParticipants, double ratingAverage, int ratingCount, String overview, List<Map<String, dynamic>> itinerary, List<String> inclusions, double latitude, double longitude, List<DateTime> availableDates, double privateVehicleSurcharge, List<Map<String, dynamic>> groupSizeOptions, bool isActive
 });
 
 
@@ -65,7 +65,7 @@ class _$TourCopyWithImpl<$Res>
 
 /// Create a copy of Tour
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? destination = null,Object? category = null,Object? badges = null,Object? heroImageUrl = null,Object? galleryImageUrls = null,Object? pricePerPerson = null,Object? currency = null,Object? durationDays = null,Object? maxParticipants = null,Object? ratingAverage = null,Object? ratingCount = null,Object? overview = null,Object? itinerary = null,Object? inclusions = null,Object? latitude = null,Object? longitude = null,Object? availableDates = null,Object? privateVehicleSurcharge = null,Object? groupSizeOptions = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? destination = null,Object? category = null,Object? badges = null,Object? heroImageUrl = null,Object? galleryImageUrls = null,Object? pricePerPerson = null,Object? currency = null,Object? durationDays = null,Object? maxParticipants = null,Object? ratingAverage = null,Object? ratingCount = null,Object? overview = null,Object? itinerary = null,Object? inclusions = null,Object? latitude = null,Object? longitude = null,Object? availableDates = null,Object? privateVehicleSurcharge = null,Object? groupSizeOptions = null,Object? isActive = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -88,7 +88,8 @@ as double,longitude: null == longitude ? _self.longitude : longitude // ignore: 
 as double,availableDates: null == availableDates ? _self.availableDates : availableDates // ignore: cast_nullable_to_non_nullable
 as List<DateTime>,privateVehicleSurcharge: null == privateVehicleSurcharge ? _self.privateVehicleSurcharge : privateVehicleSurcharge // ignore: cast_nullable_to_non_nullable
 as double,groupSizeOptions: null == groupSizeOptions ? _self.groupSizeOptions : groupSizeOptions // ignore: cast_nullable_to_non_nullable
-as List<Map<String, dynamic>>,
+as List<Map<String, dynamic>>,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -173,10 +174,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String id,  String title,  String destination,  String category,  List<String> badges,  String heroImageUrl,  List<String> galleryImageUrls,  double pricePerPerson,  String currency,  int durationDays,  int maxParticipants,  double ratingAverage,  int ratingCount,  String overview,  List<Map<String, dynamic>> itinerary,  List<String> inclusions,  double latitude,  double longitude,  List<DateTime> availableDates,  double privateVehicleSurcharge,  List<Map<String, dynamic>> groupSizeOptions)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String id,  String title,  String destination,  String category,  List<String> badges,  String heroImageUrl,  List<String> galleryImageUrls,  double pricePerPerson,  String currency,  int durationDays,  int maxParticipants,  double ratingAverage,  int ratingCount,  String overview,  List<Map<String, dynamic>> itinerary,  List<String> inclusions,  double latitude,  double longitude,  List<DateTime> availableDates,  double privateVehicleSurcharge,  List<Map<String, dynamic>> groupSizeOptions,  bool isActive)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Tour() when $default != null:
-return $default(_that.id,_that.title,_that.destination,_that.category,_that.badges,_that.heroImageUrl,_that.galleryImageUrls,_that.pricePerPerson,_that.currency,_that.durationDays,_that.maxParticipants,_that.ratingAverage,_that.ratingCount,_that.overview,_that.itinerary,_that.inclusions,_that.latitude,_that.longitude,_that.availableDates,_that.privateVehicleSurcharge,_that.groupSizeOptions);case _:
+return $default(_that.id,_that.title,_that.destination,_that.category,_that.badges,_that.heroImageUrl,_that.galleryImageUrls,_that.pricePerPerson,_that.currency,_that.durationDays,_that.maxParticipants,_that.ratingAverage,_that.ratingCount,_that.overview,_that.itinerary,_that.inclusions,_that.latitude,_that.longitude,_that.availableDates,_that.privateVehicleSurcharge,_that.groupSizeOptions,_that.isActive);case _:
   return orElse();
 
 }
@@ -194,10 +195,10 @@ return $default(_that.id,_that.title,_that.destination,_that.category,_that.badg
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String id,  String title,  String destination,  String category,  List<String> badges,  String heroImageUrl,  List<String> galleryImageUrls,  double pricePerPerson,  String currency,  int durationDays,  int maxParticipants,  double ratingAverage,  int ratingCount,  String overview,  List<Map<String, dynamic>> itinerary,  List<String> inclusions,  double latitude,  double longitude,  List<DateTime> availableDates,  double privateVehicleSurcharge,  List<Map<String, dynamic>> groupSizeOptions)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String id,  String title,  String destination,  String category,  List<String> badges,  String heroImageUrl,  List<String> galleryImageUrls,  double pricePerPerson,  String currency,  int durationDays,  int maxParticipants,  double ratingAverage,  int ratingCount,  String overview,  List<Map<String, dynamic>> itinerary,  List<String> inclusions,  double latitude,  double longitude,  List<DateTime> availableDates,  double privateVehicleSurcharge,  List<Map<String, dynamic>> groupSizeOptions,  bool isActive)  $default,) {final _that = this;
 switch (_that) {
 case _Tour():
-return $default(_that.id,_that.title,_that.destination,_that.category,_that.badges,_that.heroImageUrl,_that.galleryImageUrls,_that.pricePerPerson,_that.currency,_that.durationDays,_that.maxParticipants,_that.ratingAverage,_that.ratingCount,_that.overview,_that.itinerary,_that.inclusions,_that.latitude,_that.longitude,_that.availableDates,_that.privateVehicleSurcharge,_that.groupSizeOptions);case _:
+return $default(_that.id,_that.title,_that.destination,_that.category,_that.badges,_that.heroImageUrl,_that.galleryImageUrls,_that.pricePerPerson,_that.currency,_that.durationDays,_that.maxParticipants,_that.ratingAverage,_that.ratingCount,_that.overview,_that.itinerary,_that.inclusions,_that.latitude,_that.longitude,_that.availableDates,_that.privateVehicleSurcharge,_that.groupSizeOptions,_that.isActive);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -214,10 +215,10 @@ return $default(_that.id,_that.title,_that.destination,_that.category,_that.badg
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(includeToJson: false)  String id,  String title,  String destination,  String category,  List<String> badges,  String heroImageUrl,  List<String> galleryImageUrls,  double pricePerPerson,  String currency,  int durationDays,  int maxParticipants,  double ratingAverage,  int ratingCount,  String overview,  List<Map<String, dynamic>> itinerary,  List<String> inclusions,  double latitude,  double longitude,  List<DateTime> availableDates,  double privateVehicleSurcharge,  List<Map<String, dynamic>> groupSizeOptions)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(includeToJson: false)  String id,  String title,  String destination,  String category,  List<String> badges,  String heroImageUrl,  List<String> galleryImageUrls,  double pricePerPerson,  String currency,  int durationDays,  int maxParticipants,  double ratingAverage,  int ratingCount,  String overview,  List<Map<String, dynamic>> itinerary,  List<String> inclusions,  double latitude,  double longitude,  List<DateTime> availableDates,  double privateVehicleSurcharge,  List<Map<String, dynamic>> groupSizeOptions,  bool isActive)?  $default,) {final _that = this;
 switch (_that) {
 case _Tour() when $default != null:
-return $default(_that.id,_that.title,_that.destination,_that.category,_that.badges,_that.heroImageUrl,_that.galleryImageUrls,_that.pricePerPerson,_that.currency,_that.durationDays,_that.maxParticipants,_that.ratingAverage,_that.ratingCount,_that.overview,_that.itinerary,_that.inclusions,_that.latitude,_that.longitude,_that.availableDates,_that.privateVehicleSurcharge,_that.groupSizeOptions);case _:
+return $default(_that.id,_that.title,_that.destination,_that.category,_that.badges,_that.heroImageUrl,_that.galleryImageUrls,_that.pricePerPerson,_that.currency,_that.durationDays,_that.maxParticipants,_that.ratingAverage,_that.ratingCount,_that.overview,_that.itinerary,_that.inclusions,_that.latitude,_that.longitude,_that.availableDates,_that.privateVehicleSurcharge,_that.groupSizeOptions,_that.isActive);case _:
   return null;
 
 }
@@ -229,7 +230,7 @@ return $default(_that.id,_that.title,_that.destination,_that.category,_that.badg
 @JsonSerializable()
 
 class _Tour extends Tour {
-  const _Tour({@JsonKey(includeToJson: false) this.id = '', required this.title, required this.destination, required this.category, final  List<String> badges = const [], this.heroImageUrl = '', final  List<String> galleryImageUrls = const [], required this.pricePerPerson, this.currency = 'USD', required this.durationDays, this.maxParticipants = 10, this.ratingAverage = 0.0, this.ratingCount = 0, this.overview = '', final  List<Map<String, dynamic>> itinerary = const [], final  List<String> inclusions = const [], this.latitude = 0.0, this.longitude = 0.0, final  List<DateTime> availableDates = const [], this.privateVehicleSurcharge = 0.0, final  List<Map<String, dynamic>> groupSizeOptions = const []}): _badges = badges,_galleryImageUrls = galleryImageUrls,_itinerary = itinerary,_inclusions = inclusions,_availableDates = availableDates,_groupSizeOptions = groupSizeOptions,super._();
+  const _Tour({@JsonKey(includeToJson: false) this.id = '', required this.title, required this.destination, required this.category, final  List<String> badges = const [], this.heroImageUrl = '', final  List<String> galleryImageUrls = const [], required this.pricePerPerson, this.currency = 'USD', required this.durationDays, this.maxParticipants = 10, this.ratingAverage = 0.0, this.ratingCount = 0, this.overview = '', final  List<Map<String, dynamic>> itinerary = const [], final  List<String> inclusions = const [], this.latitude = 0.0, this.longitude = 0.0, final  List<DateTime> availableDates = const [], this.privateVehicleSurcharge = 0.0, final  List<Map<String, dynamic>> groupSizeOptions = const [], this.isActive = true}): _badges = badges,_galleryImageUrls = galleryImageUrls,_itinerary = itinerary,_inclusions = inclusions,_availableDates = availableDates,_groupSizeOptions = groupSizeOptions,super._();
   factory _Tour.fromJson(Map<String, dynamic> json) => _$TourFromJson(json);
 
 @override@JsonKey(includeToJson: false) final  String id;
@@ -289,6 +290,7 @@ class _Tour extends Tour {
   return EqualUnmodifiableListView(_groupSizeOptions);
 }
 
+@override@JsonKey() final  bool isActive;
 
 /// Create a copy of Tour
 /// with the given fields replaced by the non-null parameter values.
@@ -303,16 +305,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Tour&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.category, category) || other.category == category)&&const DeepCollectionEquality().equals(other._badges, _badges)&&(identical(other.heroImageUrl, heroImageUrl) || other.heroImageUrl == heroImageUrl)&&const DeepCollectionEquality().equals(other._galleryImageUrls, _galleryImageUrls)&&(identical(other.pricePerPerson, pricePerPerson) || other.pricePerPerson == pricePerPerson)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.durationDays, durationDays) || other.durationDays == durationDays)&&(identical(other.maxParticipants, maxParticipants) || other.maxParticipants == maxParticipants)&&(identical(other.ratingAverage, ratingAverage) || other.ratingAverage == ratingAverage)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&(identical(other.overview, overview) || other.overview == overview)&&const DeepCollectionEquality().equals(other._itinerary, _itinerary)&&const DeepCollectionEquality().equals(other._inclusions, _inclusions)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&const DeepCollectionEquality().equals(other._availableDates, _availableDates)&&(identical(other.privateVehicleSurcharge, privateVehicleSurcharge) || other.privateVehicleSurcharge == privateVehicleSurcharge)&&const DeepCollectionEquality().equals(other._groupSizeOptions, _groupSizeOptions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Tour&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.destination, destination) || other.destination == destination)&&(identical(other.category, category) || other.category == category)&&const DeepCollectionEquality().equals(other._badges, _badges)&&(identical(other.heroImageUrl, heroImageUrl) || other.heroImageUrl == heroImageUrl)&&const DeepCollectionEquality().equals(other._galleryImageUrls, _galleryImageUrls)&&(identical(other.pricePerPerson, pricePerPerson) || other.pricePerPerson == pricePerPerson)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.durationDays, durationDays) || other.durationDays == durationDays)&&(identical(other.maxParticipants, maxParticipants) || other.maxParticipants == maxParticipants)&&(identical(other.ratingAverage, ratingAverage) || other.ratingAverage == ratingAverage)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&(identical(other.overview, overview) || other.overview == overview)&&const DeepCollectionEquality().equals(other._itinerary, _itinerary)&&const DeepCollectionEquality().equals(other._inclusions, _inclusions)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&const DeepCollectionEquality().equals(other._availableDates, _availableDates)&&(identical(other.privateVehicleSurcharge, privateVehicleSurcharge) || other.privateVehicleSurcharge == privateVehicleSurcharge)&&const DeepCollectionEquality().equals(other._groupSizeOptions, _groupSizeOptions)&&(identical(other.isActive, isActive) || other.isActive == isActive));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,title,destination,category,const DeepCollectionEquality().hash(_badges),heroImageUrl,const DeepCollectionEquality().hash(_galleryImageUrls),pricePerPerson,currency,durationDays,maxParticipants,ratingAverage,ratingCount,overview,const DeepCollectionEquality().hash(_itinerary),const DeepCollectionEquality().hash(_inclusions),latitude,longitude,const DeepCollectionEquality().hash(_availableDates),privateVehicleSurcharge,const DeepCollectionEquality().hash(_groupSizeOptions)]);
+int get hashCode => Object.hashAll([runtimeType,id,title,destination,category,const DeepCollectionEquality().hash(_badges),heroImageUrl,const DeepCollectionEquality().hash(_galleryImageUrls),pricePerPerson,currency,durationDays,maxParticipants,ratingAverage,ratingCount,overview,const DeepCollectionEquality().hash(_itinerary),const DeepCollectionEquality().hash(_inclusions),latitude,longitude,const DeepCollectionEquality().hash(_availableDates),privateVehicleSurcharge,const DeepCollectionEquality().hash(_groupSizeOptions),isActive]);
 
 @override
 String toString() {
-  return 'Tour(id: $id, title: $title, destination: $destination, category: $category, badges: $badges, heroImageUrl: $heroImageUrl, galleryImageUrls: $galleryImageUrls, pricePerPerson: $pricePerPerson, currency: $currency, durationDays: $durationDays, maxParticipants: $maxParticipants, ratingAverage: $ratingAverage, ratingCount: $ratingCount, overview: $overview, itinerary: $itinerary, inclusions: $inclusions, latitude: $latitude, longitude: $longitude, availableDates: $availableDates, privateVehicleSurcharge: $privateVehicleSurcharge, groupSizeOptions: $groupSizeOptions)';
+  return 'Tour(id: $id, title: $title, destination: $destination, category: $category, badges: $badges, heroImageUrl: $heroImageUrl, galleryImageUrls: $galleryImageUrls, pricePerPerson: $pricePerPerson, currency: $currency, durationDays: $durationDays, maxParticipants: $maxParticipants, ratingAverage: $ratingAverage, ratingCount: $ratingCount, overview: $overview, itinerary: $itinerary, inclusions: $inclusions, latitude: $latitude, longitude: $longitude, availableDates: $availableDates, privateVehicleSurcharge: $privateVehicleSurcharge, groupSizeOptions: $groupSizeOptions, isActive: $isActive)';
 }
 
 
@@ -323,7 +325,7 @@ abstract mixin class _$TourCopyWith<$Res> implements $TourCopyWith<$Res> {
   factory _$TourCopyWith(_Tour value, $Res Function(_Tour) _then) = __$TourCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(includeToJson: false) String id, String title, String destination, String category, List<String> badges, String heroImageUrl, List<String> galleryImageUrls, double pricePerPerson, String currency, int durationDays, int maxParticipants, double ratingAverage, int ratingCount, String overview, List<Map<String, dynamic>> itinerary, List<String> inclusions, double latitude, double longitude, List<DateTime> availableDates, double privateVehicleSurcharge, List<Map<String, dynamic>> groupSizeOptions
+@JsonKey(includeToJson: false) String id, String title, String destination, String category, List<String> badges, String heroImageUrl, List<String> galleryImageUrls, double pricePerPerson, String currency, int durationDays, int maxParticipants, double ratingAverage, int ratingCount, String overview, List<Map<String, dynamic>> itinerary, List<String> inclusions, double latitude, double longitude, List<DateTime> availableDates, double privateVehicleSurcharge, List<Map<String, dynamic>> groupSizeOptions, bool isActive
 });
 
 
@@ -340,7 +342,7 @@ class __$TourCopyWithImpl<$Res>
 
 /// Create a copy of Tour
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? destination = null,Object? category = null,Object? badges = null,Object? heroImageUrl = null,Object? galleryImageUrls = null,Object? pricePerPerson = null,Object? currency = null,Object? durationDays = null,Object? maxParticipants = null,Object? ratingAverage = null,Object? ratingCount = null,Object? overview = null,Object? itinerary = null,Object? inclusions = null,Object? latitude = null,Object? longitude = null,Object? availableDates = null,Object? privateVehicleSurcharge = null,Object? groupSizeOptions = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? destination = null,Object? category = null,Object? badges = null,Object? heroImageUrl = null,Object? galleryImageUrls = null,Object? pricePerPerson = null,Object? currency = null,Object? durationDays = null,Object? maxParticipants = null,Object? ratingAverage = null,Object? ratingCount = null,Object? overview = null,Object? itinerary = null,Object? inclusions = null,Object? latitude = null,Object? longitude = null,Object? availableDates = null,Object? privateVehicleSurcharge = null,Object? groupSizeOptions = null,Object? isActive = null,}) {
   return _then(_Tour(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -363,7 +365,8 @@ as double,longitude: null == longitude ? _self.longitude : longitude // ignore: 
 as double,availableDates: null == availableDates ? _self._availableDates : availableDates // ignore: cast_nullable_to_non_nullable
 as List<DateTime>,privateVehicleSurcharge: null == privateVehicleSurcharge ? _self.privateVehicleSurcharge : privateVehicleSurcharge // ignore: cast_nullable_to_non_nullable
 as double,groupSizeOptions: null == groupSizeOptions ? _self._groupSizeOptions : groupSizeOptions // ignore: cast_nullable_to_non_nullable
-as List<Map<String, dynamic>>,
+as List<Map<String, dynamic>>,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

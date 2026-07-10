@@ -5,7 +5,7 @@ part 'staff_profile.freezed.dart';
 part 'staff_profile.g.dart';
 
 @freezed
-class StaffProfile with _$StaffProfile {
+abstract class StaffProfile with _$StaffProfile {
   const factory StaffProfile({
     required String uid,
     required String email,

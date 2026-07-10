@@ -13,6 +13,16 @@ class ToursApi {
   Future<void> addTour(Tour newTour) async {
     await FirebaseFirestore.instance.collection('tours').add(newTour.toJson());
   }
+
+  Future<void> updateTour(Tour updatedTour) async {
+    await FirebaseFirestore.instance.collection('tours').doc(updatedTour.id).update(updatedTour.toJson());
+  }
+
+  Future<void> deleteTour(String tourId) async {
+    // For archive, we could set a flag. We'll just hard delete for now to make it compile, 
+    // or set a flag in firestore directly without needing the freezed model to strictly have it yet.
+    await FirebaseFirestore.instance.collection('tours').doc(tourId).update({'isActive': false});
+  }
 }
 
 final toursApiProvider = Provider<ToursApi>((ref) {

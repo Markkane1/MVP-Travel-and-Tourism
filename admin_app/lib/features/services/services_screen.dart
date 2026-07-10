@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/services_providers.dart';
 import 'widgets/add_service_dialog.dart';
 import 'widgets/edit_service_dialog.dart';
-import 'package:intl/intl.dart';
 
 class ServicesScreen extends ConsumerStatefulWidget {
   const ServicesScreen({super.key});
@@ -19,7 +18,6 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
   Widget build(BuildContext context) {
     final servicesAsync = ref.watch(servicesStreamProvider);
     final theme = Theme.of(context);
-    final currencyFormatter = NumberFormat.currency(symbol: '\$');
 
     return Scaffold(
       body: Padding(

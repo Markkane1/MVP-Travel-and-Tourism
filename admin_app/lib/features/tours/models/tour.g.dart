@@ -51,6 +51,7 @@ _Tour _$TourFromJson(Map<String, dynamic> json) => _Tour(
           ?.map((e) => e as Map<String, dynamic>)
           .toList() ??
       const [],
+  isActive: json['isActive'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$TourToJson(_Tour instance) => <String, dynamic>{
@@ -76,4 +77,5 @@ Map<String, dynamic> _$TourToJson(_Tour instance) => <String, dynamic>{
       .toList(),
   'privateVehicleSurcharge': instance.privateVehicleSurcharge,
   'groupSizeOptions': instance.groupSizeOptions,
+  'isActive': instance.isActive,
 };

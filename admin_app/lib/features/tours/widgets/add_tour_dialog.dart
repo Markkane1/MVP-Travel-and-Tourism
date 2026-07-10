@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart';
+import '../../../core/services/cloudinary_service.dart';
 import '../models/tour.dart';
 import '../providers/tours_providers.dart';
 
@@ -34,6 +36,8 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
   final List<String> _categories = ['Safari', 'Beach', 'Mountain', 'City', 'Cultural'];
 
   bool _isSubmitting = false;
+  bool _isUploadingImage = false;
+  final _cloudinaryService = CloudinaryService();
 
   @override
   void dispose() {
@@ -53,6 +57,35 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
     _itineraryJsonController.dispose();
     _groupSizeJsonController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickAndUploadHeroImage() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+      withData: true,
+    );
+    if (result == null || result.files.isEmpty) return;
+    final file = result.files.first;
+    if (file.bytes == null) return;
+
+    setState(() => _isUploadingImage = true);
+    try {
+      final url = await _cloudinaryService.uploadImage(
+        bytes: file.bytes!,
+        folder: 'tours/heroes',
+        fileName: file.name,
+      );
+      _heroUrlController.text = url;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Upload failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingImage = false);
+    }
   }
 
   Future<void> _submitForm() async {
@@ -167,9 +200,31 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                   maxLines: 3,
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _heroUrlController,
-                  decoration: const InputDecoration(labelText: 'Hero Image URL', border: OutlineInputBorder()),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _heroUrlController,
+                        decoration: const InputDecoration(
+                          labelText: 'Hero Image URL',
+                          hintText: 'Paste a URL or upload a file →',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      height: 56,
+                      child: ElevatedButton.icon(
+                        onPressed: _isUploadingImage ? null : _pickAndUploadHeroImage,
+                        icon: _isUploadingImage
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.upload),
+                        label: const Text('Upload'),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
