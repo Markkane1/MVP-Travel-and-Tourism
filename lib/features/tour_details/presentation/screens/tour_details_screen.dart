@@ -382,7 +382,7 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
                             ),
                           ),
                           Text(
-                            '\$${tour.pricePerPerson.toInt()} / person',
+                            '${tour.currency} ${tour.pricePerPerson.toInt()} / person',
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: AppColors.primary,

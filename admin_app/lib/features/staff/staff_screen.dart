@@ -11,8 +11,8 @@ class StaffScreen extends ConsumerStatefulWidget {
 
 class _StaffScreenState extends ConsumerState<StaffScreen> {
   Future<void> _showCreateStaffDialog() async {
-    final uidController = TextEditingController();
     final emailController = TextEditingController();
+    final passwordController = TextEditingController();
     String selectedRole = 'admin';
     bool isSubmitting = false;
 
@@ -29,33 +29,24 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.amber.shade50,
-                        border: Border.all(color: Colors.amber.shade300),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        '⚠️  Step 1: Go to Firebase Console → Authentication → Add user manually.\n\n'
-                        'Step 2: Copy the new user\'s UID and paste it below to register their staff profile.',
-                        style: TextStyle(fontSize: 12),
-                      ),
+                    const Text(
+                      'Provide an email and strong password to register a new staff member.',
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
                     ),
                     const SizedBox(height: 16),
                     TextField(
-                      controller: uidController,
+                      controller: emailController,
                       decoration: const InputDecoration(
-                        labelText: 'Firebase Auth UID',
-                        hintText: 'Paste the UID from Firebase Console',
+                        labelText: 'Email',
                         border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 12),
                     TextField(
-                      controller: emailController,
+                      controller: passwordController,
+                      obscureText: true,
                       decoration: const InputDecoration(
-                        labelText: 'Email',
+                        labelText: 'Temporary Password',
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -69,6 +60,7 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
                       items: const [
                         DropdownMenuItem(value: 'admin', child: Text('Admin')),
                         DropdownMenuItem(value: 'super_admin', child: Text('Super Admin')),
+                        DropdownMenuItem(value: 'concierge', child: Text('Concierge')),
                       ],
                       onChanged: (val) {
                         if (val != null) setState(() => selectedRole = val);
@@ -87,8 +79,8 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
                     setState(() => isSubmitting = true);
                     try {
                       await ref.read(staffApiProvider).registerStaffProfile(
-                        uid: uidController.text.trim(),
                         email: emailController.text.trim(),
+                        password: passwordController.text,
                         role: selectedRole,
                       );
                       if (context.mounted) Navigator.of(context).pop();
@@ -126,6 +118,7 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
                 items: const [
                   DropdownMenuItem(value: 'admin', child: Text('Admin')),
                   DropdownMenuItem(value: 'super_admin', child: Text('Super Admin')),
+                  DropdownMenuItem(value: 'concierge', child: Text('Concierge')),
                 ],
                 onChanged: (val) {
                   if (val != null) setState(() => selectedRole = val);
@@ -240,7 +233,11 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
                                 DataCell(
                                   Chip(
                                     label: Text(s.role.toUpperCase()),
-                                    backgroundColor: s.role == 'super_admin' ? Colors.red.withOpacity(0.1) : Colors.blue.withOpacity(0.1),
+                                    backgroundColor: s.role == 'super_admin' 
+                                        ? Colors.red.withOpacity(0.1) 
+                                        : s.role == 'concierge'
+                                            ? Colors.green.withOpacity(0.1)
+                                            : Colors.blue.withOpacity(0.1),
                                   ),
                                 ),
                                 DataCell(

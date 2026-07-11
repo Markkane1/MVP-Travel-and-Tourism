@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Tour {
 
-@JsonKey(includeToJson: false) String get id; String get title; String get destination; String get category; List<String> get badges; String get heroImageUrl; List<String> get galleryImageUrls; double get pricePerPerson; String get currency; int get durationDays; int get maxParticipants; double get ratingAverage; int get ratingCount; String get overview; List<Map<String, dynamic>> get itinerary; List<String> get inclusions; double get latitude; double get longitude; List<DateTime> get availableDates; double get privateVehicleSurcharge; List<Map<String, dynamic>> get groupSizeOptions; bool get isActive;
+@JsonKey(includeToJson: false) String get id; String get title; String get destination; String get category; List<String> get badges; String get heroImageUrl; List<String> get galleryImageUrls; double get pricePerPerson; String get currency; int get durationDays; int get maxParticipants; double get ratingAverage; int get ratingCount; String get overview; List<Map<String, dynamic>> get itinerary; List<String> get inclusions; double get latitude; double get longitude;@JsonKey(fromJson: _timestampListFromJson, toJson: _timestampListToJson) List<DateTime> get availableDates; double get privateVehicleSurcharge; List<Map<String, dynamic>> get groupSizeOptions; bool get isActive;
 /// Create a copy of Tour
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $TourCopyWith<$Res>  {
   factory $TourCopyWith(Tour value, $Res Function(Tour) _then) = _$TourCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(includeToJson: false) String id, String title, String destination, String category, List<String> badges, String heroImageUrl, List<String> galleryImageUrls, double pricePerPerson, String currency, int durationDays, int maxParticipants, double ratingAverage, int ratingCount, String overview, List<Map<String, dynamic>> itinerary, List<String> inclusions, double latitude, double longitude, List<DateTime> availableDates, double privateVehicleSurcharge, List<Map<String, dynamic>> groupSizeOptions, bool isActive
+@JsonKey(includeToJson: false) String id, String title, String destination, String category, List<String> badges, String heroImageUrl, List<String> galleryImageUrls, double pricePerPerson, String currency, int durationDays, int maxParticipants, double ratingAverage, int ratingCount, String overview, List<Map<String, dynamic>> itinerary, List<String> inclusions, double latitude, double longitude,@JsonKey(fromJson: _timestampListFromJson, toJson: _timestampListToJson) List<DateTime> availableDates, double privateVehicleSurcharge, List<Map<String, dynamic>> groupSizeOptions, bool isActive
 });
 
 
@@ -174,7 +174,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String id,  String title,  String destination,  String category,  List<String> badges,  String heroImageUrl,  List<String> galleryImageUrls,  double pricePerPerson,  String currency,  int durationDays,  int maxParticipants,  double ratingAverage,  int ratingCount,  String overview,  List<Map<String, dynamic>> itinerary,  List<String> inclusions,  double latitude,  double longitude,  List<DateTime> availableDates,  double privateVehicleSurcharge,  List<Map<String, dynamic>> groupSizeOptions,  bool isActive)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String id,  String title,  String destination,  String category,  List<String> badges,  String heroImageUrl,  List<String> galleryImageUrls,  double pricePerPerson,  String currency,  int durationDays,  int maxParticipants,  double ratingAverage,  int ratingCount,  String overview,  List<Map<String, dynamic>> itinerary,  List<String> inclusions,  double latitude,  double longitude, @JsonKey(fromJson: _timestampListFromJson, toJson: _timestampListToJson)  List<DateTime> availableDates,  double privateVehicleSurcharge,  List<Map<String, dynamic>> groupSizeOptions,  bool isActive)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Tour() when $default != null:
 return $default(_that.id,_that.title,_that.destination,_that.category,_that.badges,_that.heroImageUrl,_that.galleryImageUrls,_that.pricePerPerson,_that.currency,_that.durationDays,_that.maxParticipants,_that.ratingAverage,_that.ratingCount,_that.overview,_that.itinerary,_that.inclusions,_that.latitude,_that.longitude,_that.availableDates,_that.privateVehicleSurcharge,_that.groupSizeOptions,_that.isActive);case _:
@@ -195,7 +195,7 @@ return $default(_that.id,_that.title,_that.destination,_that.category,_that.badg
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String id,  String title,  String destination,  String category,  List<String> badges,  String heroImageUrl,  List<String> galleryImageUrls,  double pricePerPerson,  String currency,  int durationDays,  int maxParticipants,  double ratingAverage,  int ratingCount,  String overview,  List<Map<String, dynamic>> itinerary,  List<String> inclusions,  double latitude,  double longitude,  List<DateTime> availableDates,  double privateVehicleSurcharge,  List<Map<String, dynamic>> groupSizeOptions,  bool isActive)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String id,  String title,  String destination,  String category,  List<String> badges,  String heroImageUrl,  List<String> galleryImageUrls,  double pricePerPerson,  String currency,  int durationDays,  int maxParticipants,  double ratingAverage,  int ratingCount,  String overview,  List<Map<String, dynamic>> itinerary,  List<String> inclusions,  double latitude,  double longitude, @JsonKey(fromJson: _timestampListFromJson, toJson: _timestampListToJson)  List<DateTime> availableDates,  double privateVehicleSurcharge,  List<Map<String, dynamic>> groupSizeOptions,  bool isActive)  $default,) {final _that = this;
 switch (_that) {
 case _Tour():
 return $default(_that.id,_that.title,_that.destination,_that.category,_that.badges,_that.heroImageUrl,_that.galleryImageUrls,_that.pricePerPerson,_that.currency,_that.durationDays,_that.maxParticipants,_that.ratingAverage,_that.ratingCount,_that.overview,_that.itinerary,_that.inclusions,_that.latitude,_that.longitude,_that.availableDates,_that.privateVehicleSurcharge,_that.groupSizeOptions,_that.isActive);case _:
@@ -215,7 +215,7 @@ return $default(_that.id,_that.title,_that.destination,_that.category,_that.badg
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(includeToJson: false)  String id,  String title,  String destination,  String category,  List<String> badges,  String heroImageUrl,  List<String> galleryImageUrls,  double pricePerPerson,  String currency,  int durationDays,  int maxParticipants,  double ratingAverage,  int ratingCount,  String overview,  List<Map<String, dynamic>> itinerary,  List<String> inclusions,  double latitude,  double longitude,  List<DateTime> availableDates,  double privateVehicleSurcharge,  List<Map<String, dynamic>> groupSizeOptions,  bool isActive)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(includeToJson: false)  String id,  String title,  String destination,  String category,  List<String> badges,  String heroImageUrl,  List<String> galleryImageUrls,  double pricePerPerson,  String currency,  int durationDays,  int maxParticipants,  double ratingAverage,  int ratingCount,  String overview,  List<Map<String, dynamic>> itinerary,  List<String> inclusions,  double latitude,  double longitude, @JsonKey(fromJson: _timestampListFromJson, toJson: _timestampListToJson)  List<DateTime> availableDates,  double privateVehicleSurcharge,  List<Map<String, dynamic>> groupSizeOptions,  bool isActive)?  $default,) {final _that = this;
 switch (_that) {
 case _Tour() when $default != null:
 return $default(_that.id,_that.title,_that.destination,_that.category,_that.badges,_that.heroImageUrl,_that.galleryImageUrls,_that.pricePerPerson,_that.currency,_that.durationDays,_that.maxParticipants,_that.ratingAverage,_that.ratingCount,_that.overview,_that.itinerary,_that.inclusions,_that.latitude,_that.longitude,_that.availableDates,_that.privateVehicleSurcharge,_that.groupSizeOptions,_that.isActive);case _:
@@ -230,13 +230,13 @@ return $default(_that.id,_that.title,_that.destination,_that.category,_that.badg
 @JsonSerializable()
 
 class _Tour extends Tour {
-  const _Tour({@JsonKey(includeToJson: false) this.id = '', required this.title, required this.destination, required this.category, final  List<String> badges = const [], this.heroImageUrl = '', final  List<String> galleryImageUrls = const [], required this.pricePerPerson, this.currency = 'USD', required this.durationDays, this.maxParticipants = 10, this.ratingAverage = 0.0, this.ratingCount = 0, this.overview = '', final  List<Map<String, dynamic>> itinerary = const [], final  List<String> inclusions = const [], this.latitude = 0.0, this.longitude = 0.0, final  List<DateTime> availableDates = const [], this.privateVehicleSurcharge = 0.0, final  List<Map<String, dynamic>> groupSizeOptions = const [], this.isActive = true}): _badges = badges,_galleryImageUrls = galleryImageUrls,_itinerary = itinerary,_inclusions = inclusions,_availableDates = availableDates,_groupSizeOptions = groupSizeOptions,super._();
+  const _Tour({@JsonKey(includeToJson: false) this.id = '', this.title = '', this.destination = '', this.category = '', final  List<String> badges = const [], this.heroImageUrl = '', final  List<String> galleryImageUrls = const [], this.pricePerPerson = 0.0, this.currency = 'USD', this.durationDays = 0, this.maxParticipants = 10, this.ratingAverage = 0.0, this.ratingCount = 0, this.overview = '', final  List<Map<String, dynamic>> itinerary = const [], final  List<String> inclusions = const [], this.latitude = 0.0, this.longitude = 0.0, @JsonKey(fromJson: _timestampListFromJson, toJson: _timestampListToJson) final  List<DateTime> availableDates = const [], this.privateVehicleSurcharge = 0.0, final  List<Map<String, dynamic>> groupSizeOptions = const [], this.isActive = true}): _badges = badges,_galleryImageUrls = galleryImageUrls,_itinerary = itinerary,_inclusions = inclusions,_availableDates = availableDates,_groupSizeOptions = groupSizeOptions,super._();
   factory _Tour.fromJson(Map<String, dynamic> json) => _$TourFromJson(json);
 
 @override@JsonKey(includeToJson: false) final  String id;
-@override final  String title;
-@override final  String destination;
-@override final  String category;
+@override@JsonKey() final  String title;
+@override@JsonKey() final  String destination;
+@override@JsonKey() final  String category;
  final  List<String> _badges;
 @override@JsonKey() List<String> get badges {
   if (_badges is EqualUnmodifiableListView) return _badges;
@@ -252,9 +252,9 @@ class _Tour extends Tour {
   return EqualUnmodifiableListView(_galleryImageUrls);
 }
 
-@override final  double pricePerPerson;
+@override@JsonKey() final  double pricePerPerson;
 @override@JsonKey() final  String currency;
-@override final  int durationDays;
+@override@JsonKey() final  int durationDays;
 @override@JsonKey() final  int maxParticipants;
 @override@JsonKey() final  double ratingAverage;
 @override@JsonKey() final  int ratingCount;
@@ -276,7 +276,7 @@ class _Tour extends Tour {
 @override@JsonKey() final  double latitude;
 @override@JsonKey() final  double longitude;
  final  List<DateTime> _availableDates;
-@override@JsonKey() List<DateTime> get availableDates {
+@override@JsonKey(fromJson: _timestampListFromJson, toJson: _timestampListToJson) List<DateTime> get availableDates {
   if (_availableDates is EqualUnmodifiableListView) return _availableDates;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_availableDates);
@@ -325,7 +325,7 @@ abstract mixin class _$TourCopyWith<$Res> implements $TourCopyWith<$Res> {
   factory _$TourCopyWith(_Tour value, $Res Function(_Tour) _then) = __$TourCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(includeToJson: false) String id, String title, String destination, String category, List<String> badges, String heroImageUrl, List<String> galleryImageUrls, double pricePerPerson, String currency, int durationDays, int maxParticipants, double ratingAverage, int ratingCount, String overview, List<Map<String, dynamic>> itinerary, List<String> inclusions, double latitude, double longitude, List<DateTime> availableDates, double privateVehicleSurcharge, List<Map<String, dynamic>> groupSizeOptions, bool isActive
+@JsonKey(includeToJson: false) String id, String title, String destination, String category, List<String> badges, String heroImageUrl, List<String> galleryImageUrls, double pricePerPerson, String currency, int durationDays, int maxParticipants, double ratingAverage, int ratingCount, String overview, List<Map<String, dynamic>> itinerary, List<String> inclusions, double latitude, double longitude,@JsonKey(fromJson: _timestampListFromJson, toJson: _timestampListToJson) List<DateTime> availableDates, double privateVehicleSurcharge, List<Map<String, dynamic>> groupSizeOptions, bool isActive
 });
 
 

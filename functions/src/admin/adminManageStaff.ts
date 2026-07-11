@@ -12,7 +12,7 @@ export const adminManageStaffLogic = async (
     uid?: string;
     email?: string;
     password?: string;
-    role?: 'admin' | 'super_admin';
+    role?: 'admin' | 'super_admin' | 'concierge';
   }
 ) => {
   // 1. Verify caller is authorized (super_admin or bootstrap)
@@ -39,7 +39,9 @@ export const adminManageStaffLogic = async (
         password,
       });
 
-      const claims = role === 'super_admin' ? { admin: true, super_admin: true } : { admin: true };
+      const claims: any = { admin: true };
+      if (role === 'super_admin') claims.super_admin = true;
+      if (role === 'concierge') claims.concierge = true;
       await admin.auth().setCustomUserClaims(userRecord.uid, claims);
 
       await db.collection('staff_profiles').doc(userRecord.uid).set({
@@ -54,7 +56,9 @@ export const adminManageStaffLogic = async (
         throw new HttpsError('invalid-argument', 'Missing fields for updateRole.');
       }
 
-      const claims = role === 'super_admin' ? { admin: true, super_admin: true } : { admin: true };
+      const claims: any = { admin: true };
+      if (role === 'super_admin') claims.super_admin = true;
+      if (role === 'concierge') claims.concierge = true;
       await admin.auth().setCustomUserClaims(uid, claims);
 
       await db.collection('staff_profiles').doc(uid).update({

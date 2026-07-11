@@ -379,8 +379,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             children: [
               PrimaryButton(
                 buttonKey: const Key('checkout_pay_button'),
-                label:
-                    'Pay \$${total.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} →',
+                label: 'Pay ${booking.currency} ${total.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} →',
                 onPressed: () => _processPayment(booking),
                 // Hidden debug toggle enabled on long-press only in debug builds
                 // Using standard Gesture wrapper in build pipeline to capture trigger

@@ -184,7 +184,7 @@ class _BookingConfirmationScreenState
                 pw.SizedBox(height: 12.0),
                 _buildPdfRow(
                   'Total Price:',
-                  '\$${booking.totalPrice.toInt().toString()} ${booking.currency.toUpperCase()}',
+                  '${booking.currency.toUpperCase()} ${booking.totalPrice.toInt().toString()}',
                   isBold: true,
                 ),
 

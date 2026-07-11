@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import '../models/user.dart';
 
 final usersStreamProvider = StreamProvider.autoDispose<List<UserModel>>((ref) {
@@ -17,6 +18,15 @@ final usersStreamProvider = StreamProvider.autoDispose<List<UserModel>>((ref) {
 class UsersApi {
   final _db = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
+  final _functions = FirebaseFunctions.instance;
+
+  Future<void> deleteUser(String targetUserId, {String reason = 'Admin request'}) async {
+    final callable = _functions.httpsCallable('adminDeleteUser');
+    await callable.call({
+      'targetUid': targetUserId,
+      'reason': reason,
+    });
+  }
 
   Future<void> updateUser(
     String targetUserId, {

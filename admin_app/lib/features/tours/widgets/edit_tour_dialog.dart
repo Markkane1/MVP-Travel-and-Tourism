@@ -1,8 +1,40 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart';
+import '../../../core/services/cloudinary_service.dart';
 import '../models/tour.dart';
 import '../providers/tours_providers.dart';
+
+class _ItineraryItem {
+  final TextEditingController dayController;
+  final TextEditingController titleController;
+  final TextEditingController descController;
+
+  _ItineraryItem({int? day, String? title, String? desc}) 
+    : dayController = TextEditingController(text: day?.toString() ?? ''),
+      titleController = TextEditingController(text: title ?? ''),
+      descController = TextEditingController(text: desc ?? '');
+
+  void dispose() {
+    dayController.dispose();
+    titleController.dispose();
+    descController.dispose();
+  }
+}
+
+class _GroupSizeItem {
+  final TextEditingController sizeController;
+  final TextEditingController priceController;
+
+  _GroupSizeItem({int? size, double? price})
+    : sizeController = TextEditingController(text: size?.toString() ?? ''),
+      priceController = TextEditingController(text: price?.toString() ?? '');
+
+  void dispose() {
+    sizeController.dispose();
+    priceController.dispose();
+  }
+}
 
 class EditTourDialog extends ConsumerStatefulWidget {
   final Tour tour;
@@ -20,21 +52,26 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
   late final TextEditingController _priceController;
   late final TextEditingController _durationController;
   late final TextEditingController _heroUrlController;
-  late final TextEditingController _galleryUrlsController;
-  late final TextEditingController _badgesController;
   late final TextEditingController _maxParticipantsController;
   late final TextEditingController _ratingAvgController;
   late final TextEditingController _ratingCountController;
   late final TextEditingController _overviewController;
-  late final TextEditingController _inclusionsController;
   late final TextEditingController _privateVehicleSurchargeController;
-  late final TextEditingController _itineraryJsonController;
-  late final TextEditingController _groupSizeJsonController;
+
+  final List<TextEditingController> _galleryControllers = [];
+  final List<TextEditingController> _badgeControllers = [];
+  final List<TextEditingController> _inclusionControllers = [];
+  final List<_ItineraryItem> _itineraryItems = [];
+  final List<_GroupSizeItem> _groupSizeItems = [];
 
   late String _selectedCategory;
-  final List<String> _categories = ['Safari', 'Beach', 'Mountain', 'City', 'Cultural'];
+  late String _currency;
+  final List<String> _categories = ['Adventure', 'Cultural', 'Beach', 'City', 'Mountain'];
+  final List<String> _currencies = ['USD', 'AED'];
 
   bool _isSubmitting = false;
+  bool _isUploadingImage = false;
+  final _cloudinaryService = CloudinaryService();
 
   @override
   void initState() {
@@ -44,19 +81,37 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
     _priceController = TextEditingController(text: widget.tour.pricePerPerson.toString());
     _durationController = TextEditingController(text: widget.tour.durationDays.toString());
     _heroUrlController = TextEditingController(text: widget.tour.heroImageUrl);
-    _galleryUrlsController = TextEditingController(text: widget.tour.galleryImageUrls.join(', '));
-    _badgesController = TextEditingController(text: widget.tour.badges.join(', '));
     _maxParticipantsController = TextEditingController(text: widget.tour.maxParticipants.toString());
     _ratingAvgController = TextEditingController(text: widget.tour.ratingAverage.toString());
     _ratingCountController = TextEditingController(text: widget.tour.ratingCount.toString());
     _overviewController = TextEditingController(text: widget.tour.overview);
-    _inclusionsController = TextEditingController(text: widget.tour.inclusions.join(', '));
     _privateVehicleSurchargeController = TextEditingController(text: widget.tour.privateVehicleSurcharge.toString());
     
-    _itineraryJsonController = TextEditingController(text: jsonEncode(widget.tour.itinerary));
-    _groupSizeJsonController = TextEditingController(text: jsonEncode(widget.tour.groupSizeOptions));
-
     _selectedCategory = _categories.contains(widget.tour.category) ? widget.tour.category : _categories.first;
+    _currency = _currencies.contains(widget.tour.currency) ? widget.tour.currency : 'USD';
+
+    for (var url in widget.tour.galleryImageUrls) {
+      if (url.isNotEmpty) _galleryControllers.add(TextEditingController(text: url));
+    }
+    for (var badge in widget.tour.badges) {
+      if (badge.isNotEmpty) _badgeControllers.add(TextEditingController(text: badge));
+    }
+    for (var inc in widget.tour.inclusions) {
+      if (inc.isNotEmpty) _inclusionControllers.add(TextEditingController(text: inc));
+    }
+    for (var item in widget.tour.itinerary) {
+      _itineraryItems.add(_ItineraryItem(
+        day: item['day'] as int?,
+        title: item['title'] as String?,
+        desc: item['description'] as String?,
+      ));
+    }
+    for (var item in widget.tour.groupSizeOptions) {
+      _groupSizeItems.add(_GroupSizeItem(
+        size: item['size'] as int?,
+        price: (item['price'] as num?)?.toDouble(),
+      ));
+    }
   }
 
   @override
@@ -66,60 +121,117 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
     _priceController.dispose();
     _durationController.dispose();
     _heroUrlController.dispose();
-    _galleryUrlsController.dispose();
-    _badgesController.dispose();
     _maxParticipantsController.dispose();
     _ratingAvgController.dispose();
     _ratingCountController.dispose();
     _overviewController.dispose();
-    _inclusionsController.dispose();
     _privateVehicleSurchargeController.dispose();
-    _itineraryJsonController.dispose();
-    _groupSizeJsonController.dispose();
+
+    for (var c in _galleryControllers) { c.dispose(); }
+    for (var c in _badgeControllers) { c.dispose(); }
+    for (var c in _inclusionControllers) { c.dispose(); }
+    for (var item in _itineraryItems) { item.dispose(); }
+    for (var item in _groupSizeItems) { item.dispose(); }
     super.dispose();
+  }
+
+  Future<void> _pickAndUploadHeroImage() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+    if (result == null || result.files.isEmpty || result.files.first.bytes == null) return;
+
+    setState(() => _isUploadingImage = true);
+    try {
+      final url = await _cloudinaryService.uploadImage(
+        bytes: result.files.first.bytes!,
+        folder: 'tours/heroes',
+        fileName: result.files.first.name,
+      );
+      _heroUrlController.text = url;
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+    } finally {
+      if (mounted) setState(() => _isUploadingImage = false);
+    }
+  }
+
+  Future<void> _pickAndUploadGalleryImage(int index) async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+    if (result == null || result.files.isEmpty || result.files.first.bytes == null) return;
+
+    setState(() => _isUploadingImage = true);
+    try {
+      final url = await _cloudinaryService.uploadImage(
+        bytes: result.files.first.bytes!,
+        folder: 'tours/gallery',
+        fileName: result.files.first.name,
+      );
+      _galleryControllers[index].text = url;
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+    } finally {
+      if (mounted) setState(() => _isUploadingImage = false);
+    }
   }
 
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _isSubmitting = true);
 
     try {
-      List<Map<String, dynamic>> itineraryParsed = [];
-      List<Map<String, dynamic>> groupSizeParsed = [];
-      try {
-        final parsedI = jsonDecode(_itineraryJsonController.text);
-        if (parsedI is List) itineraryParsed = List<Map<String, dynamic>>.from(parsedI);
-        final parsedG = jsonDecode(_groupSizeJsonController.text);
-        if (parsedG is List) groupSizeParsed = List<Map<String, dynamic>>.from(parsedG);
-      } catch (_) {}
-
       final updatedTour = widget.tour.copyWith(
         title: _titleController.text.trim(),
         destination: _destinationController.text.trim(),
         category: _selectedCategory,
         pricePerPerson: double.tryParse(_priceController.text) ?? widget.tour.pricePerPerson,
+        currency: _currency,
         durationDays: int.tryParse(_durationController.text) ?? widget.tour.durationDays,
         heroImageUrl: _heroUrlController.text.trim(),
-        galleryImageUrls: _galleryUrlsController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
-        badges: _badgesController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
-        inclusions: _inclusionsController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
         maxParticipants: int.tryParse(_maxParticipantsController.text) ?? widget.tour.maxParticipants,
         ratingAverage: double.tryParse(_ratingAvgController.text) ?? widget.tour.ratingAverage,
         ratingCount: int.tryParse(_ratingCountController.text) ?? widget.tour.ratingCount,
         overview: _overviewController.text.trim(),
         privateVehicleSurcharge: double.tryParse(_privateVehicleSurchargeController.text) ?? widget.tour.privateVehicleSurcharge,
-        itinerary: itineraryParsed,
-        groupSizeOptions: groupSizeParsed,
+        
+        galleryImageUrls: _galleryControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
+        badges: _badgeControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
+        inclusions: _inclusionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
+        
+        itinerary: _itineraryItems.map((item) => {
+          'day': int.tryParse(item.dayController.text) ?? 1,
+          'title': item.titleController.text.trim(),
+          'description': item.descController.text.trim(),
+        }).where((m) => m['title'].toString().isNotEmpty).toList(),
+        
+        groupSizeOptions: _groupSizeItems.map((item) => {
+          'size': int.tryParse(item.sizeController.text) ?? 1,
+          'price': double.tryParse(item.priceController.text) ?? 0.0,
+        }).where((m) => m['size'] != null).toList(),
       );
 
       await ref.read(toursApiProvider).updateTour(updatedTour);
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: \$e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  Widget _buildSectionHeader(String title, String? subtitle) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueGrey)),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+          ],
+          const Divider(),
+        ],
+      ),
+    );
   }
 
   @override
@@ -127,25 +239,22 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
     return AlertDialog(
       title: const Text('Edit Tour'),
       content: SizedBox(
-        width: 600,
+        width: 800,
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextFormField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(labelText: 'Tour Title', border: OutlineInputBorder()),
-                  validator: (value) => value == null || value.isEmpty ? 'Required' : null,
-                ),
-                const SizedBox(height: 16),
+                _buildSectionHeader('Basic Details', 'Main information about the tour'),
                 Row(
                   children: [
                     Expanded(
+                      flex: 2,
                       child: TextFormField(
-                        controller: _destinationController,
-                        decoration: const InputDecoration(labelText: 'Destination', border: OutlineInputBorder()),
+                        controller: _titleController,
+                        decoration: const InputDecoration(labelText: 'Tour Title', border: OutlineInputBorder()),
                         validator: (value) => value == null || value.isEmpty ? 'Required' : null,
                       ),
                     ),
@@ -166,10 +275,10 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
                 Row(
                   children: [
                     Expanded(
+                      flex: 2,
                       child: TextFormField(
-                        controller: _priceController,
-                        decoration: const InputDecoration(labelText: 'Price per Person', prefixText: '\$ ', border: OutlineInputBorder()),
-                        keyboardType: TextInputType.number,
+                        controller: _destinationController,
+                        decoration: const InputDecoration(labelText: 'Destination', border: OutlineInputBorder()),
                         validator: (value) => value == null || value.isEmpty ? 'Required' : null,
                       ),
                     ),
@@ -185,35 +294,31 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _overviewController,
-                  decoration: const InputDecoration(labelText: 'Overview', border: OutlineInputBorder()),
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _heroUrlController,
-                  decoration: const InputDecoration(labelText: 'Hero Image URL', border: OutlineInputBorder()),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _galleryUrlsController,
-                  decoration: const InputDecoration(labelText: 'Gallery Image URLs (comma separated)', border: OutlineInputBorder()),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _badgesController,
-                  decoration: const InputDecoration(labelText: 'Badges (comma separated)', border: OutlineInputBorder()),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _inclusionsController,
-                  decoration: const InputDecoration(labelText: 'Inclusions (comma separated)', border: OutlineInputBorder()),
-                ),
-                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        controller: _priceController,
+                        decoration: const InputDecoration(labelText: 'Base Price per Person', border: OutlineInputBorder()),
+                        keyboardType: TextInputType.number,
+                        validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _currency,
+                        decoration: const InputDecoration(labelText: 'Currency', border: OutlineInputBorder()),
+                        items: _currencies.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
+                        onChanged: (val) {
+                          if (val != null) setState(() => _currency = val);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 2,
                       child: TextFormField(
                         controller: _maxParticipantsController,
                         decoration: const InputDecoration(labelText: 'Max Participants', border: OutlineInputBorder()),
@@ -224,44 +329,244 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
                     Expanded(
                       child: TextFormField(
                         controller: _privateVehicleSurchargeController,
-                        decoration: const InputDecoration(labelText: 'Private Vehicle Surcharge (\$)', border: OutlineInputBorder()),
+                        decoration: const InputDecoration(labelText: 'Private Vehicle Surcharge', prefixText: '\$ ', border: OutlineInputBorder()),
                         keyboardType: TextInputType.number,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
+                TextFormField(
+                  controller: _overviewController,
+                  decoration: const InputDecoration(labelText: 'Overview', border: OutlineInputBorder()),
+                  maxLines: 3,
+                ),
+
+                _buildSectionHeader('Media', 'Upload high-quality images'),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: TextFormField(
-                        controller: _ratingAvgController,
-                        decoration: const InputDecoration(labelText: 'Rating Average (0.0 - 5.0)', border: OutlineInputBorder()),
-                        keyboardType: TextInputType.number,
+                        controller: _heroUrlController,
+                        decoration: const InputDecoration(
+                          labelText: 'Hero Image URL',
+                          hintText: 'Main cover image',
+                          border: OutlineInputBorder(),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _ratingCountController,
-                        decoration: const InputDecoration(labelText: 'Rating Count', border: OutlineInputBorder()),
-                        keyboardType: TextInputType.number,
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      height: 56,
+                      child: ElevatedButton.icon(
+                        onPressed: _isUploadingImage ? null : _pickAndUploadHeroImage,
+                        icon: _isUploadingImage
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.upload),
+                        label: const Text('Upload'),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _itineraryJsonController,
-                  decoration: const InputDecoration(labelText: 'Itinerary JSON Array', border: OutlineInputBorder()),
-                  maxLines: 3,
+                ..._galleryControllers.asMap().entries.map((entry) {
+                  int idx = entry.key;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: entry.value,
+                            decoration: InputDecoration(labelText: 'Gallery Image URL ${idx + 1}', border: const OutlineInputBorder()),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.upload_file, color: Colors.blue),
+                          onPressed: _isUploadingImage ? null : () => _pickAndUploadGalleryImage(idx),
+                          tooltip: 'Upload Image',
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => setState(() {
+                            _galleryControllers[idx].dispose();
+                            _galleryControllers.removeAt(idx);
+                          }),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                TextButton.icon(
+                  onPressed: () => setState(() => _galleryControllers.add(TextEditingController())),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Gallery Image'),
                 ),
+
+                _buildSectionHeader('Highlights & Inclusions', 'Tags and perks displayed on the tour card'),
+                const Text('Badges (e.g., "Bestseller", "Family Friendly")'),
+                const SizedBox(height: 8),
+                ..._badgeControllers.asMap().entries.map((entry) {
+                  int idx = entry.key;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: entry.value,
+                            decoration: const InputDecoration(hintText: 'Badge name', border: OutlineInputBorder()),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => setState(() {
+                            _badgeControllers[idx].dispose();
+                            _badgeControllers.removeAt(idx);
+                          }),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                TextButton.icon(
+                  onPressed: () => setState(() => _badgeControllers.add(TextEditingController())),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Badge'),
+                ),
+                
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _groupSizeJsonController,
-                  decoration: const InputDecoration(labelText: 'Group Size Options JSON Array', border: OutlineInputBorder()),
-                  maxLines: 3,
+                const Text('Inclusions (e.g., "Hotel Pickup", "Breakfast")'),
+                const SizedBox(height: 8),
+                ..._inclusionControllers.asMap().entries.map((entry) {
+                  int idx = entry.key;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: entry.value,
+                            decoration: const InputDecoration(hintText: 'Inclusion description', border: OutlineInputBorder()),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => setState(() {
+                            _inclusionControllers[idx].dispose();
+                            _inclusionControllers.removeAt(idx);
+                          }),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                TextButton.icon(
+                  onPressed: () => setState(() => _inclusionControllers.add(TextEditingController())),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Inclusion'),
                 ),
+
+                _buildSectionHeader('Itinerary', 'Day-by-day tour schedule'),
+                ..._itineraryItems.asMap().entries.map((entry) {
+                  int idx = entry.key;
+                  final item = entry.value;
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    color: Colors.grey.shade50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: TextFormField(
+                                  controller: item.dayController,
+                                  decoration: const InputDecoration(labelText: 'Day', border: OutlineInputBorder()),
+                                  keyboardType: TextInputType.number,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                flex: 4,
+                                child: TextFormField(
+                                  controller: item.titleController,
+                                  decoration: const InputDecoration(labelText: 'Title', hintText: 'e.g. Arrival in City', border: OutlineInputBorder()),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => setState(() {
+                                  item.dispose();
+                                  _itineraryItems.removeAt(idx);
+                                }),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: item.descController,
+                            decoration: const InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
+                            maxLines: 2,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+                TextButton.icon(
+                  onPressed: () => setState(() {
+                    final item = _ItineraryItem(day: _itineraryItems.length + 1);
+                    _itineraryItems.add(item);
+                  }),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Itinerary Day'),
+                ),
+
+                _buildSectionHeader('Group Size Options', 'Pricing tiers based on group size'),
+                ..._groupSizeItems.asMap().entries.map((entry) {
+                  int idx = entry.key;
+                  final item = entry.value;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: item.sizeController,
+                            decoration: const InputDecoration(labelText: 'Max Group Size', border: OutlineInputBorder()),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: item.priceController,
+                            decoration: const InputDecoration(labelText: 'Price Per Person', prefixText: '\$ ', border: OutlineInputBorder()),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => setState(() {
+                            item.dispose();
+                            _groupSizeItems.removeAt(idx);
+                          }),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                TextButton.icon(
+                  onPressed: () => setState(() => _groupSizeItems.add(_GroupSizeItem())),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Group Size Option'),
+                ),
+                
               ],
             ),
           ),

@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 part 'tour.freezed.dart';
 part 'tour.g.dart';
@@ -9,15 +10,15 @@ abstract class Tour with _$Tour {
 
   const factory Tour({
     @JsonKey(includeToJson: false) @Default('') String id, // Provided by Firestore doc ID, not written back
-    required String title,
-    required String destination,
-    required String category,
+    @Default('') String title,
+    @Default('') String destination,
+    @Default('') String category,
     @Default([]) List<String> badges,
     @Default('') String heroImageUrl,
     @Default([]) List<String> galleryImageUrls,
-    required double pricePerPerson,
+    @Default(0.0) double pricePerPerson,
     @Default('USD') String currency,
-    required int durationDays,
+    @Default(0) int durationDays,
     @Default(10) int maxParticipants,
     @Default(0.0) double ratingAverage,
     @Default(0) int ratingCount,
@@ -26,7 +27,7 @@ abstract class Tour with _$Tour {
     @Default([]) List<String> inclusions,
     @Default(0.0) double latitude,
     @Default(0.0) double longitude,
-    @Default([]) List<DateTime> availableDates,
+    @JsonKey(fromJson: _timestampListFromJson, toJson: _timestampListToJson) @Default([]) List<DateTime> availableDates,
     @Default(0.0) double privateVehicleSurcharge,
     @Default([]) List<Map<String, dynamic>> groupSizeOptions,
     @Default(true) bool isActive,
@@ -40,4 +41,19 @@ abstract class Tour with _$Tour {
       'id': documentId,
     });
   }
+}
+
+List<DateTime> _timestampListFromJson(dynamic value) {
+  if (value is List) {
+    return value.map((e) {
+      if (e is Timestamp) return e.toDate();
+      if (e is String) return DateTime.tryParse(e) ?? DateTime.now();
+      return DateTime.now();
+    }).toList();
+  }
+  return [];
+}
+
+dynamic _timestampListToJson(List<DateTime> value) {
+  return value.map((e) => Timestamp.fromDate(e)).toList();
 }

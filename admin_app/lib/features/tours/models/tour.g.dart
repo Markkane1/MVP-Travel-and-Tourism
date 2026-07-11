@@ -8,9 +8,9 @@ part of 'tour.dart';
 
 _Tour _$TourFromJson(Map<String, dynamic> json) => _Tour(
   id: json['id'] as String? ?? '',
-  title: json['title'] as String,
-  destination: json['destination'] as String,
-  category: json['category'] as String,
+  title: json['title'] as String? ?? '',
+  destination: json['destination'] as String? ?? '',
+  category: json['category'] as String? ?? '',
   badges:
       (json['badges'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const [],
@@ -20,9 +20,9 @@ _Tour _$TourFromJson(Map<String, dynamic> json) => _Tour(
           ?.map((e) => e as String)
           .toList() ??
       const [],
-  pricePerPerson: (json['pricePerPerson'] as num).toDouble(),
+  pricePerPerson: (json['pricePerPerson'] as num?)?.toDouble() ?? 0.0,
   currency: json['currency'] as String? ?? 'USD',
-  durationDays: (json['durationDays'] as num).toInt(),
+  durationDays: (json['durationDays'] as num?)?.toInt() ?? 0,
   maxParticipants: (json['maxParticipants'] as num?)?.toInt() ?? 10,
   ratingAverage: (json['ratingAverage'] as num?)?.toDouble() ?? 0.0,
   ratingCount: (json['ratingCount'] as num?)?.toInt() ?? 0,
@@ -39,11 +39,9 @@ _Tour _$TourFromJson(Map<String, dynamic> json) => _Tour(
       const [],
   latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
   longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
-  availableDates:
-      (json['availableDates'] as List<dynamic>?)
-          ?.map((e) => DateTime.parse(e as String))
-          .toList() ??
-      const [],
+  availableDates: json['availableDates'] == null
+      ? const []
+      : _timestampListFromJson(json['availableDates']),
   privateVehicleSurcharge:
       (json['privateVehicleSurcharge'] as num?)?.toDouble() ?? 0.0,
   groupSizeOptions:
@@ -72,9 +70,7 @@ Map<String, dynamic> _$TourToJson(_Tour instance) => <String, dynamic>{
   'inclusions': instance.inclusions,
   'latitude': instance.latitude,
   'longitude': instance.longitude,
-  'availableDates': instance.availableDates
-      .map((e) => e.toIso8601String())
-      .toList(),
+  'availableDates': _timestampListToJson(instance.availableDates),
   'privateVehicleSurcharge': instance.privateVehicleSurcharge,
   'groupSizeOptions': instance.groupSizeOptions,
   'isActive': instance.isActive,

@@ -566,7 +566,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
                               ),
                             ),
                             Text(
-                              '\$${tour.pricePerPerson.toInt()}',
+                              '${tour.currency} ${tour.pricePerPerson.toInt()}',
                               style: theme.textTheme.titleLarge?.copyWith(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.bold,

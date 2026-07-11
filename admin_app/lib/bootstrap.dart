@@ -21,21 +21,7 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
     WidgetsFlutterBinding.ensureInitialized();
 
     // Initialize Firebase for Web
-    try {
-      Firebase.app();
-    } on FirebaseException catch (error) {
-      if (error.code != 'no-app') {
-        rethrow;
-      }
-      try {
-        await Firebase.initializeApp(options: Env.firebaseOptions);
-      } on FirebaseException catch (initializeError) {
-        if (initializeError.code != 'duplicate-app') {
-          rethrow;
-        }
-        Firebase.app();
-      }
-    }
+    await Firebase.initializeApp(options: Env.firebaseOptions);
 
     if (Env.isProd) {
       PlatformDispatcher.instance.onError = (error, stack) {

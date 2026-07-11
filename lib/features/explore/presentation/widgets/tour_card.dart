@@ -97,7 +97,7 @@ class TourCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '\$${tour.pricePerPerson.toInt()}',
+                        '${tour.currency} ${tour.pricePerPerson.toInt()}',
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,

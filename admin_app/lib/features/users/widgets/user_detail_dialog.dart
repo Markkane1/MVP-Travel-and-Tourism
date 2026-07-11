@@ -24,7 +24,14 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
     super.initState();
     _loyaltyPointsController = TextEditingController(text: widget.user.loyaltyPoints.toString());
     _conciergeIdController = TextEditingController(text: widget.user.conciergeId ?? '');
-    _selectedTier = widget.user.tier;
+    
+    // Normalize tier string to avoid DropdownButton crashes
+    String t = widget.user.tier.toLowerCase();
+    if (t == 'standard') t = 'base';
+    if (!['base', 'gold', 'platinum'].contains(t)) {
+      t = 'base';
+    }
+    _selectedTier = t;
   }
 
   @override
@@ -50,6 +57,38 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: \$e')));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _deleteUser() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete User'),
+        content: const Text('Are you sure you want to permanently delete this user and all their data? This action cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(usersApiProvider).deleteUser(widget.user.id);
+      if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -142,12 +181,18 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
       ),
       actions: [
         TextButton(
+          onPressed: _isLoading ? null : _deleteUser,
+          style: TextButton.styleFrom(foregroundColor: Colors.red),
+          child: const Text('Delete User'),
+        ),
+        const Spacer(),
+        TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _saveChanges,
-          child: _isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Save Changes'),
+          child: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Save Changes'),
         ),
       ],
     );

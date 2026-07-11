@@ -11,12 +11,22 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == uid;
     }
 
+    function isBootstrapAdmin() {
+      return isAuthenticated() && request.auth.token.email == 'admin@mvptravel.com';
+    }
+
+    function hasStaffProfile() {
+      return exists(/databases/$(database)/documents/staff_profiles/$(request.auth.uid));
+    }
+
     function isAdmin() {
-      return isAuthenticated() && request.auth.token.admin == true;
+      return isBootstrapAdmin() || hasStaffProfile();
     }
 
     function isSuperAdmin() {
-      return isAuthenticated() && request.auth.token.role == 'super_admin';
+      return isBootstrapAdmin() || (
+        hasStaffProfile() && get(/databases/$(database)/documents/staff_profiles/$(request.auth.uid)).data.role == 'super_admin'
+      );
     }
 
     // ─── Staff & Admin Collections ──────────────────────────────────────────

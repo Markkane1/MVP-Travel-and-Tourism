@@ -100,13 +100,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
     // Adults breakdown
     final String adultsStr = _adultsCount == 1 ? 'Adult' : 'Adults';
-    parts.add('\$${tour.pricePerPerson.toInt()} x $_adultsCount $adultsStr');
+    parts.add('${tour.currency} ${tour.pricePerPerson.toInt()} x $_adultsCount $adultsStr');
 
     // Children breakdown
     if (_childrenCount > 0) {
       final String childrenStr = _childrenCount == 1 ? 'Child' : 'Children';
       final int childPrice = (tour.pricePerPerson * 0.5).toInt();
-      parts.add('\$$childPrice x $_childrenCount $childrenStr');
+      parts.add('${tour.currency} $childPrice x $_childrenCount $childrenStr');
     }
 
     // Options surcharge
@@ -642,7 +642,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                         ),
                       ),
                       Text(
-                        '\$${total.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                        '${tour.currency} ${total.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary,

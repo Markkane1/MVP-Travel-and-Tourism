@@ -80,7 +80,7 @@ class _SearchMapScreenState extends State<SearchMapScreen> {
                         ),
                         const SizedBox(height: 4.0),
                         Text(
-                          '\$${tour.pricePerPerson.toInt()} / person',
+                          '${tour.currency} ${tour.pricePerPerson.toInt()} / person',
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: AppColors.primary,
@@ -136,7 +136,7 @@ class _SearchMapScreenState extends State<SearchMapScreen> {
         position: LatLng(tour.latitude, tour.longitude),
         infoWindow: InfoWindow(
           title: tour.title,
-          snippet: '\$${tour.pricePerPerson.toInt()}',
+          snippet: '${tour.currency} ${tour.pricePerPerson.toInt()}',
         ),
         onTap: () => _showTourDetailBottomSheet(context, tour),
       );
