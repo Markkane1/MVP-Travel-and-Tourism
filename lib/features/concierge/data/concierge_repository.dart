@@ -55,17 +55,31 @@ class ConciergeRepository {
     String? attachmentUrl,
   }) async {
     try {
-      await _firestore
+      final batch = _firestore.batch();
+      final messageRef = _firestore
           .collection('concierge_threads')
           .doc(uid)
           .collection('messages')
-          .add({
+          .doc();
+      
+      final now = FieldValue.serverTimestamp();
+      batch.set(messageRef, {
         'senderId': uid,
         'senderType': 'user',
         'text': text,
         'attachmentUrl': attachmentUrl,
-        'createdAt': FieldValue.serverTimestamp(),
+        'createdAt': now,
       });
+
+      final threadRef = _firestore.collection('concierge_threads').doc(uid);
+      batch.set(threadRef, {
+        'lastMessageAt': now,
+        'lastMessageText': text,
+        'lastMessageSender': 'user',
+        'hasUnreadUserMessage': true,
+      }, SetOptions(merge: true));
+
+      await batch.commit();
       return const Result.success(null);
     } catch (e) {
       return Result.failure(AppException.unknown('Failed to send message: ${e.toString()}'));

@@ -160,8 +160,12 @@ class ExploreScreen extends ConsumerWidget {
                   featured.when(
                     data: (tours) {
                       if (tours.isEmpty) {
-                        return const Center(
-                          child: Text('No featured tours found.'),
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                          child: Text(
+                            'Featured tours will appear here once they are available.',
+                            style: TextStyle(color: AppColors.onSurfaceVariant),
+                          ),
                         );
                       }
                       return SizedBox(
@@ -206,8 +210,12 @@ class ExploreScreen extends ConsumerWidget {
                   popular.when(
                     data: (destinations) {
                       if (destinations.isEmpty) {
-                        return const Center(
-                          child: Text('No popular destinations found.'),
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                          child: Text(
+                            'Popular destinations will appear here soon.',
+                            style: TextStyle(color: AppColors.onSurfaceVariant),
+                          ),
                         );
                       }
                       return SizedBox(
@@ -256,7 +264,10 @@ class ExploreScreen extends ConsumerWidget {
                           padding: EdgeInsets.symmetric(
                             horizontal: AppSpacing.lg,
                           ),
-                          child: Text('No reviews shared yet.'),
+                          child: Text(
+                            'Traveler stories will appear here once guests share their experiences.',
+                            style: TextStyle(color: AppColors.onSurfaceVariant),
+                          ),
                         );
                       }
                       return SizedBox(

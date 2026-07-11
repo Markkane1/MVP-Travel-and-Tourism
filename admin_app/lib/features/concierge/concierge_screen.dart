@@ -42,7 +42,7 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                       ),
                       child: threadsAsync.when(
                         loading: () => const Center(child: CircularProgressIndicator()),
-                        error: (err, stack) => Center(child: Text('Error: \$err')),
+                        error: (err, stack) => Center(child: Text('Error: $err')),
                         data: (threads) {
                           if (threads.isEmpty) return const Center(child: Text('No active threads.'));
                           return ListView.builder(
@@ -73,6 +73,7 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                     flex: 2,
                     child: Card(
                       elevation: 0,
+                      clipBehavior: Clip.antiAlias,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                         side: BorderSide(color: theme.colorScheme.outlineVariant),
@@ -114,7 +115,7 @@ class _ConciergeThreadDetailState extends ConsumerState<_ConciergeThreadDetail> 
       await ref.read(conciergeApiProvider).replyToThread(widget.userId, text);
       _controller.clear();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: \$e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       if (mounted) setState(() => _isSending = false);
     }
@@ -145,7 +146,7 @@ class _ConciergeThreadDetailState extends ConsumerState<_ConciergeThreadDetail> 
         Expanded(
           child: messagesAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Center(child: Text('Error: \$err')),
+            error: (err, stack) => Center(child: Text('Error: $err')),
             data: (messages) {
               if (messages.isEmpty) return const Center(child: Text('No messages.'));
               return ListView.builder(
@@ -153,7 +154,7 @@ class _ConciergeThreadDetailState extends ConsumerState<_ConciergeThreadDetail> 
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
                   final msg = messages[index];
-                  final isConcierge = msg.senderType == 'concierge';
+                  final isConcierge = msg.senderType != 'user';
                   return Align(
                     alignment: isConcierge ? Alignment.centerRight : Alignment.centerLeft,
                     child: Container(

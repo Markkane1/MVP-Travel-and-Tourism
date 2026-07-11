@@ -10,7 +10,7 @@ import '../../../../core/routing/route_paths.dart';
 class HelpSupportScreen extends StatelessWidget {
   const HelpSupportScreen({super.key});
 
-  Future<void> _launchSupportMail() async {
+  Future<void> _launchSupportMail(BuildContext context) async {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
       path: 'support@mvptravel.com',
@@ -21,6 +21,15 @@ class HelpSupportScreen extends StatelessWidget {
 
     if (await canLaunchUrl(emailLaunchUri)) {
       await launchUrl(emailLaunchUri);
+      return;
+    }
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to open your email app right now. Please try again later.'),
+        ),
+      );
     }
   }
 
@@ -69,7 +78,7 @@ class HelpSupportScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16.0),
                   ElevatedButton(
-                    onPressed: _launchSupportMail,
+                    onPressed: () => _launchSupportMail(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,

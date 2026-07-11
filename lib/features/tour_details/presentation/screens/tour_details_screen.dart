@@ -13,6 +13,7 @@ import '../../../explore/domain/review.dart';
 import '../../../search/search.dart';
 
 import '../../data/tour_details_repository.dart';
+import '../../domain/itinerary_step_parser.dart';
 
 /// Detailed view of a single selected Tour package.
 class TourDetailsScreen extends ConsumerStatefulWidget {
@@ -452,11 +453,10 @@ class _TourDetailsScreenState extends ConsumerState<TourDetailsScreen> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: displayCount,
           itemBuilder: (context, index) {
-            final Map<String, dynamic> step =
-                itinerary[index] as Map<String, dynamic>;
-            final String title = step['title'] as String? ?? '';
-            final String description = step['description'] as String? ?? '';
-            final int day = step['day'] as int? ?? (index + 1);
+            final parsedStep = parseItineraryStep(itinerary[index], index + 1);
+            final String title = parsedStep.title;
+            final String description = parsedStep.description;
+            final int day = parsedStep.day;
 
             return IntrinsicHeight(
               child: Row(

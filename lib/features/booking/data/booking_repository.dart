@@ -55,7 +55,7 @@ class BookingRepository {
         .snapshots()
         .map((doc) {
           if (!doc.exists) return null;
-          final data = doc.data()!;
+          final data = Map<String, dynamic>.from(doc.data() as Map? ?? {});
           data['id'] = doc.id;
 
           if (data['tourDate'] is Timestamp) {
@@ -69,7 +69,7 @@ class BookingRepository {
                 .toIso8601String();
           }
 
-          return Booking.fromJson(data);
+          return Booking.fromJson(_mapBookingData(data));
         })
         .mapAppException('Failed to load booking');
   }
@@ -82,7 +82,7 @@ class BookingRepository {
         .snapshots()
         .map((snapshot) {
           final bookings = snapshot.docs.map((doc) {
-            final data = doc.data();
+            final data = Map<String, dynamic>.from(doc.data() as Map? ?? {});
             data['id'] = doc.id;
 
             if (data['tourDate'] is Timestamp) {
@@ -96,7 +96,7 @@ class BookingRepository {
                   .toIso8601String();
             }
 
-            return Booking.fromJson(data);
+            return Booking.fromJson(_mapBookingData(data));
           }).toList();
 
           bookings.sort((a, b) => a.tourDate.compareTo(b.tourDate));
@@ -104,6 +104,34 @@ class BookingRepository {
         })
         .mapAppException('Failed to load bookings');
   }
+}
+
+Map<String, dynamic> _mapBookingData(Map<String, dynamic> data) {
+  final tourSnapshot = data['tourSnapshot'] is Map
+      ? Map<String, dynamic>.from(data['tourSnapshot'] as Map)
+      : <String, dynamic>{};
+
+  data['userId'] = data['userId'] as String? ?? '';
+  data['tourId'] = data['tourId'] as String? ?? '';
+  tourSnapshot['title'] = (tourSnapshot['title'] as String?) ?? '';
+  tourSnapshot['heroImageUrl'] = (tourSnapshot['heroImageUrl'] as String?) ?? '';
+  tourSnapshot['destination'] = (tourSnapshot['destination'] as String?) ?? '';
+  data['tourSnapshot'] = tourSnapshot;
+  data['tourDate'] = data['tourDate'] ?? DateTime.now().toIso8601String();
+  data['adults'] = (data['adults'] as num?)?.toInt() ?? 0;
+  data['children'] = (data['children'] as num?)?.toInt() ?? 0;
+  data['privateVehicle'] = data['privateVehicle'] as bool? ?? false;
+  data['groupSizeOption'] = data['groupSizeOption'] as String? ?? '';
+  data['pickupLocation'] = data['pickupLocation'] as String? ?? '';
+  data['specialRequests'] = data['specialRequests'] as String? ?? '';
+  data['totalPrice'] = (data['totalPrice'] as num?)?.toDouble() ?? 0.0;
+  data['currency'] = data['currency'] as String? ?? 'USD';
+  data['status'] = data['status'] as String? ?? 'pending';
+  data['stripePaymentIntentId'] = data['stripePaymentIntentId'] as String?;
+  data['bookingReferenceCode'] = data['bookingReferenceCode'] as String?;
+  data['reviewed'] = data['reviewed'] as bool? ?? false;
+  data['createdAt'] = data['createdAt'] ?? DateTime.now().toIso8601String();
+  return data;
 }
 
 @riverpod

@@ -37,6 +37,18 @@ class ReviewsRepository {
     required String comment,
     required List<String> photoUrls,
   }) async {
+    if (userId.isEmpty || bookingId.isEmpty || tourId.isEmpty) {
+      return const Result.failure(
+        AppException.unknown('Review submission is missing required information.'),
+      );
+    }
+
+    if (overallRating <= 0.0) {
+      return const Result.failure(
+        AppException.unknown('Please select a valid rating before submitting.'),
+      );
+    }
+
     try {
       await _firestore
           .collection('tours')

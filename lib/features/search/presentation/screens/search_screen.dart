@@ -149,9 +149,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: const IconButton(
-          icon: Icon(Icons.menu, color: AppColors.onSurface),
-          onPressed: null,
+        leading: IconButton(
+          icon: const Icon(Icons.menu, color: AppColors.onSurface),
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Search filters are available below.')),
+            );
+          },
         ),
         title: Text(
           'Search',

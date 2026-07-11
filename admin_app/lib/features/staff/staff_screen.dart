@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/staff_providers.dart';
+import 'models/staff_model.dart';
 
 class StaffScreen extends ConsumerStatefulWidget {
   const StaffScreen({super.key});
@@ -183,7 +184,7 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,87 +204,119 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            Expanded(
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: theme.colorScheme.outlineVariant),
-                ),
-                child: staffAsync.when(
+            staffAsync.when(
                   loading: () => const Center(child: CircularProgressIndicator()),
                   error: (err, stack) => Center(child: Text('Error: \$err')),
                   data: (staff) {
                     if (staff.isEmpty) return const Center(child: Text('No staff profiles found.'));
                     
-                    return LayoutBuilder(
-                      builder: (context, constraints) {
-                        return SingleChildScrollView(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                              child: DataTable(
+                    final source = _StaffDataSource(
+                      staff: staff,
+                      context: context,
+                      onUpdateRole: _updateRole,
+                      onDeactivate: _deactivateStaff,
+                    );
+                    return SizedBox(
+                      width: double.infinity,
+                      child: Theme(
+                        data: theme.copyWith(
+                          cardTheme: const CardThemeData(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(16)),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                          ),
+                        ),
+                        child: PaginatedDataTable(
+                          source: source,
+                          header: const Text('Staff Directory', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
+                          rowsPerPage: staff.length > 10 ? 10 : staff.length,
                           columns: const [
                             DataColumn(label: Text('Email')),
                             DataColumn(label: Text('Role')),
                             DataColumn(label: Text('Status')),
                             DataColumn(label: Text('Actions')),
                           ],
-                          rows: staff.map((s) {
-                            return DataRow(
-                              cells: [
-                                DataCell(Text(s.email)),
-                                DataCell(
-                                  Chip(
-                                    label: Text(s.role.toUpperCase()),
-                                    backgroundColor: s.role == 'super_admin' 
-                                        ? Colors.red.withValues(alpha: 0.1) 
-                                        : s.role == 'concierge'
-                                            ? Colors.green.withValues(alpha: 0.1)
-                                            : Colors.blue.withValues(alpha: 0.1),
-                                  ),
-                                ),
-                                DataCell(
-                                  Icon(
-                                    s.isActive ? Icons.check_circle : Icons.cancel,
-                                    color: s.isActive ? Colors.green : Colors.grey,
-                                  )
-                                ),
-                                DataCell(
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.edit),
-                                        onPressed: () => _updateRole(s.id, s.role),
-                                        tooltip: 'Edit Role',
-                                      ),
-                                      if (s.isActive)
-                                        IconButton(
-                                          icon: const Icon(Icons.block),
-                                          color: theme.colorScheme.error,
-                                          onPressed: () => _deactivateStaff(s.id),
-                                          tooltip: 'Deactivate',
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                        ), // DataTable
-                      ), // ConstrainedBox
-                    ), // SingleChildScrollView
-                  ); // return SingleChildScrollView
-                },
-              ); // return LayoutBuilder
+                        ),
+                      ),
+                    );
             },
           ),
-              ),
-            ),
+
           ],
         ),
       ),
     );
   }
+}
+
+class _StaffDataSource extends DataTableSource {
+  final List<StaffModel> staff;
+  final BuildContext context;
+  final Function(String, String) onUpdateRole;
+  final Function(String) onDeactivate;
+
+  _StaffDataSource({
+    required this.staff,
+    required this.context,
+    required this.onUpdateRole,
+    required this.onDeactivate,
+  });
+
+  @override
+  DataRow? getRow(int index) {
+    if (index >= staff.length) return null;
+    final s = staff[index];
+    final theme = Theme.of(context);
+
+    return DataRow(
+      cells: [
+        DataCell(Text(s.email)),
+        DataCell(
+          Chip(
+            label: Text(s.role.toUpperCase()),
+            backgroundColor: s.role == 'super_admin' 
+                ? Colors.red.withValues(alpha: 0.1) 
+                : s.role == 'concierge'
+                    ? Colors.green.withValues(alpha: 0.1)
+                    : Colors.blue.withValues(alpha: 0.1),
+          ),
+        ),
+        DataCell(
+          Icon(
+            s.isActive ? Icons.check_circle : Icons.cancel,
+            color: s.isActive ? Colors.green : Colors.grey,
+          )
+        ),
+        DataCell(
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () => onUpdateRole(s.id, s.role),
+                tooltip: 'Edit Role',
+              ),
+              if (s.isActive)
+                IconButton(
+                  icon: const Icon(Icons.block),
+                  color: theme.colorScheme.error,
+                  onPressed: () => onDeactivate(s.id),
+                  tooltip: 'Deactivate',
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => staff.length;
+
+  @override
+  int get selectedRowCount => 0;
 }

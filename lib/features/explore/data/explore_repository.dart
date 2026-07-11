@@ -21,7 +21,7 @@ class ExploreRepository {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        final data = doc.data();
+        final data = Map<String, dynamic>.from(doc.data());
         data['id'] = doc.id;
         return Tour.fromJson(_mapTourData(data));
       }).toList();
@@ -36,7 +36,7 @@ class ExploreRepository {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        final data = doc.data();
+        final data = Map<String, dynamic>.from(doc.data());
         data['id'] = doc.id;
         return Tour.fromJson(_mapTourData(data));
       }).toList();
@@ -51,7 +51,7 @@ class ExploreRepository {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        final data = doc.data();
+        final data = Map<String, dynamic>.from(doc.data());
         data['id'] = doc.id;
         return Tour.fromJson(_mapTourData(data));
       }).toList();
@@ -67,14 +67,14 @@ class ExploreRepository {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        final data = doc.data();
+        final data = Map<String, dynamic>.from(doc.data());
         data['id'] = doc.id;
 
         // Convert Firestore Timestamp to ISO-8601 String for json_serializable
         if (data['createdAt'] is Timestamp) {
           data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
         }
-        return Review.fromJson(data);
+        return Review.fromJson(_mapReviewData(data));
       }).toList();
     }).mapAppException('Failed to load recent reviews');
   }
@@ -155,6 +155,22 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
     }).toList();
   } else {
     data['groupSizeOptions'] = const <Map<String, dynamic>>[];
+  }
+  return data;
+}
+
+Map<String, dynamic> _mapReviewData(Map<String, dynamic> data) {
+  data['id'] = data['id'] as String? ?? '';
+  data['userName'] = data['userName'] as String? ?? 'Anonymous';
+  data['userPhotoUrl'] = data['userPhotoUrl'] as String? ?? '';
+  data['overallRating'] = (data['overallRating'] as num?)?.toDouble() ?? 0.0;
+  data['comment'] = data['comment'] as String? ?? '';
+  if (data['createdAt'] is String) {
+    data['createdAt'] = data['createdAt'] as String;
+  } else if (data['createdAt'] is Timestamp) {
+    data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
+  } else {
+    data['createdAt'] = DateTime.now().toIso8601String();
   }
   return data;
 }

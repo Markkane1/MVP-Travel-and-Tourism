@@ -24,15 +24,12 @@ void main() {
       ratingCount: 128,
       overview: 'Test overview description.',
       itinerary: const [
-        {'day': 1, 'title': 'Arrival', 'description': 'Welcome.'}
+        {'day': 1, 'title': 'Arrival', 'description': 'Welcome.'},
       ],
       inclusions: const ['Hotel', 'Transport'],
       latitude: -16.5004,
       longitude: -151.7415,
-      availableDates: [
-        DateTime(2026, 7, 5),
-        DateTime(2026, 7, 10),
-      ],
+      availableDates: [DateTime(2026, 7, 5), DateTime(2026, 7, 10)],
       privateVehicleSurcharge: 250.0,
       groupSizeOptions: const [
         {'label': 'Shared', 'maxSize': 16, 'priceModifier': 0.0},
@@ -55,17 +52,20 @@ void main() {
       expect(total, 2000.0);
     });
 
-    test('Case 2: Shared tour, 1 adult, 0 children, with private vehicle surcharge', () {
-      final total = useCase(
-        tour: testTour,
-        adults: 1,
-        children: 0,
-        privateVehicle: true,
-        groupSizeOptionLabel: 'Shared',
-      );
-      // 1000.0 * 1 + 250.0 = 1250.0
-      expect(total, 1250.0);
-    });
+    test(
+      'Case 2: Shared tour, 1 adult, 0 children, with private vehicle surcharge',
+      () {
+        final total = useCase(
+          tour: testTour,
+          adults: 1,
+          children: 0,
+          privateVehicle: true,
+          groupSizeOptionLabel: 'Shared',
+        );
+        // 1000.0 * 1 + 250.0 = 1250.0
+        expect(total, 1250.0);
+      },
+    );
 
     test('Case 3: Max 6 group option (with private vehicle enabled)', () {
       final total = useCase(
@@ -97,16 +97,34 @@ void main() {
       expect(total, 4550.0);
     });
 
-    test('Case 5: Shared tour, 2 adults, 2 children (children at 50% price)', () {
-      final total = useCase(
-        tour: testTour,
-        adults: 2,
-        children: 2,
-        privateVehicle: false,
-        groupSizeOptionLabel: 'Shared',
-      );
-      // base: 1000.0 * (2 + 2 * 0.5) = 1000.0 * 3 = 3000.0
-      expect(total, 3000.0);
-    });
+    test(
+      'Case 5: Shared tour, 2 adults, 2 children (children at 50% price)',
+      () {
+        final total = useCase(
+          tour: testTour,
+          adults: 2,
+          children: 2,
+          privateVehicle: false,
+          groupSizeOptionLabel: 'Shared',
+        );
+        // base: 1000.0 * (2 + 2 * 0.5) = 1000.0 * 3 = 3000.0
+        expect(total, 3000.0);
+      },
+    );
+
+    test(
+      'Case 6: Invalid participant counts are treated as zero instead of producing a negative total',
+      () {
+        final total = useCase(
+          tour: testTour,
+          adults: -2,
+          children: 2,
+          privateVehicle: false,
+          groupSizeOptionLabel: 'Shared',
+        );
+
+        expect(total, 0.0);
+      },
+    );
   });
 }

@@ -265,14 +265,23 @@ class ProfileScreen extends ConsumerWidget {
                   height: 300.0,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(AppRadii.lg),
-                    image: DecorationImage(
-                      image: hasPhoto
-                          ? NetworkImage(photoUrl!)
-                          : const AssetImage('assets/images/placeholder.png')
-                                as ImageProvider,
-                      fit: BoxFit.cover,
-                    ),
+                    color: AppColors.primaryContainer,
+                    image: hasPhoto
+                        ? DecorationImage(
+                            image: NetworkImage(photoUrl!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
                   ),
+                  child: hasPhoto
+                      ? null
+                      : const Center(
+                          child: Icon(
+                            Icons.person,
+                            size: 96.0,
+                            color: AppColors.primary,
+                          ),
+                        ),
                 ),
               ),
               Positioned(

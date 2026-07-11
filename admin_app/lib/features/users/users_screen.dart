@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/users_providers.dart';
 import 'widgets/user_detail_dialog.dart';
+import 'models/user.dart';
 import 'widgets/add_user_dialog.dart';
 
 class UsersScreen extends ConsumerStatefulWidget {
@@ -20,7 +21,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,14 +66,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            Expanded(
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: theme.colorScheme.outlineVariant),
-                ),
-                child: usersAsync.when(
+            usersAsync.when(
                   loading: () => const Center(child: CircularProgressIndicator()),
                   error: (err, stack) => Center(child: Text('Error: \$err')),
                   data: (users) {
@@ -86,16 +80,27 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                     if (filteredUsers.isEmpty) {
                       return const Center(child: Text('No users found.'));
                     }
-                    return LayoutBuilder(
-                      builder: (context, constraints) {
-                        return SingleChildScrollView(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                              child: DataTable(
-                          showCheckboxColumn: false,
-                          columns: [
+                    final source = _UserDataSource(
+                      users: filteredUsers,
+                      context: context,
+                    );
+                    return SizedBox(
+                      width: double.infinity,
+                      child: Theme(
+                        data: theme.copyWith(
+                          cardTheme: const CardThemeData(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(16)),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                          ),
+                        ),
+                        child: PaginatedDataTable(
+                          source: source,
+                          header: const Text('Users Directory', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
+                          rowsPerPage: filteredUsers.length > 10 ? 10 : filteredUsers.length,
+                          columns: const [
                             DataColumn(label: Text('User ID')),
                             DataColumn(label: Text('Email')),
                             DataColumn(label: Text('Name')),
@@ -103,46 +108,62 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                             DataColumn(label: Text('Loyalty Pts')),
                             DataColumn(label: Text('Concierge ID')),
                           ],
-                          rows: filteredUsers.map((u) {
-                            return DataRow(
-                              onSelectChanged: (_) {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => UserDetailDialog(user: u),
-                                );
-                              },
-                              cells: [
-                                DataCell(Text(u.id.substring(0, 8))),
-                                DataCell(Text(u.email)),
-                                DataCell(Text(u.displayName ?? '-')),
-                                DataCell(
-                                  Chip(
-                                    label: Text(u.tier.toUpperCase()),
-                                    backgroundColor: u.tier == 'platinum'
-                                        ? Colors.purple.withValues(alpha: 0.1)
-                                        : u.tier == 'gold'
-                                            ? Colors.orange.withValues(alpha: 0.1)
-                                            : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                                  ),
-                                ),
-                                DataCell(Text(u.loyaltyPoints.toString())),
-                                DataCell(Text(u.conciergeId ?? 'Unassigned')),
-                              ],
-                            );
-                          }).toList(),
-                        ), // DataTable
-                      ), // ConstrainedBox
-                    ), // SingleChildScrollView
-                  ); // return SingleChildScrollView
-                },
-              ); // return LayoutBuilder
+                        ),
+                      ),
+                    );
             },
-          ), // usersAsync.when data
-        ), // Card
-      ), // Expanded
+          ), // usersAsync.when
           ],
         ),
       ),
     );
   }
+}
+
+class _UserDataSource extends DataTableSource {
+  final List<UserModel> users;
+  final BuildContext context;
+
+  _UserDataSource({required this.users, required this.context});
+
+  @override
+  DataRow? getRow(int index) {
+    if (index >= users.length) return null;
+    final u = users[index];
+
+    return DataRow(
+      onSelectChanged: (_) {
+        showDialog(
+          context: context,
+          builder: (context) => UserDetailDialog(user: u),
+        );
+      },
+      cells: [
+        DataCell(Text(u.id.substring(0, 8))),
+        DataCell(Text(u.email)),
+        DataCell(Text(u.displayName ?? '-')),
+        DataCell(
+          Chip(
+            label: Text(u.tier.toUpperCase()),
+            backgroundColor: u.tier == 'platinum'
+                ? Colors.purple.withValues(alpha: 0.1)
+                : u.tier == 'gold'
+                    ? Colors.orange.withValues(alpha: 0.1)
+                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+          ),
+        ),
+        DataCell(Text(u.loyaltyPoints.toString())),
+        DataCell(Text(u.conciergeId ?? 'Unassigned')),
+      ],
+    );
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => users.length;
+
+  @override
+  int get selectedRowCount => 0;
 }

@@ -81,7 +81,7 @@ class SearchRepository {
 
     return firestoreQuery.snapshots().map((snapshot) {
       final tours = snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
+        final data = Map<String, dynamic>.from(doc.data() as Map? ?? {});
         data['id'] = doc.id;
         return Tour.fromJson(_mapTourData(data));
       }).toList();

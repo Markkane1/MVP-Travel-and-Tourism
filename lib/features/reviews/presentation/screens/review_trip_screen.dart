@@ -123,21 +123,33 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
   }
 
   Future<void> _submitReview(Booking booking) async {
-    if (_overallRating == 0.0) return;
+    if (_overallRating == 0.0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an overall rating before submitting.')),
+      );
+      return;
+    }
+
+    final user = ref.read(authServiceProvider).currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please sign in before submitting a review.')),
+      );
+      return;
+    }
 
     setState(() {
       _isSubmitting = true;
     });
 
     try {
-      final user = ref.read(authServiceProvider).currentUser;
-      final String name = user?.displayName ?? 'Valued Guest';
+      final String name = user.displayName ?? 'Valued Guest';
       final useCase = SubmitReviewUseCase(ref.read(reviewsRepositoryProvider));
 
       final res = await useCase.execute(
-        userId: user?.uid ?? 'guest',
+        userId: user.uid,
         userName: name,
-        userPhotoUrl: user?.photoUrl ?? '',
+        userPhotoUrl: user.photoUrl ?? '',
         bookingId: booking.id,
         tourId: booking.tourId,
         overallRating: _overallRating,

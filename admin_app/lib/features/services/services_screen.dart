@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/services_providers.dart';
 import 'widgets/add_service_dialog.dart';
 import 'widgets/edit_service_dialog.dart';
+import 'models/service.dart';
 
 class ServicesScreen extends ConsumerStatefulWidget {
   const ServicesScreen({super.key});
@@ -20,7 +21,7 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,14 +69,7 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            Expanded(
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: theme.colorScheme.outlineVariant),
-                ),
-                child: servicesAsync.when(
+            servicesAsync.when(
                   loading: () => const Center(child: CircularProgressIndicator()),
                   error: (err, stack) => Center(child: Text('Error: $err')),
                   data: (services) {
@@ -89,85 +83,114 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
                       return const Center(child: Text('No services found.'));
                     }
 
-                    return LayoutBuilder(
-                      builder: (context, constraints) {
-                        return SingleChildScrollView(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                              child: DataTable(
-                                showCheckboxColumn: false,
-                                columns: const [
-                                  DataColumn(label: Text('Name')),
-                                  DataColumn(label: Text('Category')),
-                                  DataColumn(label: Text('Price')),
-                                  DataColumn(label: Text('Unit Type')),
-                                  DataColumn(label: Text('Sort Order')),
-                                  DataColumn(label: Text('Status')),
-                                  DataColumn(label: Text('Actions')),
-                                ],
-                                rows: filteredServices.map((service) {
-                                  return DataRow(
-                                    cells: [
-                                      DataCell(Text(service.name, style: const TextStyle(fontWeight: FontWeight.bold))),
-                                      DataCell(Text(service.category)),
-                                      DataCell(Text('${service.currency} ${service.basePrice.toStringAsFixed(2)}')),
-                                      DataCell(Text(service.unitType.replaceAll('_', ' '))),
-                                      DataCell(Text(service.sortOrder.toString())),
-                                      DataCell(
-                                        Chip(
-                                          label: Text(service.isActive ? 'Active' : 'Archived'),
-                                          backgroundColor: service.isActive
-                                              ? Colors.green.withValues(alpha: 0.1)
-                                              : Colors.grey.withValues(alpha: 0.1),
-                                          labelStyle: TextStyle(
-                                            color: service.isActive ? Colors.green : Colors.grey,
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            IconButton(
-                                              icon: const Icon(Icons.edit, size: 20),
-                                              onPressed: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) => EditServiceDialog(service: service),
-                                                );
-                                              },
-                                            ),
-                                            if (service.isActive)
-                                              IconButton(
-                                                icon: const Icon(Icons.archive, size: 20),
-                                                onPressed: () async {
-                                                  await ref
-                                                      .read(servicesApiProvider)
-                                                      .archiveService(service.id, 'admin_user');
-                                                },
-                                                color: Colors.orange,
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
-                              ), // DataTable
-                            ), // ConstrainedBox
-                          ), // inner SingleChildScrollView
-                        ); // outer SingleChildScrollView
-                      },
-                    ); // LayoutBuilder
+                    final source = _ServiceDataSource(
+                      services: filteredServices,
+                      context: context,
+                      ref: ref,
+                    );
+                    return SizedBox(
+                      width: double.infinity,
+                      child: Theme(
+                        data: theme.copyWith(
+                          cardTheme: const CardThemeData(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(16)),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                          ),
+                        ),
+                        child: PaginatedDataTable(
+                          source: source,
+                          header: const Text('Services Directory', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
+                          rowsPerPage: filteredServices.length > 10 ? 10 : filteredServices.length,
+                          columns: const [
+                            DataColumn(label: Text('Name')),
+                            DataColumn(label: Text('Category')),
+                            DataColumn(label: Text('Price')),
+                            DataColumn(label: Text('Unit Type')),
+                            DataColumn(label: Text('Sort Order')),
+                            DataColumn(label: Text('Status')),
+                            DataColumn(label: Text('Actions')),
+                          ],
+                        ),
+                      ),
+                    );
                   },
                 ), // servicesAsync.when
-              ), // Card
-            ), // Expanded
           ],
         ),
       ),
     );
   }
+}
+
+class _ServiceDataSource extends DataTableSource {
+  final List<Service> services;
+  final BuildContext context;
+  final WidgetRef ref;
+
+  _ServiceDataSource({required this.services, required this.context, required this.ref});
+
+  @override
+  DataRow? getRow(int index) {
+    if (index >= services.length) return null;
+    final service = services[index];
+
+    return DataRow(
+      cells: [
+        DataCell(Text(service.name, style: const TextStyle(fontWeight: FontWeight.bold))),
+        DataCell(Text(service.category)),
+        DataCell(Text('${service.currency} ${service.basePrice.toStringAsFixed(2)}')),
+        DataCell(Text(service.unitType.replaceAll('_', ' '))),
+        DataCell(Text(service.sortOrder.toString())),
+        DataCell(
+          Chip(
+            label: Text(service.isActive ? 'Active' : 'Archived'),
+            backgroundColor: service.isActive
+                ? Colors.green.withValues(alpha: 0.1)
+                : Colors.grey.withValues(alpha: 0.1),
+            labelStyle: TextStyle(
+              color: service.isActive ? Colors.green : Colors.grey,
+            ),
+          ),
+        ),
+        DataCell(
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit, size: 20),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => EditServiceDialog(service: service),
+                  );
+                },
+              ),
+              if (service.isActive)
+                IconButton(
+                  icon: const Icon(Icons.archive, size: 20),
+                  onPressed: () async {
+                    await ref
+                        .read(servicesApiProvider)
+                        .archiveService(service.id, 'admin_user');
+                  },
+                  color: Colors.orange,
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => services.length;
+
+  @override
+  int get selectedRowCount => 0;
 }

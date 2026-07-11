@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +21,7 @@ import '../../../../core/utils/result.dart';
 import '../../../booking/booking.dart';
 import '../../domain/payment_service.dart';
 import '../../data/mock_payment_service.dart';
+import '../../domain/card_details_validator.dart';
 
 /// Screen managing simulated checkout and payments.
 class CheckoutScreen extends ConsumerStatefulWidget {
@@ -53,6 +53,20 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   }
 
   Future<void> _processPayment(Booking booking) async {
+    final validation = validateCardDetails(
+      name: _nameController.text,
+      cardNumber: _cardNumberController.text,
+      expiry: _expiryController.text,
+      cvv: _cvvController.text,
+    );
+
+    if (!validation.isValid) {
+      setState(() {
+        _errorMessage = validation.errorMessage;
+      });
+      return;
+    }
+
     setState(() {
       _isProcessing = true;
       _errorMessage = null;
@@ -133,22 +147,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         });
       }
     }
-  }
-
-  void _toggleMockFailure() {
-    setState(() {
-      MockPaymentService.shouldFail = !MockPaymentService.shouldFail;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          MockPaymentService.shouldFail
-              ? 'DEBUG: Simulated payment failure ENABLED'
-              : 'DEBUG: Simulated payment failure DISABLED',
-        ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   @override
@@ -379,31 +377,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             children: [
               PrimaryButton(
                 buttonKey: const Key('checkout_pay_button'),
-                label: 'Pay ${booking.currency} ${total.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} →',
+                label: 'Pay ${booking.currency} ${total.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} now',
                 onPressed: () => _processPayment(booking),
-                // Hidden debug toggle enabled on long-press only in debug builds
-                // Using standard Gesture wrapper in build pipeline to capture trigger
               ),
-              if (kDebugMode) ...[
-                const SizedBox(height: 8.0),
-                GestureDetector(
-                  onLongPress: _toggleMockFailure,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'DEBUG: Long-press here to toggle payment failure scenario',
-                      style: TextStyle(
-                        fontSize: 9.0,
-                        color: AppColors.onSurfaceVariant.withValues(
-                          alpha: 0.5,
-                        ),
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ],
           ),
         ),

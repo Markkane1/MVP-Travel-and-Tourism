@@ -48,7 +48,7 @@ class ConciergeApi {
         .collection('messages')
         .doc();
     batch.set(messageRef, {
-      'senderUid': actor?.uid ?? 'unknown',
+      'senderId': actor?.uid ?? 'unknown',
       'senderEmail': actor?.email ?? 'Admin',
       'senderType': 'staff',
       'text': text,

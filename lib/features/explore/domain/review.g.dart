@@ -7,12 +7,12 @@ part of 'review.dart';
 // **************************************************************************
 
 _Review _$ReviewFromJson(Map<String, dynamic> json) => _Review(
-  id: json['id'] as String,
-  userName: json['userName'] as String,
-  userPhotoUrl: json['userPhotoUrl'] as String,
-  overallRating: (json['overallRating'] as num).toDouble(),
-  comment: json['comment'] as String,
-  createdAt: DateTime.parse(json['createdAt'] as String),
+  id: json['id'] as String? ?? '',
+  userName: json['userName'] as String? ?? 'Anonymous',
+  userPhotoUrl: json['userPhotoUrl'] as String? ?? '',
+  overallRating: (json['overallRating'] as num?)?.toDouble() ?? 0.0,
+  comment: json['comment'] as String? ?? '',
+  createdAt: DateTime.parse(json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
 );
 
 Map<String, dynamic> _$ReviewToJson(_Review instance) => <String, dynamic>{

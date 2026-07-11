@@ -16,7 +16,7 @@ class TourDetailsRepository {
   Stream<Tour?> watchTour(String tourId) {
     return _firestore.collection('tours').doc(tourId).snapshots().map((doc) {
       if (!doc.exists) return null;
-      final data = doc.data()!;
+      final data = Map<String, dynamic>.from(doc.data() as Map? ?? {});
       data['id'] = doc.id;
       return Tour.fromJson(_mapTourData(data));
     }).mapAppException('Failed to load tour details');
@@ -33,7 +33,7 @@ class TourDetailsRepository {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        final data = doc.data();
+        final data = Map<String, dynamic>.from(doc.data() as Map? ?? {});
         data['id'] = doc.id;
         if (data['createdAt'] is Timestamp) {
           data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();

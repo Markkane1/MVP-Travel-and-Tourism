@@ -115,6 +115,15 @@ class _BookingConfirmationScreenState
   }
 
   Future<void> _downloadPdfReceipt(Booking booking, Tour tour) async {
+    if (booking.pickupLocation.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Receipt cannot be generated without pickup details.')),
+        );
+      }
+      return;
+    }
+
     final doc = pw.Document();
 
     final dateStr =
@@ -748,7 +757,7 @@ class _BookingConfirmationScreenState
           ),
           const SizedBox(height: 12.0),
           TextButton.icon(
-            onPressed: () {},
+            onPressed: () => _openNativeMap(pickupLocation),
             icon: const Icon(Icons.directions, size: 18),
             label: const Text('Get Directions'),
           ),
