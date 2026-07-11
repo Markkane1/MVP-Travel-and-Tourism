@@ -43,15 +43,73 @@ import 'package:mvp_travel/features/search/data/saved_tours_repository.dart';
 import 'package:mvp_travel/features/search/data/search_repository.dart';
 
 const _transparentPng = <int>[
-  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
-  0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
-  0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-  0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
-  0x89, 0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41,
-  0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00,
-  0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00,
-  0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
-  0x42, 0x60, 0x82,
+  0x89,
+  0x50,
+  0x4E,
+  0x47,
+  0x0D,
+  0x0A,
+  0x1A,
+  0x0A,
+  0x00,
+  0x00,
+  0x00,
+  0x0D,
+  0x49,
+  0x48,
+  0x44,
+  0x52,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x08,
+  0x06,
+  0x00,
+  0x00,
+  0x00,
+  0x1F,
+  0x15,
+  0xC4,
+  0x89,
+  0x00,
+  0x00,
+  0x00,
+  0x0A,
+  0x49,
+  0x44,
+  0x41,
+  0x54,
+  0x78,
+  0x9C,
+  0x63,
+  0x00,
+  0x01,
+  0x00,
+  0x00,
+  0x05,
+  0x00,
+  0x01,
+  0x0D,
+  0x0A,
+  0x2D,
+  0xB4,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x49,
+  0x45,
+  0x4E,
+  0x44,
+  0xAE,
+  0x42,
+  0x60,
+  0x82,
 ];
 
 class _GoldenHttpOverrides extends HttpOverrides {
@@ -128,11 +186,11 @@ class _FakeAuthService extends Fake implements AuthService {
 
   @override
   UserEntity? get currentUser => const UserEntity(
-        uid: 'test-uid',
-        email: 'test@example.com',
-        displayName: 'Test User',
-        photoUrl: null,
-      );
+    uid: 'test-uid',
+    email: 'test@example.com',
+    displayName: 'Test User',
+    photoUrl: null,
+  );
 
   @override
   Stream<UserEntity?> get authStateChanges => Stream.value(currentUser);
@@ -167,7 +225,8 @@ class _FakeExploreRepository implements ExploreRepository {
 
 class _FakeSearchRepository implements SearchRepository {
   @override
-  Stream<List<Tour>> searchTours(SearchFilters filters) => Stream.value(const []);
+  Stream<List<Tour>> searchTours(SearchFilters filters) =>
+      Stream.value(const []);
 }
 
 class _FakeSavedToursRepository implements SavedToursRepository {
@@ -175,10 +234,12 @@ class _FakeSavedToursRepository implements SavedToursRepository {
   Stream<List<String>> watchSavedTourIds(String uid) => Stream.value(const []);
 
   @override
-  Future<Result<void>> saveTour(String uid, String tourId) async => const Result.success(null);
+  Future<Result<void>> saveTour(String uid, String tourId) async =>
+      const Result.success(null);
 
   @override
-  Future<Result<void>> unsaveTour(String uid, String tourId) async => const Result.success(null);
+  Future<Result<void>> unsaveTour(String uid, String tourId) async =>
+      const Result.success(null);
 }
 
 class _FakeBookingRepository implements BookingRepository {
@@ -186,24 +247,26 @@ class _FakeBookingRepository implements BookingRepository {
   String generateNewBookingId() => 'fake-booking-id';
 
   @override
-  Future<Result<void>> createPendingBooking(Booking booking) async => const Result.success(null);
+  Future<Result<void>> createPendingBooking(Booking booking) async =>
+      const Result.success(null);
 
   @override
   Stream<Booking?> watchBooking(String bookingId) => Stream.value(null);
 
   @override
-  Stream<List<Booking>> watchUserBookings(String userId) => Stream.value(const []);
+  Stream<List<Booking>> watchUserBookings(String userId) =>
+      Stream.value(const []);
 }
 
 class _FakeProfileRepository implements ProfileRepository {
   @override
   Stream<Map<String, dynamic>?> watchUserProfile(String uid) => Stream.value({
-        'displayName': 'Test User',
-        'email': 'test@example.com',
-        'tier': 'Standard',
-        'loyaltyPoints': 0,
-        'conciergeId': 'concierge-elena',
-      });
+    'displayName': 'Test User',
+    'email': 'test@example.com',
+    'tier': 'Standard',
+    'loyaltyPoints': 0,
+    'conciergeId': 'concierge-elena',
+  });
 
   @override
   Future<Result<void>> updateProfile({
@@ -228,7 +291,8 @@ class _FakeProfileRepository implements ProfileRepository {
   }) async => const Result.success(null);
 
   @override
-  Stream<List<PaymentMethodItem>> watchPaymentMethods(String uid) => Stream.value(const []);
+  Stream<List<PaymentMethodItem>> watchPaymentMethods(String uid) =>
+      Stream.value(const []);
 
   @override
   Future<Result<void>> deletePaymentMethod({
@@ -279,7 +343,8 @@ class _FakeConciergeRepository implements ConciergeRepository {
   }) async => const Result.success(null);
 
   @override
-  Future<Result<bool>> checkAndSeedConcierges(String uid) async => const Result.success(false);
+  Future<Result<bool>> checkAndSeedConcierges(String uid) async =>
+      const Result.success(false);
 }
 
 // ---------------------------------------------------------------------------
@@ -292,7 +357,9 @@ Widget _wrap(Widget screen) {
       authControllerProvider.overrideWith(() => _FakeAuthController()),
       exploreRepositoryProvider.overrideWithValue(_FakeExploreRepository()),
       searchRepositoryProvider.overrideWithValue(_FakeSearchRepository()),
-      savedToursRepositoryProvider.overrideWithValue(_FakeSavedToursRepository()),
+      savedToursRepositoryProvider.overrideWithValue(
+        _FakeSavedToursRepository(),
+      ),
       bookingRepositoryProvider.overrideWithValue(_FakeBookingRepository()),
       profileRepositoryProvider.overrideWithValue(_FakeProfileRepository()),
       conciergeRepositoryProvider.overrideWithValue(_FakeConciergeRepository()),

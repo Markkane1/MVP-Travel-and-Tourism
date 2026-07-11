@@ -33,7 +33,15 @@ export async function cleanupUserDataLogic(
     batch.delete(doc.ref);
   });
 
-  // 4. Delete user document
+  // 4. Delete concierge thread and its messages
+  const conciergeMessagesRef = db.collection('concierge_threads').doc(userId).collection('messages');
+  const conciergeMessageDocs = await conciergeMessagesRef.get();
+  conciergeMessageDocs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+  batch.delete(db.collection('concierge_threads').doc(userId));
+
+  // 5. Delete user document
   batch.delete(db.collection('users').doc(userId));
 
   await batch.commit();

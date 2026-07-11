@@ -24,7 +24,7 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _nameController = TextEditingController();
   final _picker = ImagePicker();
-  
+
   bool _isSaving = false;
   String? _uploadedPhotoUrl;
   File? _selectedLocalImage;
@@ -82,9 +82,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   Future<void> _saveProfile(String uid) async {
     if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Name cannot be empty.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Name cannot be empty.')));
       return;
     }
 
@@ -98,7 +98,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       // 1. Upload photo if a new local image was picked
       if (_selectedLocalImage != null) {
         final storage = ref.read(storageServiceProvider);
-        final String path = 'users/$uid/profile_${DateTime.now().millisecondsSinceEpoch}.png';
+        final String path =
+            'users/$uid/profile_${DateTime.now().millisecondsSinceEpoch}.png';
         photoUrl = await storage.uploadImage(_selectedLocalImage!, path);
       }
 
@@ -110,11 +111,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       );
 
       // 3. Update Firestore /users/{uid} document
-      final result = await ref.read(profileRepositoryProvider).updateProfile(
-        uid: uid,
-        name: _nameController.text.trim(),
-        photoUrl: photoUrl ?? '',
-      );
+      final result = await ref
+          .read(profileRepositoryProvider)
+          .updateProfile(
+            uid: uid,
+            name: _nameController.text.trim(),
+            photoUrl: photoUrl ?? '',
+          );
 
       await result.when(
         onSuccess: (_) {
@@ -130,7 +133,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         onFailure: (exception) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Profile update failed: ${exception.message}')),
+              SnackBar(
+                content: Text('Profile update failed: ${exception.message}'),
+              ),
             );
           }
         },
@@ -197,7 +202,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           backgroundColor: AppColors.primaryContainer,
                           backgroundImage: avatarImage,
                           child: avatarImage == null
-                              ? const Icon(Icons.person, size: 56.0, color: AppColors.primary)
+                              ? const Icon(
+                                  Icons.person,
+                                  size: 56.0,
+                                  color: AppColors.primary,
+                                )
                               : null,
                         ),
                         Positioned(

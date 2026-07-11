@@ -19,20 +19,28 @@ export const onReviewSubmitted = onDocumentCreated(
     if (!userId || !bookingId) return;
 
     try {
-      // 1. Transactionally increment loyaltyPoints by 250 on the user doc
-      const userRef = db.collection('users').doc(userId);
+      const bookingRef = db.collection('bookings').doc(bookingId);
+      
       await db.runTransaction(async (transaction) => {
+        const bookingDoc = await transaction.get(bookingRef);
+        if (!bookingDoc.exists) return;
+        
+        if (bookingDoc.data()?.reviewed === true) {
+          // Already reviewed, do not award points again
+          return;
+        }
+
+        // 1. Increment loyaltyPoints by 250 on the user doc
+        const userRef = db.collection('users').doc(userId);
         const userDoc = await transaction.get(userRef);
         let points = 0;
         if (userDoc.exists) {
           points = userDoc.data()?.loyaltyPoints || 0;
         }
         transaction.update(userRef, { loyaltyPoints: points + 250 });
-      });
 
-      // 2. Update the booking document to set reviewed: true
-      await db.collection('bookings').doc(bookingId).update({
-        reviewed: true,
+        // 2. Update the booking document to set reviewed: true
+        transaction.update(bookingRef, { reviewed: true });
       });
     } catch (e) {
       console.error('Error in onReviewSubmitted Cloud Function trigger:', e);

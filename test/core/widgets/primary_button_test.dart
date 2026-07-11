@@ -3,8 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mvp_travel/core/widgets/primary_button.dart';
 import 'package:mvp_travel/core/theme/app_theme.dart';
 
-Widget _wrap(Widget child) =>
-    MaterialApp(theme: AppTheme.lightTheme, home: Scaffold(body: child));
+Widget _wrap(Widget child) => MaterialApp(
+  theme: AppTheme.lightTheme,
+  home: Scaffold(body: child),
+);
 
 void main() {
   group('PrimaryButton', () {
@@ -18,7 +20,9 @@ void main() {
       expect(opacity.opacity, equals(1.0));
     });
 
-    testWidgets('shows 0.38 opacity when onPressed is null (disabled)', (tester) async {
+    testWidgets('shows 0.38 opacity when onPressed is null (disabled)', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(const PrimaryButton(label: 'Book Now', onPressed: null)),
       );
@@ -26,9 +30,13 @@ void main() {
       expect(opacity.opacity, closeTo(0.38, 0.01));
     });
 
-    testWidgets('shows CircularProgressIndicator in loading state', (tester) async {
+    testWidgets('shows CircularProgressIndicator in loading state', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        _wrap(PrimaryButton(label: 'Book Now', onPressed: () {}, isLoading: true)),
+        _wrap(
+          PrimaryButton(label: 'Book Now', onPressed: () {}, isLoading: true),
+        ),
       );
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       expect(find.text('Book Now'), findsNothing);
@@ -37,11 +45,13 @@ void main() {
     testWidgets('loading button is not tappable', (tester) async {
       int taps = 0;
       await tester.pumpWidget(
-        _wrap(PrimaryButton(
-          label: 'Book Now',
-          onPressed: () => taps++,
-          isLoading: true,
-        )),
+        _wrap(
+          PrimaryButton(
+            label: 'Book Now',
+            onPressed: () => taps++,
+            isLoading: true,
+          ),
+        ),
       );
       await tester.tap(find.byType(ElevatedButton));
       expect(taps, equals(0));

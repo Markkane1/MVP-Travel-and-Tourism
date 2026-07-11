@@ -12,7 +12,7 @@ service cloud.firestore {
     }
 
     function isBootstrapAdmin() {
-      return isAuthenticated() && request.auth.token.email == 'admin@mvptravel.com';
+      return isAuthenticated() && request.auth.token.email == 'admin@mvptravel.com' && request.auth.token.email_verified == true;
     }
 
     function hasStaffProfile() {
@@ -41,7 +41,7 @@ service cloud.firestore {
     // No update or delete — audit logs are append-only.
     match /admin_audit_logs/{logId} {
       allow read: if isAdmin();
-      allow create: if isAdmin();
+      allow create: if isAdmin() && request.resource.data.actorUid == request.auth.uid;
       allow update, delete: if false;
     }
 
@@ -50,8 +50,8 @@ service cloud.firestore {
       allow read: if isOwner(uid) || isAdmin();
 
       // Users manage their own profile; admins can only update safe fields.
-      allow create: if isOwner(uid);
-      allow update: if isOwner(uid)
+      allow create: if isOwner(uid) && (!request.resource.data.keys().hasAll(['bio']) || request.resource.data.bio.size() <= 500);
+      allow update: if (isOwner(uid) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['tier', 'loyaltyPoints', 'conciergeId']) && (!request.resource.data.keys().hasAll(['bio']) || request.resource.data.bio.size() <= 500))
         || (isAdmin()
           && request.resource.data.diff(resource.data)
              .affectedKeys()
@@ -101,7 +101,9 @@ service cloud.firestore {
 
       match /reviews/{reviewId} {
         allow read: if true;
-        allow create, update, delete: if isAuthenticated();
+        allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid && request.resource.data.text.size() <= 2000;
+        allow update: if isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid && request.resource.data.text.size() <= 2000;
+        allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
       }
     }
 
@@ -121,7 +123,7 @@ service cloud.firestore {
       allow read: if isOwner(uid) || isAdmin();
       // Admins can update thread metadata (lastMessageAt, isResolved) directly.
       allow create: if isOwner(uid);
-      allow update: if isOwner(uid)
+      allow update: if (isOwner(uid) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isResolved', 'lastMessageSender', 'lastMessageAt', 'lastMessageText']))
         || (isAdmin()
           && request.resource.data.diff(resource.data)
              .affectedKeys()
@@ -134,6 +136,7 @@ service cloud.firestore {
         // Users send as 'user'; admins send as 'staff'.
         allow create: if (isOwner(uid)
             && request.resource.data.senderType == 'user'
+            && request.resource.data.senderId == request.auth.uid
             && request.resource.data.text.size() <= 1000)
           || (isAdmin()
             && request.resource.data.senderType == 'staff'

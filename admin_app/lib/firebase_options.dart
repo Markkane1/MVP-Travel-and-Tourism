@@ -69,7 +69,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '296884534205',
     projectId: 'mvp-travels',
     storageBucket: 'mvp-travels.firebasestorage.app',
-    iosClientId: '296884534205-u12g1jphm2e7ffbdq2gg74mbcsh9qv9j.apps.googleusercontent.com',
+    iosClientId:
+        '296884534205-u12g1jphm2e7ffbdq2gg74mbcsh9qv9j.apps.googleusercontent.com',
     iosBundleId: 'com.mvptravelandtourism.app',
   );
 }

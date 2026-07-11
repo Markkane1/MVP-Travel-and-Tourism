@@ -5,14 +5,20 @@ sealed class AppException implements Exception {
 
   const AppException(this.message, [this.code]);
 
-  const factory AppException.network(String message, [String? code]) = NetworkException;
-  const factory AppException.auth(String message, [String? code]) = AuthException;
-  const factory AppException.validation(String message, [String? code]) = ValidationException;
-  const factory AppException.payment(String message, [String? code]) = PaymentException;
-  const factory AppException.unknown(String message, [String? code]) = UnknownException;
+  const factory AppException.network(String message, [String? code]) =
+      NetworkException;
+  const factory AppException.auth(String message, [String? code]) =
+      AuthException;
+  const factory AppException.validation(String message, [String? code]) =
+      ValidationException;
+  const factory AppException.payment(String message, [String? code]) =
+      PaymentException;
+  const factory AppException.unknown(String message, [String? code]) =
+      UnknownException;
 
   @override
-  String toString() => '$runtimeType: $message${code != null ? ' (Code: $code)' : ''}';
+  String toString() =>
+      '$runtimeType: $message${code != null ? ' (Code: $code)' : ''}';
 }
 
 /// Thrown when a network-related error occurs (e.g. no internet connectivity, timeout).

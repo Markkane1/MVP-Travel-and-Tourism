@@ -14,10 +14,14 @@ class TripsRepository {
   /// Triggers the cloud function to cancel the booking.
   Future<Result<void>> cancelBooking(String bookingId) async {
     try {
-      await _functions.httpsCallable('cancelBooking').call({'bookingId': bookingId});
+      await _functions.httpsCallable('cancelBooking').call({
+        'bookingId': bookingId,
+      });
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Cancellation failed: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Cancellation failed: ${e.toString()}'),
+      );
     }
   }
 }

@@ -12,7 +12,9 @@ _Review _$ReviewFromJson(Map<String, dynamic> json) => _Review(
   userPhotoUrl: json['userPhotoUrl'] as String? ?? '',
   overallRating: (json['overallRating'] as num?)?.toDouble() ?? 0.0,
   comment: json['comment'] as String? ?? '',
-  createdAt: DateTime.parse(json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
+  createdAt: DateTime.parse(
+    json['createdAt'] as String? ?? DateTime.now().toIso8601String(),
+  ),
 );
 
 Map<String, dynamic> _$ReviewToJson(_Review instance) => <String, dynamic>{

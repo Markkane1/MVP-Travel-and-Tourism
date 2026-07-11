@@ -9,7 +9,9 @@ abstract class Tour with _$Tour {
   const Tour._();
 
   const factory Tour({
-    @JsonKey(includeToJson: false) @Default('') String id, // Provided by Firestore doc ID, not written back
+    @JsonKey(includeToJson: false)
+    @Default('')
+    String id, // Provided by Firestore doc ID, not written back
     @Default('') String title,
     @Default('') String destination,
     @Default('') String category,
@@ -27,7 +29,9 @@ abstract class Tour with _$Tour {
     @Default([]) List<String> inclusions,
     @Default(0.0) double latitude,
     @Default(0.0) double longitude,
-    @JsonKey(fromJson: _timestampListFromJson, toJson: _timestampListToJson) @Default([]) List<DateTime> availableDates,
+    @JsonKey(fromJson: _timestampListFromJson, toJson: _timestampListToJson)
+    @Default([])
+    List<DateTime> availableDates,
     @Default(0.0) double privateVehicleSurcharge,
     @Default([]) List<Map<String, dynamic>> groupSizeOptions,
     @Default(true) bool isActive,
@@ -36,10 +40,7 @@ abstract class Tour with _$Tour {
   factory Tour.fromJson(Map<String, dynamic> json) => _$TourFromJson(json);
 
   factory Tour.fromFirestore(Map<String, dynamic> data, String documentId) {
-    return Tour.fromJson({
-      ...data,
-      'id': documentId,
-    });
+    return Tour.fromJson({...data, 'id': documentId});
   }
 }
 

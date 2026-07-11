@@ -20,16 +20,18 @@ abstract class AuditModel with _$AuditModel {
     Map<String, dynamic>? before,
     Map<String, dynamic>? after,
     String? reason,
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson) DateTime? createdAt,
+    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    DateTime? createdAt,
   }) = _AuditModel;
 
-  factory AuditModel.fromJson(Map<String, dynamic> json) => _$AuditModelFromJson(json);
+  factory AuditModel.fromJson(Map<String, dynamic> json) =>
+      _$AuditModelFromJson(json);
 
-  factory AuditModel.fromFirestore(Map<String, dynamic> data, String documentId) {
-    return AuditModel.fromJson({
-      ...data,
-      'id': documentId,
-    });
+  factory AuditModel.fromFirestore(
+    Map<String, dynamic> data,
+    String documentId,
+  ) {
+    return AuditModel.fromJson({...data, 'id': documentId});
   }
 }
 

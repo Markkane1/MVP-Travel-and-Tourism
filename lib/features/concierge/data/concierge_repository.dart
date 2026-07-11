@@ -33,8 +33,11 @@ class ConciergeRepository {
         .collection('messages')
         .orderBy('createdAt', descending: false)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((doc) => ConciergeMessage.fromFirestore(doc)).toList())
+        .map(
+          (snap) => snap.docs
+              .map((doc) => ConciergeMessage.fromFirestore(doc))
+              .toList(),
+        )
         .mapAppException('Failed to load concierge messages');
   }
 
@@ -61,7 +64,7 @@ class ConciergeRepository {
           .doc(uid)
           .collection('messages')
           .doc();
-      
+
       final now = FieldValue.serverTimestamp();
       batch.set(messageRef, {
         'senderId': uid,
@@ -82,7 +85,9 @@ class ConciergeRepository {
       await batch.commit();
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Failed to send message: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Failed to send message: ${e.toString()}'),
+      );
     }
   }
 
@@ -98,7 +103,8 @@ class ConciergeRepository {
           'role': 'Senior Travel Specialist',
           'specialty': 'Luxury Safaris & Lodges',
           'languages': 'English, Spanish, French',
-          'photoUrl': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400',
+          'photoUrl':
+              'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400',
           'isOnline': true,
         });
 
@@ -107,7 +113,8 @@ class ConciergeRepository {
           'role': 'Elite Cruise & Air Charter Manager',
           'specialty': 'Private Jets & Ocean Expeditions',
           'languages': 'English, German, Italian',
-          'photoUrl': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400',
+          'photoUrl':
+              'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400',
           'isOnline': true,
         });
         updated = true;
@@ -123,7 +130,11 @@ class ConciergeRepository {
       }
       return Result.success(updated);
     } catch (e) {
-      return Result.failure(AppException.unknown('Seeding concierge specialists failed: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown(
+          'Seeding concierge specialists failed: ${e.toString()}',
+        ),
+      );
     }
   }
 }
@@ -135,7 +146,9 @@ ConciergeRepository conciergeRepository(Ref ref) {
 
 @riverpod
 Stream<ConciergeProfile> conciergeProfile(Ref ref, String conciergeId) {
-  return ref.watch(conciergeRepositoryProvider).watchConciergeProfile(conciergeId);
+  return ref
+      .watch(conciergeRepositoryProvider)
+      .watchConciergeProfile(conciergeId);
 }
 
 @riverpod

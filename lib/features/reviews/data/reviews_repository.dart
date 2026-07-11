@@ -4,7 +4,6 @@ import '../../../../core/errors/app_exception.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../core/utils/safe_stream.dart';
 
-import '../../../../core/config/env.dart';
 import '../../../../core/services/auth_service.dart';
 
 part 'reviews_repository.g.dart';
@@ -39,7 +38,9 @@ class ReviewsRepository {
   }) async {
     if (userId.isEmpty || bookingId.isEmpty || tourId.isEmpty) {
       return const Result.failure(
-        AppException.unknown('Review submission is missing required information.'),
+        AppException.unknown(
+          'Review submission is missing required information.',
+        ),
       );
     }
 
@@ -94,43 +95,6 @@ class ReviewsRepository {
       return Result.failure(
         AppException.unknown(
           'Failed to verify review processing: ${e.toString()}',
-        ),
-      );
-    }
-  }
-
-  Future<Result<void>> finalizeReviewFallback({
-    required String userId,
-    required String bookingId,
-  }) async {
-    if (!Env.isDev) {
-      return const Result.failure(
-        AppException.unknown('Review processing is still pending.'),
-      );
-    }
-
-    try {
-      await _firestore.runTransaction((transaction) async {
-        final userRef = _firestore.collection('users').doc(userId);
-        final bookingRef = _firestore.collection('bookings').doc(bookingId);
-
-        final userSnap = await transaction.get(userRef);
-        final currentPoints =
-            (userSnap.data()?['loyaltyPoints'] as num?)?.toInt() ?? 0;
-
-        transaction.set(userRef, {
-          'loyaltyPoints': currentPoints + 250,
-        }, SetOptions(merge: true));
-        transaction.set(bookingRef, {
-          'reviewed': true,
-        }, SetOptions(merge: true));
-      });
-
-      return const Result.success(null);
-    } catch (e) {
-      return Result.failure(
-        AppException.unknown(
-          'Failed to finalize review in dev fallback: ${e.toString()}',
         ),
       );
     }

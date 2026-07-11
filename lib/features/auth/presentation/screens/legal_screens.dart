@@ -10,9 +10,7 @@ class TermsOfUseScreen extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Terms of Use'),
-      ),
+      appBar: AppBar(title: const Text('Terms of Use')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
@@ -35,20 +33,14 @@ class TermsOfUseScreen extends StatelessWidget {
               style: textTheme.bodyLarge,
             ),
             AppSpacing.gapMd,
-            Text(
-              '1. Premium Booking Services',
-              style: textTheme.headlineSmall,
-            ),
+            Text('1. Premium Booking Services', style: textTheme.headlineSmall),
             AppSpacing.gapBase,
             Text(
               'All bookings are made directly through official channels. Loyalty points earned during tour itineraries are non-transferable and carry zero cash redemption value. Cancellation policies apply per specific tour details.',
               style: textTheme.bodyMedium,
             ),
             AppSpacing.gapMd,
-            Text(
-              '2. User Obligations',
-              style: textTheme.headlineSmall,
-            ),
+            Text('2. User Obligations', style: textTheme.headlineSmall),
             AppSpacing.gapBase,
             Text(
               'You agree to provide accurate and complete email, profile details, and payment authorization credentials. Impersonating other users or attempting to circumvent Firestore databases and Storage controls is strictly prohibited.',
@@ -71,9 +63,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Privacy Policy'),
-      ),
+      appBar: AppBar(title: const Text('Privacy Policy')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
@@ -106,10 +96,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
               style: textTheme.bodyMedium,
             ),
             AppSpacing.gapMd,
-            Text(
-              '2. Data Security',
-              style: textTheme.headlineSmall,
-            ),
+            Text('2. Data Security', style: textTheme.headlineSmall),
             AppSpacing.gapBase,
             Text(
               'Access to Firestore collections is protected by strict role-based security rules. Uploaded photos are compressed locally prior to upload and stored in secure user-isolated folders.',

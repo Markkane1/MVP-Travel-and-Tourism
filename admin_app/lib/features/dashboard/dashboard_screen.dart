@@ -11,7 +11,7 @@ class DashboardScreen extends ConsumerWidget {
     final toursAsync = ref.watch(totalToursProvider);
     final conciergeAsync = ref.watch(totalConciergeThreadsProvider);
     final reviewsAsync = ref.watch(totalReviewsProvider);
-    
+
     // Phase 9 additional metrics
     final pendingBookingsAsync = ref.watch(pendingBookingsProvider);
     final confirmedBookingsAsync = ref.watch(confirmedBookingsProvider);
@@ -26,20 +26,25 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             Text(
               'Welcome back, Admin',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               'Here is what\'s happening with your travel business today.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 32),
-            
-            Text('Primary Operations', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+
+            Text(
+              'Primary Operations',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             LayoutBuilder(
               builder: (context, constraints) {
@@ -58,17 +63,42 @@ class DashboardScreen extends ConsumerWidget {
                   mainAxisSpacing: 24,
                   childAspectRatio: 1.5,
                   children: [
-                    _MetricCard(title: 'Total Bookings', valueAsync: bookingsAsync, icon: Icons.book_online, color: Colors.blue),
-                    _MetricCard(title: 'Pending Bookings', valueAsync: pendingBookingsAsync, icon: Icons.pending_actions, color: Colors.orange),
-                    _MetricCard(title: 'Confirmed Bookings', valueAsync: confirmedBookingsAsync, icon: Icons.check_circle, color: Colors.green),
-                    _MetricCard(title: 'Recent Refunds', valueAsync: recentRefundsAsync, icon: Icons.currency_exchange, color: Colors.red),
+                    _MetricCard(
+                      title: 'Total Bookings',
+                      valueAsync: bookingsAsync,
+                      icon: Icons.book_online,
+                      color: Colors.blue,
+                    ),
+                    _MetricCard(
+                      title: 'Pending Bookings',
+                      valueAsync: pendingBookingsAsync,
+                      icon: Icons.pending_actions,
+                      color: Colors.orange,
+                    ),
+                    _MetricCard(
+                      title: 'Confirmed Bookings',
+                      valueAsync: confirmedBookingsAsync,
+                      icon: Icons.check_circle,
+                      color: Colors.green,
+                    ),
+                    _MetricCard(
+                      title: 'Recent Refunds',
+                      valueAsync: recentRefundsAsync,
+                      icon: Icons.currency_exchange,
+                      color: Colors.red,
+                    ),
                   ],
                 );
               },
             ),
 
             const SizedBox(height: 48),
-            Text('Catalog & Engagement', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            Text(
+              'Catalog & Engagement',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             LayoutBuilder(
               builder: (context, constraints) {
@@ -87,10 +117,30 @@ class DashboardScreen extends ConsumerWidget {
                   mainAxisSpacing: 24,
                   childAspectRatio: 1.5,
                   children: [
-                    _MetricCard(title: 'Active Tours', valueAsync: toursAsync, icon: Icons.tour, color: Colors.teal),
-                    _MetricCard(title: 'Active Services', valueAsync: activeServicesAsync, icon: Icons.room_service, color: Colors.purple),
-                    _MetricCard(title: 'Concierge Threads', valueAsync: conciergeAsync, icon: Icons.support_agent, color: Colors.indigo),
-                    _MetricCard(title: 'Total Reviews', valueAsync: reviewsAsync, icon: Icons.star_rate, color: Colors.amber),
+                    _MetricCard(
+                      title: 'Active Tours',
+                      valueAsync: toursAsync,
+                      icon: Icons.tour,
+                      color: Colors.teal,
+                    ),
+                    _MetricCard(
+                      title: 'Active Services',
+                      valueAsync: activeServicesAsync,
+                      icon: Icons.room_service,
+                      color: Colors.purple,
+                    ),
+                    _MetricCard(
+                      title: 'Concierge Threads',
+                      valueAsync: conciergeAsync,
+                      icon: Icons.support_agent,
+                      color: Colors.indigo,
+                    ),
+                    _MetricCard(
+                      title: 'Total Reviews',
+                      valueAsync: reviewsAsync,
+                      icon: Icons.star_rate,
+                      color: Colors.amber,
+                    ),
                   ],
                 );
               },
@@ -136,9 +186,9 @@ class _MetricCard extends StatelessWidget {
                   child: Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.grey[700],
-                          fontWeight: FontWeight.w600,
-                        ),
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w600,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -158,20 +208,17 @@ class _MetricCard extends StatelessWidget {
               data: (value) => Text(
                 value.toString(),
                 style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
               loading: () => const SizedBox(
                 height: 40,
                 width: 40,
                 child: CircularProgressIndicator(),
               ),
-              error: (err, stack) => const Icon(
-                Icons.error_outline,
-                color: Colors.red,
-                size: 40,
-              ),
+              error: (err, stack) =>
+                  const Icon(Icons.error_outline, color: Colors.red, size: 40),
             ),
           ],
         ),

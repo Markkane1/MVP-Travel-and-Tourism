@@ -12,7 +12,7 @@ import 'package:mvp_travel/core/utils/result.dart';
 
 // Screen imports
 import 'package:mvp_travel/features/auth/presentation/screens/forgot_password_screen.dart';
-import 'package:mvp_travel/features/auth/presentation/screens/legal_placeholder_screen.dart';
+import 'package:mvp_travel/features/auth/presentation/screens/legal_screens.dart';
 import 'package:mvp_travel/features/auth/presentation/screens/login_register_screen.dart';
 import 'package:mvp_travel/features/booking/presentation/screens/booking_screen.dart';
 import 'package:mvp_travel/features/checkout/presentation/screens/bank_transfer_screen.dart';

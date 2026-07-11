@@ -114,7 +114,8 @@ Map<String, dynamic> _mapBookingData(Map<String, dynamic> data) {
   data['userId'] = data['userId'] as String? ?? '';
   data['tourId'] = data['tourId'] as String? ?? '';
   tourSnapshot['title'] = (tourSnapshot['title'] as String?) ?? '';
-  tourSnapshot['heroImageUrl'] = (tourSnapshot['heroImageUrl'] as String?) ?? '';
+  tourSnapshot['heroImageUrl'] =
+      (tourSnapshot['heroImageUrl'] as String?) ?? '';
   tourSnapshot['destination'] = (tourSnapshot['destination'] as String?) ?? '';
   data['tourSnapshot'] = tourSnapshot;
   data['tourDate'] = data['tourDate'] ?? DateTime.now().toIso8601String();

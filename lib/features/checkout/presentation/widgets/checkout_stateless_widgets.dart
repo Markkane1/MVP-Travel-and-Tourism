@@ -51,7 +51,8 @@ class OrderSummaryCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final String dateStr = '${booking.tourDate.day}/${booking.tourDate.month}/${booking.tourDate.year}';
+    final String dateStr =
+        '${booking.tourDate.day}/${booking.tourDate.month}/${booking.tourDate.year}';
     final int guestCount = booking.adults + booking.children;
     final String guestLabel = guestCount == 1 ? 'Guest' : 'Guests';
 
@@ -97,7 +98,11 @@ class OrderSummaryCardWidget extends StatelessWidget {
                   const SizedBox(height: 4.0),
                   Row(
                     children: [
-                      const Icon(Icons.airport_shuttle, size: 14.0, color: AppColors.secondary),
+                      const Icon(
+                        Icons.airport_shuttle,
+                        size: 14.0,
+                        color: AppColors.secondary,
+                      ),
                       const SizedBox(width: 4.0),
                       Text(
                         'Private SUV included',
@@ -122,15 +127,33 @@ class DigitalWalletsWidget extends StatelessWidget {
   final Booking booking;
   final ValueChanged<Booking> onPay;
 
-  const DigitalWalletsWidget({super.key, required this.booking, required this.onPay});
+  const DigitalWalletsWidget({
+    super.key,
+    required this.booking,
+    required this.onPay,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: _WalletButtonWidget(label: AppStrings.checkout.applePayButton, icon: Icons.apple, booking: booking, onPay: onPay)),
+        Expanded(
+          child: _WalletButtonWidget(
+            label: AppStrings.checkout.applePayButton,
+            icon: Icons.apple,
+            booking: booking,
+            onPay: onPay,
+          ),
+        ),
         const SizedBox(width: 12.0),
-        Expanded(child: _WalletButtonWidget(label: AppStrings.checkout.googlePayButton, icon: Icons.android, booking: booking, onPay: onPay)),
+        Expanded(
+          child: _WalletButtonWidget(
+            label: AppStrings.checkout.googlePayButton,
+            icon: Icons.android,
+            booking: booking,
+            onPay: onPay,
+          ),
+        ),
       ],
     );
   }
@@ -142,7 +165,12 @@ class _WalletButtonWidget extends StatelessWidget {
   final Booking booking;
   final ValueChanged<Booking> onPay;
 
-  const _WalletButtonWidget({required this.label, required this.icon, required this.booking, required this.onPay});
+  const _WalletButtonWidget({
+    required this.label,
+    required this.icon,
+    required this.booking,
+    required this.onPay,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +194,10 @@ class _WalletButtonWidget extends StatelessWidget {
               const SizedBox(width: 8.0),
               Text(
                 label,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.0,
+                ),
               ),
             ],
           ),
@@ -204,7 +235,9 @@ class OrPayWithCardDividerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Row(
       children: [
-        Expanded(child: Divider(color: AppColors.outlineVariant, thickness: 1.0)),
+        Expanded(
+          child: Divider(color: AppColors.outlineVariant, thickness: 1.0),
+        ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12.0),
           child: Text(
@@ -217,7 +250,9 @@ class OrPayWithCardDividerWidget extends StatelessWidget {
             ),
           ),
         ),
-        Expanded(child: Divider(color: AppColors.outlineVariant, thickness: 1.0)),
+        Expanded(
+          child: Divider(color: AppColors.outlineVariant, thickness: 1.0),
+        ),
       ],
     );
   }
@@ -232,9 +267,9 @@ class TrustFootnoteWidget extends StatelessWidget {
       child: Text(
         AppStrings.checkout.footnote,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppColors.onSurfaceVariant,
-              fontSize: 10.0,
-            ),
+          color: AppColors.onSurfaceVariant,
+          fontSize: 10.0,
+        ),
         textAlign: TextAlign.center,
       ),
     );
@@ -253,7 +288,9 @@ class ProcessingOverlayWidget extends StatelessWidget {
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-              child: Container(color: AppColors.onSurface.withValues(alpha: 0.4)),
+              child: Container(
+                color: AppColors.onSurface.withValues(alpha: 0.4),
+              ),
             ),
           ),
           // Rotating rings and lock icon

@@ -59,16 +59,53 @@ class AdminShell extends ConsumerWidget {
     final isSuperAdmin = authState.isSuperAdmin;
 
     final destinations = [
-      const NavigationRailDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: Text('Dashboard')),
-      const NavigationRailDestination(icon: Icon(Icons.explore_outlined), selectedIcon: Icon(Icons.explore), label: Text('Tours')),
-      const NavigationRailDestination(icon: Icon(Icons.room_service_outlined), selectedIcon: Icon(Icons.room_service), label: Text('Services')),
-      const NavigationRailDestination(icon: Icon(Icons.book_online_outlined), selectedIcon: Icon(Icons.book_online), label: Text('Bookings')),
-      const NavigationRailDestination(icon: Icon(Icons.people_outline), selectedIcon: Icon(Icons.people), label: Text('Users')),
-      const NavigationRailDestination(icon: Icon(Icons.support_agent_outlined), selectedIcon: Icon(Icons.support_agent), label: Text('Concierge')),
-      const NavigationRailDestination(icon: Icon(Icons.campaign_outlined), selectedIcon: Icon(Icons.campaign), label: Text('Notifications')),
-      if (isSuperAdmin) const NavigationRailDestination(icon: Icon(Icons.manage_accounts_outlined), selectedIcon: Icon(Icons.manage_accounts), label: Text('Staff')),
+      const NavigationRailDestination(
+        icon: Icon(Icons.dashboard_outlined),
+        selectedIcon: Icon(Icons.dashboard),
+        label: Text('Dashboard'),
+      ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.explore_outlined),
+        selectedIcon: Icon(Icons.explore),
+        label: Text('Tours'),
+      ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.room_service_outlined),
+        selectedIcon: Icon(Icons.room_service),
+        label: Text('Services'),
+      ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.book_online_outlined),
+        selectedIcon: Icon(Icons.book_online),
+        label: Text('Bookings'),
+      ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.people_outline),
+        selectedIcon: Icon(Icons.people),
+        label: Text('Users'),
+      ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.support_agent_outlined),
+        selectedIcon: Icon(Icons.support_agent),
+        label: Text('Concierge'),
+      ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.campaign_outlined),
+        selectedIcon: Icon(Icons.campaign),
+        label: Text('Notifications'),
+      ),
+      if (isSuperAdmin)
+        const NavigationRailDestination(
+          icon: Icon(Icons.manage_accounts_outlined),
+          selectedIcon: Icon(Icons.manage_accounts),
+          label: Text('Staff'),
+        ),
       // Keep audit if it existed before
-      const NavigationRailDestination(icon: Icon(Icons.security_outlined), selectedIcon: Icon(Icons.security), label: Text('Audit Logs')),
+      const NavigationRailDestination(
+        icon: Icon(Icons.security_outlined),
+        selectedIcon: Icon(Icons.security),
+        label: Text('Audit Logs'),
+      ),
     ];
 
     int selectedIndex = _calculateSelectedIndex(context);
@@ -93,7 +130,10 @@ class AdminShell extends ConsumerWidget {
             child: TextButton.icon(
               onPressed: () => ref.read(authProvider.notifier).logout(),
               icon: const Icon(Icons.logout, color: Colors.white),
-              label: const Text('Logout', style: TextStyle(color: Colors.white)),
+              label: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ),
         ],
@@ -101,12 +141,14 @@ class AdminShell extends ConsumerWidget {
       body: Row(
         children: [
           NavigationRail(
-            selectedIndex: selectedIndex < destinations.length ? selectedIndex : 0,
+            selectedIndex: selectedIndex < destinations.length
+                ? selectedIndex
+                : 0,
             onDestinationSelected: (index) {
               // Map index back to correct route if superAdmin is false
               int targetIndex = index;
               if (!isSuperAdmin && index >= 7) {
-                 targetIndex = index + 1;
+                targetIndex = index + 1;
               }
               _onItemTapped(targetIndex, context);
             },

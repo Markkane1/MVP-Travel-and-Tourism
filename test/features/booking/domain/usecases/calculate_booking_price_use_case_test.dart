@@ -118,7 +118,7 @@ void main() {
         final total = useCase(
           tour: testTour,
           adults: -2,
-          children: 2,
+          children: -2,
           privateVehicle: false,
           groupSizeOptionLabel: 'Shared',
         );

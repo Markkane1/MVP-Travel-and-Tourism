@@ -639,9 +639,9 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
     IconData icon,
     String title,
     String subtitle,
-    String prefillText,
-    {Key? cardKey}
-  ) {
+    String prefillText, {
+    Key? cardKey,
+  }) {
     final theme = Theme.of(context);
     return GestureDetector(
       key: cardKey,

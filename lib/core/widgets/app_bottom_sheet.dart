@@ -7,11 +7,7 @@ class AppBottomSheet extends StatelessWidget {
   final Widget child;
   final String? title;
 
-  const AppBottomSheet({
-    super.key,
-    required this.child,
-    this.title,
-  });
+  const AppBottomSheet({super.key, required this.child, this.title});
 
   /// Static helper to easily show this bottom sheet modal.
   static Future<T?> show<T>({
@@ -23,10 +19,7 @@ class AppBottomSheet extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => AppBottomSheet(
-        title: title,
-        child: child,
-      ),
+      builder: (context) => AppBottomSheet(title: title, child: child),
     );
   }
 
@@ -62,7 +55,10 @@ class AppBottomSheet extends StatelessWidget {
           const SizedBox(height: 8.0),
           if (title != null) ...[
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 8.0,
+              ),
               child: Text(
                 title!,
                 style: theme.textTheme.headlineMedium?.copyWith(

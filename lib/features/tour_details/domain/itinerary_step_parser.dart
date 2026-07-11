@@ -12,11 +12,7 @@ class ItineraryStepViewModel {
 
 ItineraryStepViewModel parseItineraryStep(Object? step, int fallbackDay) {
   if (step is! Map) {
-    return ItineraryStepViewModel(
-      day: fallbackDay,
-      title: '',
-      description: '',
-    );
+    return ItineraryStepViewModel(day: fallbackDay, title: '', description: '');
   }
 
   final dynamic rawDay = step['day'];
@@ -27,8 +23,8 @@ ItineraryStepViewModel parseItineraryStep(Object? step, int fallbackDay) {
     day: rawDay is int
         ? rawDay
         : rawDay is num
-            ? rawDay.toInt()
-            : fallbackDay,
+        ? rawDay.toInt()
+        : fallbackDay,
     title: rawTitle is String ? rawTitle : '',
     description: rawDescription is String ? rawDescription : '',
   );

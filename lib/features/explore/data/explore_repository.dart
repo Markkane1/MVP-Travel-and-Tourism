@@ -20,12 +20,13 @@ class ExploreRepository {
         .where('badges', arrayContains: 'Exclusive')
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        data['id'] = doc.id;
-        return Tour.fromJson(_mapTourData(data));
-      }).toList();
-    }).mapAppException('Failed to load hero promotions');
+          return snapshot.docs.map((doc) {
+            final data = Map<String, dynamic>.from(doc.data());
+            data['id'] = doc.id;
+            return Tour.fromJson(_mapTourData(data));
+          }).toList();
+        })
+        .mapAppException('Failed to load hero promotions');
   }
 
   /// Streams tours with the "Featured" badge.
@@ -35,12 +36,13 @@ class ExploreRepository {
         .where('badges', arrayContains: 'Featured')
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        data['id'] = doc.id;
-        return Tour.fromJson(_mapTourData(data));
-      }).toList();
-    }).mapAppException('Failed to load featured tours');
+          return snapshot.docs.map((doc) {
+            final data = Map<String, dynamic>.from(doc.data());
+            data['id'] = doc.id;
+            return Tour.fromJson(_mapTourData(data));
+          }).toList();
+        })
+        .mapAppException('Failed to load featured tours');
   }
 
   /// Streams tours with the "Top Rated" badge.
@@ -50,12 +52,13 @@ class ExploreRepository {
         .where('badges', arrayContains: 'Top Rated')
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        data['id'] = doc.id;
-        return Tour.fromJson(_mapTourData(data));
-      }).toList();
-    }).mapAppException('Failed to load popular destinations');
+          return snapshot.docs.map((doc) {
+            final data = Map<String, dynamic>.from(doc.data());
+            data['id'] = doc.id;
+            return Tour.fromJson(_mapTourData(data));
+          }).toList();
+        })
+        .mapAppException('Failed to load popular destinations');
   }
 
   /// Streams the 5 most recent reviews using a collectionGroup query.
@@ -66,17 +69,20 @@ class ExploreRepository {
         .limit(5)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        data['id'] = doc.id;
+          return snapshot.docs.map((doc) {
+            final data = Map<String, dynamic>.from(doc.data());
+            data['id'] = doc.id;
 
-        // Convert Firestore Timestamp to ISO-8601 String for json_serializable
-        if (data['createdAt'] is Timestamp) {
-          data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
-        }
-        return Review.fromJson(_mapReviewData(data));
-      }).toList();
-    }).mapAppException('Failed to load recent reviews');
+            // Convert Firestore Timestamp to ISO-8601 String for json_serializable
+            if (data['createdAt'] is Timestamp) {
+              data['createdAt'] = (data['createdAt'] as Timestamp)
+                  .toDate()
+                  .toIso8601String();
+            }
+            return Review.fromJson(_mapReviewData(data));
+          }).toList();
+        })
+        .mapAppException('Failed to load recent reviews');
   }
 }
 
@@ -109,7 +115,8 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
   data['title'] = data['title'] as String? ?? '';
   data['destination'] = data['destination'] as String? ?? '';
   data['category'] = data['category'] as String? ?? '';
-  data['badges'] = (data['badges'] as List?)?.cast<String>() ?? const <String>[];
+  data['badges'] =
+      (data['badges'] as List?)?.cast<String>() ?? const <String>[];
   data['heroImageUrl'] = data['heroImageUrl'] as String? ?? '';
   data['galleryImageUrls'] =
       (data['galleryImageUrls'] as List?)?.cast<String>() ?? const <String>[];
@@ -168,7 +175,9 @@ Map<String, dynamic> _mapReviewData(Map<String, dynamic> data) {
   if (data['createdAt'] is String) {
     data['createdAt'] = data['createdAt'] as String;
   } else if (data['createdAt'] is Timestamp) {
-    data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
+    data['createdAt'] = (data['createdAt'] as Timestamp)
+        .toDate()
+        .toIso8601String();
   } else {
     data['createdAt'] = DateTime.now().toIso8601String();
   }

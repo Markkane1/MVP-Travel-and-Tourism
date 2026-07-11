@@ -76,56 +76,65 @@ class SearchRepository {
     Query firestoreQuery = _firestore.collection('tours');
 
     if (filters.category != null && filters.category != 'All') {
-      firestoreQuery = firestoreQuery.where('category', isEqualTo: filters.category);
+      firestoreQuery = firestoreQuery.where(
+        'category',
+        isEqualTo: filters.category,
+      );
     }
 
-    return firestoreQuery.snapshots().map((snapshot) {
-      final tours = snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data() as Map? ?? {});
-        data['id'] = doc.id;
-        return Tour.fromJson(_mapTourData(data));
-      }).toList();
+    return firestoreQuery
+        .snapshots()
+        .map((snapshot) {
+          final tours = snapshot.docs.map((doc) {
+            final data = Map<String, dynamic>.from(doc.data() as Map? ?? {});
+            data['id'] = doc.id;
+            return Tour.fromJson(_mapTourData(data));
+          }).toList();
 
-      return tours.where((tour) {
-        // Destination check
-        if (filters.destination != null &&
-            filters.destination != 'All Destinations' &&
-            filters.destination != 'All') {
-          final dest = filters.destination!.toLowerCase();
-          if (!tour.destination.toLowerCase().contains(dest)) {
-            return false;
-          }
-        }
+          return tours.where((tour) {
+            // Destination check
+            if (filters.destination != null &&
+                filters.destination != 'All Destinations' &&
+                filters.destination != 'All') {
+              final dest = filters.destination!.toLowerCase();
+              if (!tour.destination.toLowerCase().contains(dest)) {
+                return false;
+              }
+            }
 
-        // Min price check
-        if (filters.minPrice != null && tour.pricePerPerson < filters.minPrice!) {
-          return false;
-        }
+            // Min price check
+            if (filters.minPrice != null &&
+                tour.pricePerPerson < filters.minPrice!) {
+              return false;
+            }
 
-        // Max price check
-        if (filters.maxPrice != null && tour.pricePerPerson > filters.maxPrice!) {
-          return false;
-        }
+            // Max price check
+            if (filters.maxPrice != null &&
+                tour.pricePerPerson > filters.maxPrice!) {
+              return false;
+            }
 
-        // Duration check
-        if (filters.durationDays != null && tour.durationDays != filters.durationDays) {
-          return false;
-        }
+            // Duration check
+            if (filters.durationDays != null &&
+                tour.durationDays != filters.durationDays) {
+              return false;
+            }
 
-        // Substring keywords text check
-        if (filters.query != null && filters.query!.isNotEmpty) {
-          final q = filters.query!.toLowerCase();
-          final titleMatch = tour.title.toLowerCase().contains(q);
-          final descMatch = tour.destination.toLowerCase().contains(q);
-          final overviewMatch = tour.overview.toLowerCase().contains(q);
-          if (!titleMatch && !descMatch && !overviewMatch) {
-            return false;
-          }
-        }
+            // Substring keywords text check
+            if (filters.query != null && filters.query!.isNotEmpty) {
+              final q = filters.query!.toLowerCase();
+              final titleMatch = tour.title.toLowerCase().contains(q);
+              final descMatch = tour.destination.toLowerCase().contains(q);
+              final overviewMatch = tour.overview.toLowerCase().contains(q);
+              if (!titleMatch && !descMatch && !overviewMatch) {
+                return false;
+              }
+            }
 
-        return true;
-      }).toList();
-    }).mapAppException('Failed to search tours');
+            return true;
+          }).toList();
+        })
+        .mapAppException('Failed to search tours');
   }
 }
 
@@ -143,7 +152,8 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
   data['title'] = data['title'] as String? ?? '';
   data['destination'] = data['destination'] as String? ?? '';
   data['category'] = data['category'] as String? ?? '';
-  data['badges'] = (data['badges'] as List?)?.cast<String>() ?? const <String>[];
+  data['badges'] =
+      (data['badges'] as List?)?.cast<String>() ?? const <String>[];
   data['heroImageUrl'] = data['heroImageUrl'] as String? ?? '';
   data['galleryImageUrls'] =
       (data['galleryImageUrls'] as List?)?.cast<String>() ?? const <String>[];

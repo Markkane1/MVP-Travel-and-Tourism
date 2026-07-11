@@ -5,10 +5,9 @@ import 'package:cloud_functions/cloud_functions.dart';
 import '../models/user.dart';
 
 final usersStreamProvider = StreamProvider.autoDispose<List<UserModel>>((ref) {
-  return FirebaseFirestore.instance
-      .collection('users')
-      .snapshots()
-      .map((snapshot) {
+  return FirebaseFirestore.instance.collection('users').snapshots().map((
+    snapshot,
+  ) {
     return snapshot.docs
         .map((doc) => UserModel.fromFirestore(doc.data(), doc.id))
         .toList();
@@ -20,12 +19,12 @@ class UsersApi {
   final _auth = FirebaseAuth.instance;
   final _functions = FirebaseFunctions.instance;
 
-  Future<void> deleteUser(String targetUserId, {String reason = 'Admin request'}) async {
+  Future<void> deleteUser(
+    String targetUserId, {
+    String reason = 'Admin request',
+  }) async {
     final callable = _functions.httpsCallable('adminDeleteUser');
-    await callable.call({
-      'targetUid': targetUserId,
-      'reason': reason,
-    });
+    await callable.call({'targetUid': targetUserId, 'reason': reason});
   }
 
   Future<void> updateUser(
@@ -60,7 +59,8 @@ class UsersApi {
       'action': 'adminUpdateUser',
       'targetType': 'user',
       'targetId': targetUserId,
-      'summary': 'Admin updated user profile fields: ${updates.keys.where((k) => k != 'updatedAt').join(', ')}',
+      'summary':
+          'Admin updated user profile fields: ${updates.keys.where((k) => k != 'updatedAt').join(', ')}',
       'after': updates,
       'createdAt': FieldValue.serverTimestamp(),
     });

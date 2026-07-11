@@ -21,7 +21,7 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
   late TextEditingController _descriptionController;
   late TextEditingController _priceController;
   late TextEditingController _imageUrlController;
-  
+
   late String _currency;
   late String _unitType;
   late int _sortOrder;
@@ -30,7 +30,12 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
   bool _isUploadingImage = false;
   final _cloudinaryService = CloudinaryService();
 
-  final List<String> _unitTypes = ['per_booking', 'per_person', 'flat', 'per_day'];
+  final List<String> _unitTypes = [
+    'per_booking',
+    'per_person',
+    'flat',
+    'per_day',
+  ];
   final List<String> _currencies = ['USD', 'AED'];
 
   @override
@@ -38,11 +43,19 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
     super.initState();
     _nameController = TextEditingController(text: widget.service.name);
     _categoryController = TextEditingController(text: widget.service.category);
-    _descriptionController = TextEditingController(text: widget.service.description);
-    _priceController = TextEditingController(text: widget.service.basePrice.toString());
-    _imageUrlController = TextEditingController(text: widget.service.imageUrl ?? '');
-    
-    _currency = _currencies.contains(widget.service.currency) ? widget.service.currency : 'USD';
+    _descriptionController = TextEditingController(
+      text: widget.service.description,
+    );
+    _priceController = TextEditingController(
+      text: widget.service.basePrice.toString(),
+    );
+    _imageUrlController = TextEditingController(
+      text: widget.service.imageUrl ?? '',
+    );
+
+    _currency = _currencies.contains(widget.service.currency)
+        ? widget.service.currency
+        : 'USD';
     _unitType = widget.service.unitType;
     _sortOrder = widget.service.sortOrder;
     _isActive = widget.service.isActive;
@@ -59,8 +72,15 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
   }
 
   Future<void> _uploadImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
-    if (result == null || result.files.isEmpty || result.files.first.bytes == null) return;
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+    if (result == null ||
+        result.files.isEmpty ||
+        result.files.first.bytes == null) {
+      return;
+    }
 
     setState(() => _isUploadingImage = true);
     try {
@@ -73,7 +93,11 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
         _imageUrlController.text = url;
       });
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isUploadingImage = false);
     }
@@ -94,7 +118,9 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
       currency: _currency,
       unitType: _unitType,
       sortOrder: _sortOrder,
-      imageUrl: _imageUrlController.text.trim().isEmpty ? null : _imageUrlController.text.trim(),
+      imageUrl: _imageUrlController.text.trim().isEmpty
+          ? null
+          : _imageUrlController.text.trim(),
       isActive: _isActive,
     );
 
@@ -105,9 +131,9 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating service: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating service: $e')));
       }
     } finally {
       if (mounted) {
@@ -125,7 +151,14 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
         children: [
           Icon(icon, color: const Color(0xFF0F172A)),
           const SizedBox(width: 8),
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF0F172A),
+            ),
+          ),
           const SizedBox(width: 16),
           const Expanded(child: Divider()),
         ],
@@ -133,7 +166,13 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {bool isNumber = false, int maxLines = 1, bool required = true}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    bool isNumber = false,
+    int maxLines = 1,
+    bool required = true,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
@@ -142,15 +181,22 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
           labelText: label,
           filled: true,
           fillColor: const Color(0xFFF8FAFC),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
         ),
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
         maxLines: maxLines,
-        validator: required ? (value) {
-          if (value == null || value.isEmpty) return 'Required';
-          if (isNumber && double.tryParse(value) == null) return 'Must be a number';
-          return null;
-        } : null,
+        validator: required
+            ? (value) {
+                if (value == null || value.isEmpty) return 'Required';
+                if (isNumber && double.tryParse(value) == null) {
+                  return 'Must be a number';
+                }
+                return null;
+              }
+            : null,
       ),
     );
   }
@@ -169,8 +215,18 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Edit Service', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                const Text(
+                  'Edit Service',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ],
             ),
             const Divider(height: 32),
@@ -184,13 +240,30 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                     children: [
                       _buildSectionHeader('Basic Details', Icons.info_outline),
                       _buildTextField('Service Name', _nameController),
-                      _buildTextField('Category (e.g. Transport, Spa)', _categoryController),
-                      _buildTextField('Description', _descriptionController, maxLines: 3),
+                      _buildTextField(
+                        'Category (e.g. Transport, Spa)',
+                        _categoryController,
+                      ),
+                      _buildTextField(
+                        'Description',
+                        _descriptionController,
+                        maxLines: 3,
+                      ),
 
-                      _buildSectionHeader('Pricing & Setup', Icons.attach_money),
+                      _buildSectionHeader(
+                        'Pricing & Setup',
+                        Icons.attach_money,
+                      ),
                       Row(
                         children: [
-                          Expanded(flex: 2, child: _buildTextField('Base Price', _priceController, isNumber: true)),
+                          Expanded(
+                            flex: 2,
+                            child: _buildTextField(
+                              'Base Price',
+                              _priceController,
+                              isNumber: true,
+                            ),
+                          ),
                           const SizedBox(width: 16),
                           Expanded(
                             flex: 1,
@@ -202,10 +275,21 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                                   labelText: 'Currency',
                                   filled: true,
                                   fillColor: const Color(0xFFF8FAFC),
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide.none,
+                                  ),
                                 ),
-                                items: _currencies.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-                                onChanged: (val) => setState(() => _currency = val!),
+                                items: _currencies
+                                    .map(
+                                      (c) => DropdownMenuItem(
+                                        value: c,
+                                        child: Text(c),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (val) =>
+                                    setState(() => _currency = val!),
                               ),
                             ),
                           ),
@@ -220,20 +304,40 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                                   labelText: 'Unit Type',
                                   filled: true,
                                   fillColor: const Color(0xFFF8FAFC),
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide.none,
+                                  ),
                                 ),
-                                items: _unitTypes.map((type) => DropdownMenuItem(value: type, child: Text(type))).toList(),
-                                onChanged: (val) => setState(() => _unitType = val!),
+                                items: _unitTypes
+                                    .map(
+                                      (type) => DropdownMenuItem(
+                                        value: type,
+                                        child: Text(type),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (val) =>
+                                    setState(() => _unitType = val!),
                               ),
                             ),
                           ),
                         ],
                       ),
 
-                      _buildSectionHeader('Display Preferences', Icons.view_carousel_outlined),
-                      
+                      _buildSectionHeader(
+                        'Display Preferences',
+                        Icons.view_carousel_outlined,
+                      ),
+
                       // Cloudinary Upload
-                      const Text('Service Image', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const Text(
+                        'Service Image',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.all(16),
@@ -247,7 +351,12 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                             if (_imageUrlController.text.isNotEmpty) ...[
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
-                                child: Image.network(_imageUrlController.text, width: 80, height: 80, fit: BoxFit.cover),
+                                child: Image.network(
+                                  _imageUrlController.text,
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                               const SizedBox(width: 16),
                             ],
@@ -256,12 +365,35 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   if (_imageUrlController.text.isNotEmpty)
-                                    Text(_imageUrlController.text, style: const TextStyle(fontSize: 12, color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                    Text(
+                                      _imageUrlController.text,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   const SizedBox(height: 8),
                                   FilledButton.icon(
-                                    onPressed: _isUploadingImage ? null : _uploadImage,
-                                    icon: _isUploadingImage ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Icon(Icons.upload_file),
-                                    label: Text(_isUploadingImage ? 'Uploading...' : 'Upload Image'),
+                                    onPressed: _isUploadingImage
+                                        ? null
+                                        : _uploadImage,
+                                    icon: _isUploadingImage
+                                        ? const SizedBox(
+                                            width: 16,
+                                            height: 16,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Icon(Icons.upload_file),
+                                    label: Text(
+                                      _isUploadingImage
+                                          ? 'Uploading...'
+                                          : 'Upload Image',
+                                    ),
                                   ),
                                 ],
                               ),
@@ -283,27 +415,58 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.sort, color: Color(0xFF64748B)),
+                                  const Icon(
+                                    Icons.sort,
+                                    color: Color(0xFF64748B),
+                                  ),
                                   const SizedBox(width: 12),
                                   const Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text('Display Priority', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                        Text('Lower number appears first', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                        Text(
+                                          'Display Priority',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Lower number appears first',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
                                   Row(
                                     children: [
                                       IconButton(
-                                        icon: const Icon(Icons.remove_circle_outline),
-                                        onPressed: () => setState(() => _sortOrder = _sortOrder > 0 ? _sortOrder - 1 : 0),
+                                        icon: const Icon(
+                                          Icons.remove_circle_outline,
+                                        ),
+                                        onPressed: () => setState(
+                                          () => _sortOrder = _sortOrder > 0
+                                              ? _sortOrder - 1
+                                              : 0,
+                                        ),
                                       ),
-                                      Text('$_sortOrder', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                      Text(
+                                        '$_sortOrder',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                       IconButton(
-                                        icon: const Icon(Icons.add_circle_outline),
-                                        onPressed: () => setState(() => _sortOrder++),
+                                        icon: const Icon(
+                                          Icons.add_circle_outline,
+                                        ),
+                                        onPressed: () =>
+                                            setState(() => _sortOrder++),
                                       ),
                                     ],
                                   ),
@@ -321,12 +484,19 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                                 border: Border.all(color: Colors.grey.shade200),
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Status', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  const Text(
+                                    'Status',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   Switch(
                                     value: _isActive,
-                                    onChanged: (val) => setState(() => _isActive = val),
+                                    onChanged: (val) =>
+                                        setState(() => _isActive = val),
                                     activeThumbColor: Colors.green,
                                   ),
                                 ],
@@ -346,8 +516,15 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(false),
-                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20)),
+                  onPressed: _isSubmitting
+                      ? null
+                      : () => Navigator.of(context).pop(false),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 20,
+                    ),
+                  ),
                   child: const Text('Cancel', style: TextStyle(fontSize: 16)),
                 ),
                 const SizedBox(width: 16),
@@ -355,12 +532,30 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                   onPressed: _isSubmitting ? null : _submit,
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFF0F172A),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 20,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: _isSubmitting
-                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Text('Save Changes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'Save Changes',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ],
             ),

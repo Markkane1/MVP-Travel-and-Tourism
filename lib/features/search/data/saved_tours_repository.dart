@@ -35,13 +35,12 @@ class SavedToursRepository {
           .doc(uid)
           .collection('savedTours')
           .doc(tourId)
-          .set({
-        'tourId': tourId,
-        'savedAt': FieldValue.serverTimestamp(),
-      });
+          .set({'tourId': tourId, 'savedAt': FieldValue.serverTimestamp()});
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Failed to save tour: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Failed to save tour: ${e.toString()}'),
+      );
     }
   }
 
@@ -56,7 +55,9 @@ class SavedToursRepository {
           .delete();
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Failed to unsave tour: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Failed to unsave tour: ${e.toString()}'),
+      );
     }
   }
 }
@@ -89,7 +90,9 @@ class OptimisticSavedTours extends _$OptimisticSavedTours {
   Future<Result<void>> toggleSave(String tourId) async {
     final user = ref.read(authControllerProvider).value;
     if (user == null) {
-      return const Result.failure(AppException.unknown('User not authenticated'));
+      return const Result.failure(
+        AppException.unknown('User not authenticated'),
+      );
     }
 
     final repo = ref.read(savedToursRepositoryProvider);
@@ -125,7 +128,9 @@ class OptimisticSavedTours extends _$OptimisticSavedTours {
     } catch (e) {
       // 3. Rollback local state on write failure
       state = AsyncData(previousState);
-      return Result.failure(AppException.unknown('Failed to update bookmark: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown('Failed to update bookmark: ${e.toString()}'),
+      );
     }
   }
 }

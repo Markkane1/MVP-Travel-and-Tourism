@@ -118,7 +118,11 @@ class _BookingConfirmationScreenState
     if (booking.pickupLocation.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Receipt cannot be generated without pickup details.')),
+          const SnackBar(
+            content: Text(
+              'Receipt cannot be generated without pickup details.',
+            ),
+          ),
         );
       }
       return;
@@ -734,11 +738,7 @@ class _BookingConfirmationScreenState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.location_on,
-            size: 36.0,
-            color: AppColors.primary,
-          ),
+          const Icon(Icons.location_on, size: 36.0, color: AppColors.primary),
           const SizedBox(height: 12.0),
           Text(
             'Pickup Location',

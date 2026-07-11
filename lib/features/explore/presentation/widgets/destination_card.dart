@@ -18,7 +18,9 @@ class DestinationCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return GestureDetector(
-      onTap: () => context.push('${RoutePaths.searchResults}?destination=${Uri.encodeComponent(tour.destination.split(',').first)}'),
+      onTap: () => context.push(
+        '${RoutePaths.searchResults}?destination=${Uri.encodeComponent(tour.destination.split(',').first)}',
+      ),
       child: Container(
         width: 170.0,
         margin: const EdgeInsets.only(right: 16.0),

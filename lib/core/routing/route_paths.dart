@@ -4,7 +4,7 @@ class RoutePaths {
 
   static const String auth = '/auth';
   static const String forgotPassword = '/auth/forgot-password';
-  
+
   // Bottom Navigation Shell Tabs
   static const String explore = '/explore';
   static const String search = '/search';
@@ -36,9 +36,13 @@ class RoutePaths {
   // Helper getters to generate parameterized paths
   static String tourDetailsPath(String tourId) => '/tour/$tourId';
   static String bookingConfigPath(String tourId) => '/tour/$tourId/book';
-  static String checkoutPath(String bookingId) => '/booking/$bookingId/checkout';
-  static String paymentSuccessPath(String bookingId) => '/booking/$bookingId/success';
-  static String bookingConfirmationPath(String bookingId) => '/trips/$bookingId';
+  static String checkoutPath(String bookingId) =>
+      '/booking/$bookingId/checkout';
+  static String paymentSuccessPath(String bookingId) =>
+      '/booking/$bookingId/success';
+  static String bookingConfirmationPath(String bookingId) =>
+      '/trips/$bookingId';
   static String reviewTripPath(String bookingId) => '/trips/$bookingId/review';
-  static String reviewSuccessPath(String bookingId) => '/trips/$bookingId/review/success';
+  static String reviewSuccessPath(String bookingId) =>
+      '/trips/$bookingId/review/success';
 }

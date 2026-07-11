@@ -13,7 +13,7 @@ export const adminDeleteUserLogic = async (
   reason: string
 ) => {
   // 1. Verify caller is super_admin
-  if (callerAuth?.token?.role !== 'super_admin') {
+  if (callerAuth?.token?.super_admin !== true) {
     throw new HttpsError(
       'permission-denied',
       'You must be a super_admin to perform this destructive action.'
@@ -46,7 +46,7 @@ export const adminDeleteUserLogic = async (
   await db.collection('admin_audit_logs').add({
     actorUid: callerAuth.uid,
     actorEmail: callerAuth.token.email || 'unknown',
-    actorRole: callerAuth.token.role || 'super_admin',
+    actorRole: callerAuth.token.super_admin ? 'super_admin' : 'admin',
     action: 'adminDeleteUser',
     targetType: 'user',
     targetId: targetUid,

@@ -18,10 +18,7 @@ class LoadingIndicator extends StatelessWidget {
       child: SizedBox(
         width: size,
         height: size,
-        child: CircularProgressIndicator(
-          color: color,
-          strokeWidth: 3.0,
-        ),
+        child: CircularProgressIndicator(color: color, strokeWidth: 3.0),
       ),
     );
   }

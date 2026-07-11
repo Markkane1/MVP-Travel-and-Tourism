@@ -23,17 +23,15 @@ Map<String, dynamic> mapTourData(Map<String, dynamic> data) {
     data['pricePerPerson'] = (data['pricePerPerson'] as int).toDouble();
   }
   if (data['privateVehicleSurcharge'] is int) {
-    data['privateVehicleSurcharge'] =
-        (data['privateVehicleSurcharge'] as int).toDouble();
+    data['privateVehicleSurcharge'] = (data['privateVehicleSurcharge'] as int)
+        .toDouble();
   }
   if (data['groupSizeOptions'] is List) {
-    data['groupSizeOptions'] =
-        (data['groupSizeOptions'] as List).map((opt) {
+    data['groupSizeOptions'] = (data['groupSizeOptions'] as List).map((opt) {
       if (opt is Map) {
         final newOpt = Map<String, dynamic>.from(opt);
         if (newOpt['priceModifier'] is int) {
-          newOpt['priceModifier'] =
-              (newOpt['priceModifier'] as int).toDouble();
+          newOpt['priceModifier'] = (newOpt['priceModifier'] as int).toDouble();
         }
         return newOpt;
       }

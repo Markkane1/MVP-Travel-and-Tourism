@@ -27,20 +27,23 @@ abstract class Booking with _$Booking {
     @Default(0) int children,
     @Default(false) bool privateVehicle,
     @Default('') String pickupLocation,
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson) DateTime? date,
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson) DateTime? bookingDate,
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson) DateTime? refundedAt,
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson) DateTime? lastAdminActionAt,
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson) DateTime? createdAt,
+    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    DateTime? date,
+    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    DateTime? bookingDate,
+    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    DateTime? refundedAt,
+    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    DateTime? lastAdminActionAt,
+    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    DateTime? createdAt,
   }) = _Booking;
 
-  factory Booking.fromJson(Map<String, dynamic> json) => _$BookingFromJson(json);
+  factory Booking.fromJson(Map<String, dynamic> json) =>
+      _$BookingFromJson(json);
 
   factory Booking.fromFirestore(Map<String, dynamic> data, String documentId) {
-    return Booking.fromJson({
-      ...data,
-      'id': documentId,
-    });
+    return Booking.fromJson({...data, 'id': documentId});
   }
 }
 

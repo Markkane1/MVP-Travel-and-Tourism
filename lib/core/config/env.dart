@@ -8,7 +8,7 @@ class Env {
   /// The active environment flavor ('dev' or 'prod').
   static const String flavor = String.fromEnvironment(
     'FLAVOR',
-    defaultValue: 'dev',
+    defaultValue: 'prod',
   );
 
   /// True if running in production flavor.

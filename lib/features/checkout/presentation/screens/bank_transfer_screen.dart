@@ -14,10 +14,8 @@ class BankTransferScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final String amountStr = '\$${amount.toInt().toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        )}';
+    final String amountStr =
+        '\$${amount.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -48,7 +46,11 @@ class BankTransferScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.info_outline, color: AppColors.primary, size: 24.0),
+                      const Icon(
+                        Icons.info_outline,
+                        color: AppColors.primary,
+                        size: 24.0,
+                      ),
                       const SizedBox(width: 8.0),
                       Text(
                         'Wire Instructions',
@@ -84,13 +86,37 @@ class BankTransferScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16.0),
-                  _buildDetailRow(context, 'Bank Name', AppStrings.checkout.bankName),
+                  _buildDetailRow(
+                    context,
+                    'Bank Name',
+                    AppStrings.checkout.bankName,
+                  ),
                   _buildDivider(),
-                  _buildDetailRow(context, 'Account Number', AppStrings.checkout.bankAccount.replaceFirst('Account: ', '')),
+                  _buildDetailRow(
+                    context,
+                    'Account Number',
+                    AppStrings.checkout.bankAccount.replaceFirst(
+                      'Account: ',
+                      '',
+                    ),
+                  ),
                   _buildDivider(),
-                  _buildDetailRow(context, 'Routing Code', AppStrings.checkout.bankRouting.replaceFirst('Routing/IBAN: ', '')),
+                  _buildDetailRow(
+                    context,
+                    'Routing Code',
+                    AppStrings.checkout.bankRouting.replaceFirst(
+                      'Routing/IBAN: ',
+                      '',
+                    ),
+                  ),
                   _buildDivider(),
-                  _buildDetailRow(context, 'Total Amount', amountStr, valueColor: AppColors.primary, isBold: true),
+                  _buildDetailRow(
+                    context,
+                    'Total Amount',
+                    amountStr,
+                    valueColor: AppColors.primary,
+                    isBold: true,
+                  ),
                 ],
               ),
             ),
@@ -113,7 +139,13 @@ class BankTransferScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(BuildContext context, String label, String value, {Color? valueColor, bool isBold = false}) {
+  Widget _buildDetailRow(
+    BuildContext context,
+    String label,
+    String value, {
+    Color? valueColor,
+    bool isBold = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -121,16 +153,16 @@ class BankTransferScreen extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppColors.onSurfaceVariant),
           ),
           Text(
             value,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-                  color: valueColor ?? AppColors.onSurface,
-                ),
+              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
+              color: valueColor ?? AppColors.onSurface,
+            ),
           ),
         ],
       ),
@@ -138,6 +170,10 @@ class BankTransferScreen extends StatelessWidget {
   }
 
   Widget _buildDivider() {
-    return const Divider(height: 16.0, color: AppColors.outlineVariant, thickness: 1.0);
+    return const Divider(
+      height: 16.0,
+      color: AppColors.outlineVariant,
+      thickness: 1.0,
+    );
   }
 }

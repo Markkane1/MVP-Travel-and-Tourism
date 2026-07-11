@@ -16,7 +16,7 @@ export const adminManageStaffLogic = async (
   }
 ) => {
   // 1. Verify caller is authorized (super_admin or bootstrap)
-  const isBootstrap = callerAuth?.token?.email === 'admin@mvptravel.com';
+  const isBootstrap = callerAuth?.token?.email === 'admin@mvptravel.com' && callerAuth?.token?.email_verified === true;
   const isSuperAdmin = callerAuth?.token?.super_admin === true;
   
   if (!isBootstrap && !isSuperAdmin) {

@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' show FieldValue;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_functions/cloud_functions.dart' hide Result;
 
 import '../../features/auth/domain/user_entity.dart';
 import '../utils/result.dart';
@@ -346,6 +348,19 @@ class AuthService {
           AppException.auth('No user is currently signed in.'),
         );
       }
+
+      // 1. Explicitly trigger Firestore cleanup before deleting the auth identity
+      //    to guarantee compliance with GDPR and avoid orphaned PII.
+      try {
+        await FirebaseFunctions.instance
+            .httpsCallable('cleanupUserData')
+            .call();
+      } catch (e) {
+        // We log but proceed so the user is not permanently trapped if cleanup partially fails.
+        debugPrint('Warning: cleanupUserData cloud function failed: $e');
+      }
+
+      // 2. Delete the actual Auth profile
       await user.delete();
       return const Result.success(null);
     } on FirebaseAuthException catch (e) {

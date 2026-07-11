@@ -42,10 +42,26 @@ export async function cancelBookingLogic(
       status: 'cancelled',
     });
 
+    // 3. Claw back loyalty points if booking was confirmed
+    if (bookingData.status === 'confirmed') {
+      const totalPrice = bookingData.totalPrice || 0;
+      const pointsToDeduct = Math.floor(totalPrice / 10);
+      
+      const userRef = db.collection('users').doc(userId);
+      const userDoc = await transaction.get(userRef);
+      let currentPoints = 0;
+      if (userDoc.exists) {
+        currentPoints = userDoc.data()?.loyaltyPoints || 0;
+      }
+      
+      const newPoints = Math.max(0, currentPoints - pointsToDeduct);
+      transaction.update(userRef, { loyaltyPoints: newPoints });
+    }
+
     // Refund handling is intentionally omitted in the demo payment flow.
     // Per rules: do not reference stripePaymentIntentId or any payment-provider refund API in mock.
 
-    // 3. Write a notifications/{uid}/items document
+    // 4. Write a notifications/{uid}/items document
     const notificationRef = db.collection('notifications').doc(userId).collection('items').doc();
     transaction.set(notificationRef, {
       title: 'Booking Cancelled',

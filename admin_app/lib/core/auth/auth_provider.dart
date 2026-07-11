@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 class AuthState {
   final bool isLoading;
   final User? user;
@@ -21,29 +22,53 @@ class AuthNotifier extends Notifier<AuthState> {
   AuthState build() {
     FirebaseAuth.instance.authStateChanges().listen((user) async {
       if (user == null) {
-        state = AuthState(isLoading: false, user: null, isAdmin: false, isSuperAdmin: false);
+        state = AuthState(
+          isLoading: false,
+          user: null,
+          isAdmin: false,
+          isSuperAdmin: false,
+        );
       } else {
         // Fetch staff profile from Firestore instead of using custom claims
         try {
-          if (user.email == 'admin@mvptravel.com') {
-            state = AuthState(isLoading: false, user: user, isAdmin: true, isSuperAdmin: true);
+          if (user.email == 'admin@mvptravel.com' &&
+              user.emailVerified == true) {
+            state = AuthState(
+              isLoading: false,
+              user: user,
+              isAdmin: true,
+              isSuperAdmin: true,
+            );
             return;
           }
-          final doc = await FirebaseFirestore.instance.collection('staff_profiles').doc(user.uid).get();
+          final doc = await FirebaseFirestore.instance
+              .collection('staff_profiles')
+              .doc(user.uid)
+              .get();
           if (doc.exists && doc.data()?['isActive'] == true) {
             final role = doc.data()?['role'] as String?;
             state = AuthState(
-              isLoading: false, 
-              user: user, 
-              isAdmin: true, 
+              isLoading: false,
+              user: user,
+              isAdmin: true,
               isSuperAdmin: role == 'super_admin',
             );
           } else {
-            state = AuthState(isLoading: false, user: user, isAdmin: false, isSuperAdmin: false);
+            state = AuthState(
+              isLoading: false,
+              user: user,
+              isAdmin: false,
+              isSuperAdmin: false,
+            );
           }
         } catch (e) {
           debugPrint('Error fetching staff profile: $e');
-          state = AuthState(isLoading: false, user: user, isAdmin: false, isSuperAdmin: false);
+          state = AuthState(
+            isLoading: false,
+            user: user,
+            isAdmin: false,
+            isSuperAdmin: false,
+          );
         }
       }
     });

@@ -19,19 +19,20 @@ abstract class Service with _$Service {
     String? imageUrl,
     @Default(true) bool isActive,
     @Default(0) int sortOrder,
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson) DateTime? createdAt,
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson) DateTime? updatedAt,
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson) DateTime? archivedAt,
+    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    DateTime? createdAt,
+    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    DateTime? updatedAt,
+    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    DateTime? archivedAt,
     String? archivedBy,
   }) = _Service;
 
-  factory Service.fromJson(Map<String, dynamic> json) => _$ServiceFromJson(json);
+  factory Service.fromJson(Map<String, dynamic> json) =>
+      _$ServiceFromJson(json);
 
   factory Service.fromFirestore(Map<String, dynamic> data, String documentId) {
-    return Service.fromJson({
-      ...data,
-      'id': documentId,
-    });
+    return Service.fromJson({...data, 'id': documentId});
   }
 }
 

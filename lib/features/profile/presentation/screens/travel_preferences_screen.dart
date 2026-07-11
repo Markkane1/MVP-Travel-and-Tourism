@@ -15,10 +15,12 @@ class TravelPreferencesScreen extends ConsumerStatefulWidget {
   const TravelPreferencesScreen({super.key});
 
   @override
-  ConsumerState<TravelPreferencesScreen> createState() => _TravelPreferencesScreenState();
+  ConsumerState<TravelPreferencesScreen> createState() =>
+      _TravelPreferencesScreenState();
 }
 
-class _TravelPreferencesScreenState extends ConsumerState<TravelPreferencesScreen> {
+class _TravelPreferencesScreenState
+    extends ConsumerState<TravelPreferencesScreen> {
   final _dietaryController = TextEditingController();
   String _seatPreference = 'Any';
   String _hotelClassPreference = 'Luxury';
@@ -49,7 +51,9 @@ class _TravelPreferencesScreenState extends ConsumerState<TravelPreferencesScree
     });
 
     try {
-      final result = await ref.read(profileRepositoryProvider).saveTravelPreferences(
+      final result = await ref
+          .read(profileRepositoryProvider)
+          .saveTravelPreferences(
             uid: uid,
             dietary: _dietaryController.text.trim(),
             seat: _seatPreference,
@@ -69,7 +73,11 @@ class _TravelPreferencesScreenState extends ConsumerState<TravelPreferencesScree
         onFailure: (exception) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to save preferences: ${exception.message}')),
+              SnackBar(
+                content: Text(
+                  'Failed to save preferences: ${exception.message}',
+                ),
+              ),
             );
           }
         },
@@ -77,7 +85,9 @@ class _TravelPreferencesScreenState extends ConsumerState<TravelPreferencesScree
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save preferences: ${e.toString()}')),
+          SnackBar(
+            content: Text('Failed to save preferences: ${e.toString()}'),
+          ),
         );
       }
     } finally {

@@ -19,69 +19,76 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   };
 
   // Run app in an error-boundary zone
-  unawaited(runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  unawaited(
+    runZonedGuarded(
+      () async {
+        WidgetsFlutterBinding.ensureInitialized();
 
-    // Android can auto-create the default app via FirebaseInitProvider.
-    try {
-      Firebase.app();
-    } on FirebaseException catch (error) {
-      if (error.code != 'no-app') {
-        rethrow;
-      }
-      try {
-        await Firebase.initializeApp(options: Env.firebaseOptions);
-      } on FirebaseException catch (initializeError) {
-        if (initializeError.code != 'duplicate-app') {
-          rethrow;
+        // Android can auto-create the default app via FirebaseInitProvider.
+        try {
+          Firebase.app();
+        } on FirebaseException catch (error) {
+          if (error.code != 'no-app') {
+            rethrow;
+          }
+          try {
+            await Firebase.initializeApp(options: Env.firebaseOptions);
+          } on FirebaseException catch (initializeError) {
+            if (initializeError.code != 'duplicate-app') {
+              rethrow;
+            }
+            Firebase.app();
+          }
         }
-        Firebase.app();
-      }
-    }
 
-    // Initialize Firebase Crashlytics
-    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(Env.isProd);
+        // Initialize Firebase Crashlytics
+        await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+          Env.isProd,
+        );
 
-    if (Env.isProd) {
-      PlatformDispatcher.instance.onError = (error, stack) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-        return true;
-      };
-    } else {
-      PlatformDispatcher.instance.onError = (error, stack) {
-        if (kDebugMode) {
-          print('Uncaught async error in debug mode: $error');
-          print(stack);
+        if (Env.isProd) {
+          PlatformDispatcher.instance.onError = (error, stack) {
+            FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+            return true;
+          };
+        } else {
+          PlatformDispatcher.instance.onError = (error, stack) {
+            if (kDebugMode) {
+              print('Uncaught async error in debug mode: $error');
+              print(stack);
+            }
+            return true;
+          };
         }
-        return true;
-      };
-    }
 
-    // Initialize Firebase App Check
-    await FirebaseAppCheck.instance.activate(
-      providerAndroid: Env.isProd
-          ? const AndroidPlayIntegrityProvider()
-          : const AndroidDebugProvider(),
-      providerApple: Env.isProd
-          ? const AppleDeviceCheckProvider()
-          : const AppleDebugProvider(),
-    );
+        // Initialize Firebase App Check
+        await FirebaseAppCheck.instance.activate(
+          providerAndroid: Env.isProd
+              ? const AndroidPlayIntegrityProvider()
+              : const AndroidDebugProvider(),
+          providerApple: Env.isProd
+              ? const AppleDeviceCheckProvider()
+              : const AppleDebugProvider(),
+        );
 
-    final appWidget = await builder();
+        final appWidget = await builder();
 
-    runApp(
-      ProviderScope(
-        child: appWidget,
-      ),
-    );
-  }, (error, stackTrace) {
-    if (Env.isProd) {
-      FirebaseCrashlytics.instance.recordError(error, stackTrace, fatal: true);
-    } else {
-      if (kDebugMode) {
-        print('Caught unhandled error in zone: $error');
-        print(stackTrace);
-      }
-    }
-  }));
+        runApp(ProviderScope(child: appWidget));
+      },
+      (error, stackTrace) {
+        if (Env.isProd) {
+          FirebaseCrashlytics.instance.recordError(
+            error,
+            stackTrace,
+            fatal: true,
+          );
+        } else {
+          if (kDebugMode) {
+            print('Caught unhandled error in zone: $error');
+            print(stackTrace);
+          }
+        }
+      },
+    ),
+  );
 }

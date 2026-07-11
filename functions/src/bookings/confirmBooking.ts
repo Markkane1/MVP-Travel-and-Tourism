@@ -61,9 +61,34 @@ export async function confirmBookingLogic(
       bookingReferenceCode: bookingReferenceCode,
     });
 
-    // 5. Update user's loyaltyPoints by floor(totalPrice / 10)
-    const totalPrice = bookingData.totalPrice || 0;
-    const pointsAwarded = Math.floor(totalPrice / 10);
+    // 5. Calculate authentic price and override client data
+    const pricePerPerson = tourData.pricePerPerson || 0;
+    const adults = bookingData.adults || 0;
+    const children = bookingData.children || 0;
+    
+    // Base price
+    let authenticTotalPrice = pricePerPerson * (adults + (children * 0.5));
+    
+    // Group Size Modifier
+    const groupSizeOptions = tourData.groupSizeOptions || [];
+    const clientOption = bookingData.groupSizeOption || '';
+    const selectedOption = groupSizeOptions.find((opt: any) => opt.label === clientOption);
+    if (selectedOption && typeof selectedOption.priceModifier === 'number') {
+      authenticTotalPrice += selectedOption.priceModifier;
+    }
+    
+    // Private Vehicle Surcharge
+    if (bookingData.privateVehicle === true) {
+      authenticTotalPrice += (tourData.privateVehicleSurcharge || 0);
+    }
+    
+    // Override the total price to ensure integrity
+    transaction.update(bookingRef, {
+      totalPrice: authenticTotalPrice,
+    });
+
+    // Update user's loyaltyPoints by floor(authenticTotalPrice / 10)
+    const pointsAwarded = Math.floor(authenticTotalPrice / 10);
     
     const userDoc = await transaction.get(userRef);
     let currentPoints = 0;
@@ -85,6 +110,6 @@ export async function confirmBookingLogic(
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    return { bookingReferenceCode, totalPrice };
+    return { bookingReferenceCode, totalPrice: authenticTotalPrice };
   });
 }

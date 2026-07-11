@@ -8,27 +8,37 @@ final servicesStreamProvider = StreamProvider.autoDispose<List<Service>>((ref) {
       .orderBy('sortOrder')
       .snapshots()
       .map((snapshot) {
-    return snapshot.docs.map((doc) => Service.fromFirestore(doc.data(), doc.id)).toList();
-  });
+        return snapshot.docs
+            .map((doc) => Service.fromFirestore(doc.data(), doc.id))
+            .toList();
+      });
 });
 
 class ServicesApi {
   Future<void> addService(Service newService) async {
-    await FirebaseFirestore.instance.collection('services').add(newService.toJson());
+    await FirebaseFirestore.instance
+        .collection('services')
+        .add(newService.toJson());
   }
 
   Future<void> updateService(Service service) async {
     final data = service.toJson();
     data['updatedAt'] = FieldValue.serverTimestamp();
-    await FirebaseFirestore.instance.collection('services').doc(service.id).update(data);
+    await FirebaseFirestore.instance
+        .collection('services')
+        .doc(service.id)
+        .update(data);
   }
 
   Future<void> archiveService(String serviceId, String archivedBy) async {
-    await FirebaseFirestore.instance.collection('services').doc(serviceId).update({
-      'isActive': false,
-      'archivedAt': FieldValue.serverTimestamp(),
-      'archivedBy': archivedBy,
-    });
+    await FirebaseFirestore.instance
+        .collection('services')
+        .doc(serviceId)
+        .update({
+          'isActive': false,
+          'archivedAt': FieldValue.serverTimestamp(),
+          'archivedBy': archivedBy,
+        });
   }
 }
 

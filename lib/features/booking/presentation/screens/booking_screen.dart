@@ -100,7 +100,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
     // Adults breakdown
     final String adultsStr = _adultsCount == 1 ? 'Adult' : 'Adults';
-    parts.add('${tour.currency} ${tour.pricePerPerson.toInt()} x $_adultsCount $adultsStr');
+    parts.add(
+      '${tour.currency} ${tour.pricePerPerson.toInt()} x $_adultsCount $adultsStr',
+    );
 
     // Children breakdown
     if (_childrenCount > 0) {

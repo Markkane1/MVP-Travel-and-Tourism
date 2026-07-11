@@ -33,7 +33,8 @@ abstract class Booking with _$Booking {
     String? specialRequests,
     required double totalPrice,
     required String currency,
-    required String status, // 'pending' | 'confirmed' | 'cancelled' | 'completed'
+    required String
+    status, // 'pending' | 'confirmed' | 'cancelled' | 'completed'
     String? stripePaymentIntentId,
     String? bookingReferenceCode, // Managed by Cloud Functions
     @Default(false) bool reviewed,

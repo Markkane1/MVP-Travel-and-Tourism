@@ -13,17 +13,20 @@ abstract class StaffModel with _$StaffModel {
     @Default('') String email,
     @Default('admin') String role,
     @Default(true) bool isActive,
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson) DateTime? createdAt,
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson) DateTime? updatedAt,
+    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    DateTime? createdAt,
+    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    DateTime? updatedAt,
   }) = _StaffModel;
 
-  factory StaffModel.fromJson(Map<String, dynamic> json) => _$StaffModelFromJson(json);
+  factory StaffModel.fromJson(Map<String, dynamic> json) =>
+      _$StaffModelFromJson(json);
 
-  factory StaffModel.fromFirestore(Map<String, dynamic> data, String documentId) {
-    return StaffModel.fromJson({
-      ...data,
-      'id': documentId,
-    });
+  factory StaffModel.fromFirestore(
+    Map<String, dynamic> data,
+    String documentId,
+  ) {
+    return StaffModel.fromJson({...data, 'id': documentId});
   }
 }
 

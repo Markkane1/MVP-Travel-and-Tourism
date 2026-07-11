@@ -31,11 +31,7 @@ class EmptyStateView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 64.0,
-              color: AppColors.outlineVariant,
-            ),
+            Icon(icon, size: 64.0, color: AppColors.outlineVariant),
             AppSpacing.gapLg,
             Text(
               title,

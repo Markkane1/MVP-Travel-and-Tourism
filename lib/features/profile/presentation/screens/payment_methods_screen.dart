@@ -18,12 +18,16 @@ import '../../data/profile_repository.dart';
 class PaymentMethodsScreen extends ConsumerWidget {
   const PaymentMethodsScreen({super.key});
 
-  Future<void> _deletePaymentMethod(BuildContext context, WidgetRef ref, String uid, String methodId) async {
+  Future<void> _deletePaymentMethod(
+    BuildContext context,
+    WidgetRef ref,
+    String uid,
+    String methodId,
+  ) async {
     try {
-      final result = await ref.read(profileRepositoryProvider).deletePaymentMethod(
-            uid: uid,
-            methodId: methodId,
-          );
+      final result = await ref
+          .read(profileRepositoryProvider)
+          .deletePaymentMethod(uid: uid, methodId: methodId);
 
       await result.when(
         onSuccess: (_) {
@@ -36,7 +40,11 @@ class PaymentMethodsScreen extends ConsumerWidget {
         onFailure: (exception) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to delete payment method: ${exception.message}')),
+              SnackBar(
+                content: Text(
+                  'Failed to delete payment method: ${exception.message}',
+                ),
+              ),
             );
           }
         },
@@ -44,7 +52,9 @@ class PaymentMethodsScreen extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete payment method: ${e.toString()}')),
+          SnackBar(
+            content: Text('Failed to delete payment method: ${e.toString()}'),
+          ),
         );
       }
     }
@@ -94,7 +104,8 @@ class PaymentMethodsScreen extends ConsumerWidget {
           Expanded(
             child: methodsState.when(
               loading: () => const Center(child: LoadingIndicator()),
-              error: (err, stack) => Center(child: Text('Error loading payment methods: $err')),
+              error: (err, stack) =>
+                  Center(child: Text('Error loading payment methods: $err')),
               data: (methods) {
                 if (methods.isEmpty) {
                   return const Center(
@@ -134,7 +145,12 @@ class PaymentMethodsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCardItem(BuildContext context, WidgetRef ref, String uid, PaymentMethodItem item) {
+  Widget _buildCardItem(
+    BuildContext context,
+    WidgetRef ref,
+    String uid,
+    PaymentMethodItem item,
+  ) {
     IconData cardIcon = Icons.credit_card;
     if (item.brand.toLowerCase() == 'visa') {
       cardIcon = Icons.payment;
@@ -165,7 +181,10 @@ class PaymentMethodsScreen extends ConsumerWidget {
                   if (item.isDefault) ...[
                     const SizedBox(height: 4.0),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6.0,
+                        vertical: 2.0,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primaryContainer,
                         borderRadius: BorderRadius.circular(AppRadii.sm),
@@ -188,8 +207,12 @@ class PaymentMethodsScreen extends ConsumerWidget {
               button: true,
               child: IconButton(
                 tooltip: 'Remove payment method',
-                icon: const Icon(Icons.close, color: AppColors.onSurfaceVariant),
-                onPressed: () => _deletePaymentMethod(context, ref, uid, item.id),
+                icon: const Icon(
+                  Icons.close,
+                  color: AppColors.onSurfaceVariant,
+                ),
+                onPressed: () =>
+                    _deletePaymentMethod(context, ref, uid, item.id),
               ),
             ),
           ],
@@ -205,7 +228,8 @@ class _AddPaymentMethodForm extends ConsumerStatefulWidget {
   const _AddPaymentMethodForm({required this.uid});
 
   @override
-  ConsumerState<_AddPaymentMethodForm> createState() => _AddPaymentMethodFormState();
+  ConsumerState<_AddPaymentMethodForm> createState() =>
+      _AddPaymentMethodFormState();
 }
 
 class _AddPaymentMethodFormState extends ConsumerState<_AddPaymentMethodForm> {
@@ -234,7 +258,9 @@ class _AddPaymentMethodFormState extends ConsumerState<_AddPaymentMethodForm> {
     });
 
     try {
-      final result = await ref.read(profileRepositoryProvider).savePaymentMethod(
+      final result = await ref
+          .read(profileRepositoryProvider)
+          .savePaymentMethod(
             uid: widget.uid,
             brand: _selectedBrand,
             last4: cleanL4,
@@ -245,7 +271,9 @@ class _AddPaymentMethodFormState extends ConsumerState<_AddPaymentMethodForm> {
         onSuccess: (_) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Payment method added successfully.')),
+              const SnackBar(
+                content: Text('Payment method added successfully.'),
+              ),
             );
             Navigator.pop(context);
           }
@@ -253,7 +281,9 @@ class _AddPaymentMethodFormState extends ConsumerState<_AddPaymentMethodForm> {
         onFailure: (exception) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to save card: ${exception.message}')),
+              SnackBar(
+                content: Text('Failed to save card: ${exception.message}'),
+              ),
             );
           }
         },
@@ -291,7 +321,7 @@ class _AddPaymentMethodFormState extends ConsumerState<_AddPaymentMethodForm> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
           ),
           const SizedBox(height: 16.0),
-          
+
           // Brand dropdown
           DropdownButtonFormField<String>(
             // ignore: deprecated_member_use
@@ -301,10 +331,7 @@ class _AddPaymentMethodFormState extends ConsumerState<_AddPaymentMethodForm> {
               border: OutlineInputBorder(),
             ),
             items: ['Visa', 'Mastercard', 'Amex', 'Other'].map((brand) {
-              return DropdownMenuItem<String>(
-                value: brand,
-                child: Text(brand),
-              );
+              return DropdownMenuItem<String>(value: brand, child: Text(brand));
             }).toList(),
             onChanged: (val) {
               if (val != null) {

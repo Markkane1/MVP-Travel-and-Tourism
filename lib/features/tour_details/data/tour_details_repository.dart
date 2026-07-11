@@ -14,12 +14,17 @@ class TourDetailsRepository {
 
   /// Streams a single tour.
   Stream<Tour?> watchTour(String tourId) {
-    return _firestore.collection('tours').doc(tourId).snapshots().map((doc) {
-      if (!doc.exists) return null;
-      final data = Map<String, dynamic>.from(doc.data() as Map? ?? {});
-      data['id'] = doc.id;
-      return Tour.fromJson(_mapTourData(data));
-    }).mapAppException('Failed to load tour details');
+    return _firestore
+        .collection('tours')
+        .doc(tourId)
+        .snapshots()
+        .map((doc) {
+          if (!doc.exists) return null;
+          final data = Map<String, dynamic>.from(doc.data() as Map? ?? {});
+          data['id'] = doc.id;
+          return Tour.fromJson(_mapTourData(data));
+        })
+        .mapAppException('Failed to load tour details');
   }
 
   /// Streams the 5 most recent reviews for a tour.
@@ -32,15 +37,18 @@ class TourDetailsRepository {
         .limit(5)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data() as Map? ?? {});
-        data['id'] = doc.id;
-        if (data['createdAt'] is Timestamp) {
-          data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
-        }
-        return Review.fromJson(data);
-      }).toList();
-    }).mapAppException('Failed to load tour reviews');
+          return snapshot.docs.map((doc) {
+            final data = Map<String, dynamic>.from(doc.data() as Map? ?? {});
+            data['id'] = doc.id;
+            if (data['createdAt'] is Timestamp) {
+              data['createdAt'] = (data['createdAt'] as Timestamp)
+                  .toDate()
+                  .toIso8601String();
+            }
+            return Review.fromJson(data);
+          }).toList();
+        })
+        .mapAppException('Failed to load tour reviews');
   }
 }
 
@@ -63,7 +71,8 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
   data['title'] = data['title'] as String? ?? '';
   data['destination'] = data['destination'] as String? ?? '';
   data['category'] = data['category'] as String? ?? '';
-  data['badges'] = (data['badges'] as List?)?.cast<String>() ?? const <String>[];
+  data['badges'] =
+      (data['badges'] as List?)?.cast<String>() ?? const <String>[];
   data['heroImageUrl'] = data['heroImageUrl'] as String? ?? '';
   data['galleryImageUrls'] =
       (data['galleryImageUrls'] as List?)?.cast<String>() ?? const <String>[];

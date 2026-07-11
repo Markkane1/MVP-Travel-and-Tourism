@@ -68,7 +68,9 @@ class StorageService {
     final resizedFrameInfo = await resizedCodec.getNextFrame();
     final resizedImage = resizedFrameInfo.image;
 
-    final byteData = await resizedImage.toByteData(format: ui.ImageByteFormat.png);
+    final byteData = await resizedImage.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
     if (byteData == null) {
       return file;
     }

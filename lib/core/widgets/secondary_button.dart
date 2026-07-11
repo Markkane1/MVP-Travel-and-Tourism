@@ -42,10 +42,7 @@ class SecondaryButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) ...[
-                icon!,
-                const SizedBox(width: 8.0),
-              ],
+              if (icon != null) ...[icon!, const SizedBox(width: 8.0)],
               Text(
                 label,
                 style: theme.textTheme.labelLarge?.copyWith(

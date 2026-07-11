@@ -57,7 +57,13 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
 
   String _selectedCategory = 'Adventure';
   String _currency = 'USD';
-  final List<String> _categories = ['Adventure', 'Cultural', 'Beach', 'City', 'Mountain'];
+  final List<String> _categories = [
+    'Adventure',
+    'Cultural',
+    'Beach',
+    'City',
+    'Mountain',
+  ];
   final List<String> _currencies = ['USD', 'AED'];
 
   bool _isSubmitting = false;
@@ -77,18 +83,35 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
     _overviewController.dispose();
     _privateVehicleSurchargeController.dispose();
 
-    for (var c in _galleryControllers) { c.dispose(); }
-    for (var c in _badgeControllers) { c.dispose(); }
-    for (var c in _inclusionControllers) { c.dispose(); }
-    for (var item in _itineraryItems) { item.dispose(); }
-    for (var item in _groupSizeItems) { item.dispose(); }
+    for (var c in _galleryControllers) {
+      c.dispose();
+    }
+    for (var c in _badgeControllers) {
+      c.dispose();
+    }
+    for (var c in _inclusionControllers) {
+      c.dispose();
+    }
+    for (var item in _itineraryItems) {
+      item.dispose();
+    }
+    for (var item in _groupSizeItems) {
+      item.dispose();
+    }
 
     super.dispose();
   }
 
   Future<void> _pickAndUploadHeroImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
-    if (result == null || result.files.isEmpty || result.files.first.bytes == null) return;
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+    if (result == null ||
+        result.files.isEmpty ||
+        result.files.first.bytes == null) {
+      return;
+    }
 
     setState(() => _isUploadingImage = true);
     try {
@@ -99,15 +122,26 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
       );
       _heroUrlController.text = url;
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isUploadingImage = false);
     }
   }
 
   Future<void> _pickAndUploadGalleryImage(int index) async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
-    if (result == null || result.files.isEmpty || result.files.first.bytes == null) return;
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+    if (result == null ||
+        result.files.isEmpty ||
+        result.files.first.bytes == null) {
+      return;
+    }
 
     setState(() => _isUploadingImage = true);
     try {
@@ -118,7 +152,11 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
       );
       _galleryControllers[index].text = url;
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isUploadingImage = false);
     }
@@ -141,28 +179,52 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
         ratingAverage: double.tryParse(_ratingAvgController.text) ?? 0.0,
         ratingCount: int.tryParse(_ratingCountController.text) ?? 0,
         overview: _overviewController.text.trim(),
-        privateVehicleSurcharge: double.tryParse(_privateVehicleSurchargeController.text) ?? 0.0,
-        
-        galleryImageUrls: _galleryControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
-        badges: _badgeControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
-        inclusions: _inclusionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
-        
-        itinerary: _itineraryItems.map((item) => {
-          'day': int.tryParse(item.dayController.text) ?? 1,
-          'title': item.titleController.text.trim(),
-          'description': item.descController.text.trim(),
-        }).where((m) => m['title'].toString().isNotEmpty).toList(),
-        
-        groupSizeOptions: _groupSizeItems.map((item) => {
-          'size': int.tryParse(item.sizeController.text) ?? 1,
-          'price': double.tryParse(item.priceController.text) ?? 0.0,
-        }).where((m) => m['size'] != null).toList(),
+        privateVehicleSurcharge:
+            double.tryParse(_privateVehicleSurchargeController.text) ?? 0.0,
+
+        galleryImageUrls: _galleryControllers
+            .map((c) => c.text.trim())
+            .where((s) => s.isNotEmpty)
+            .toList(),
+        badges: _badgeControllers
+            .map((c) => c.text.trim())
+            .where((s) => s.isNotEmpty)
+            .toList(),
+        inclusions: _inclusionControllers
+            .map((c) => c.text.trim())
+            .where((s) => s.isNotEmpty)
+            .toList(),
+
+        itinerary: _itineraryItems
+            .map(
+              (item) => {
+                'day': int.tryParse(item.dayController.text) ?? 1,
+                'title': item.titleController.text.trim(),
+                'description': item.descController.text.trim(),
+              },
+            )
+            .where((m) => m['title'].toString().isNotEmpty)
+            .toList(),
+
+        groupSizeOptions: _groupSizeItems
+            .map(
+              (item) => {
+                'size': int.tryParse(item.sizeController.text) ?? 1,
+                'price': double.tryParse(item.priceController.text) ?? 0.0,
+              },
+            )
+            .where((m) => m['size'] != null)
+            .toList(),
       );
 
       await ref.read(toursApiProvider).addTour(newTour);
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -174,10 +236,23 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
-            Text(subtitle, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
           const Divider(),
         ],
@@ -198,25 +273,44 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSectionHeader('Basic Details', 'Main information about the tour'),
+                _buildSectionHeader(
+                  'Basic Details',
+                  'Main information about the tour',
+                ),
                 Row(
                   children: [
                     Expanded(
                       flex: 2,
                       child: TextFormField(
                         controller: _titleController,
-                        decoration: const InputDecoration(labelText: 'Tour Title', border: OutlineInputBorder()),
-                        validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                        decoration: const InputDecoration(
+                          labelText: 'Tour Title',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) =>
+                            value == null || value.isEmpty ? 'Required' : null,
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         initialValue: _selectedCategory,
-                        decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder()),
-                        items: _categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
+                        decoration: const InputDecoration(
+                          labelText: 'Category',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: _categories
+                            .map(
+                              (cat) => DropdownMenuItem(
+                                value: cat,
+                                child: Text(cat),
+                              ),
+                            )
+                            .toList(),
                         onChanged: (val) {
-                          if (val != null) setState(() => _selectedCategory = val);
+                          if (val != null) {
+                            setState(() => _selectedCategory = val);
+                          }
                         },
                       ),
                     ),
@@ -229,17 +323,26 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                       flex: 2,
                       child: TextFormField(
                         controller: _destinationController,
-                        decoration: const InputDecoration(labelText: 'Destination', border: OutlineInputBorder()),
-                        validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                        decoration: const InputDecoration(
+                          labelText: 'Destination',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) =>
+                            value == null || value.isEmpty ? 'Required' : null,
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: TextFormField(
                         controller: _durationController,
-                        decoration: const InputDecoration(labelText: 'Duration (Days)', suffixText: ' days', border: OutlineInputBorder()),
+                        decoration: const InputDecoration(
+                          labelText: 'Duration (Days)',
+                          suffixText: ' days',
+                          border: OutlineInputBorder(),
+                        ),
                         keyboardType: TextInputType.number,
-                        validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                        validator: (value) =>
+                            value == null || value.isEmpty ? 'Required' : null,
                       ),
                     ),
                   ],
@@ -251,17 +354,31 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                       flex: 2,
                       child: TextFormField(
                         controller: _priceController,
-                        decoration: const InputDecoration(labelText: 'Base Price per Person', border: OutlineInputBorder()),
+                        decoration: const InputDecoration(
+                          labelText: 'Base Price per Person',
+                          border: OutlineInputBorder(),
+                        ),
                         keyboardType: TextInputType.number,
-                        validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                        validator: (value) =>
+                            value == null || value.isEmpty ? 'Required' : null,
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         initialValue: _currency,
-                        decoration: const InputDecoration(labelText: 'Currency', border: OutlineInputBorder()),
-                        items: _currencies.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
+                        decoration: const InputDecoration(
+                          labelText: 'Currency',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: _currencies
+                            .map(
+                              (cat) => DropdownMenuItem(
+                                value: cat,
+                                child: Text(cat),
+                              ),
+                            )
+                            .toList(),
                         onChanged: (val) {
                           if (val != null) setState(() => _currency = val);
                         },
@@ -272,7 +389,10 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                       flex: 2,
                       child: TextFormField(
                         controller: _maxParticipantsController,
-                        decoration: const InputDecoration(labelText: 'Max Participants', border: OutlineInputBorder()),
+                        decoration: const InputDecoration(
+                          labelText: 'Max Participants',
+                          border: OutlineInputBorder(),
+                        ),
                         keyboardType: TextInputType.number,
                       ),
                     ),
@@ -280,7 +400,11 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                     Expanded(
                       child: TextFormField(
                         controller: _privateVehicleSurchargeController,
-                        decoration: const InputDecoration(labelText: 'Private Vehicle Surcharge', prefixText: '\$ ', border: OutlineInputBorder()),
+                        decoration: const InputDecoration(
+                          labelText: 'Private Vehicle Surcharge',
+                          prefixText: '\$ ',
+                          border: OutlineInputBorder(),
+                        ),
                         keyboardType: TextInputType.number,
                       ),
                     ),
@@ -289,7 +413,10 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _overviewController,
-                  decoration: const InputDecoration(labelText: 'Overview', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Overview',
+                    border: OutlineInputBorder(),
+                  ),
                   maxLines: 3,
                 ),
 
@@ -311,10 +438,18 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                     SizedBox(
                       height: 56,
                       child: ElevatedButton.icon(
-                        onPressed: _isUploadingImage ? null : _pickAndUploadHeroImage,
+                        onPressed: _isUploadingImage
+                            ? null
+                            : _pickAndUploadHeroImage,
                         icon: _isUploadingImage
-                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.upload),
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.upload),
                         label: const Text('Upload'),
                       ),
                     ),
@@ -330,17 +465,28 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                         Expanded(
                           child: TextFormField(
                             controller: entry.value,
-                            decoration: InputDecoration(labelText: 'Gallery Image URL ${idx + 1}', border: const OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: 'Gallery Image URL ${idx + 1}',
+                              border: const OutlineInputBorder(),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         IconButton(
-                          icon: Icon(Icons.upload_file, color: Theme.of(context).colorScheme.primary),
-                          onPressed: _isUploadingImage ? null : () => _pickAndUploadGalleryImage(idx),
+                          icon: Icon(
+                            Icons.upload_file,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          onPressed: _isUploadingImage
+                              ? null
+                              : () => _pickAndUploadGalleryImage(idx),
                           tooltip: 'Upload Image',
                         ),
                         IconButton(
-                          icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+                          icon: Icon(
+                            Icons.delete,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                           onPressed: () => setState(() {
                             _galleryControllers[idx].dispose();
                             _galleryControllers.removeAt(idx);
@@ -351,12 +497,17 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                   );
                 }),
                 TextButton.icon(
-                  onPressed: () => setState(() => _galleryControllers.add(TextEditingController())),
+                  onPressed: () => setState(
+                    () => _galleryControllers.add(TextEditingController()),
+                  ),
                   icon: const Icon(Icons.add),
                   label: const Text('Add Gallery Image'),
                 ),
 
-                _buildSectionHeader('Highlights & Inclusions', 'Tags and perks displayed on the tour card'),
+                _buildSectionHeader(
+                  'Highlights & Inclusions',
+                  'Tags and perks displayed on the tour card',
+                ),
                 const Text('Badges (e.g., "Bestseller", "Family Friendly")'),
                 const SizedBox(height: 8),
                 ..._badgeControllers.asMap().entries.map((entry) {
@@ -368,11 +519,17 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                         Expanded(
                           child: TextFormField(
                             controller: entry.value,
-                            decoration: const InputDecoration(hintText: 'Badge name', border: OutlineInputBorder()),
+                            decoration: const InputDecoration(
+                              hintText: 'Badge name',
+                              border: OutlineInputBorder(),
+                            ),
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+                          icon: Icon(
+                            Icons.delete,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                           onPressed: () => setState(() {
                             _badgeControllers[idx].dispose();
                             _badgeControllers.removeAt(idx);
@@ -383,11 +540,13 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                   );
                 }),
                 TextButton.icon(
-                  onPressed: () => setState(() => _badgeControllers.add(TextEditingController())),
+                  onPressed: () => setState(
+                    () => _badgeControllers.add(TextEditingController()),
+                  ),
                   icon: const Icon(Icons.add),
                   label: const Text('Add Badge'),
                 ),
-                
+
                 const SizedBox(height: 16),
                 const Text('Inclusions (e.g., "Hotel Pickup", "Breakfast")'),
                 const SizedBox(height: 8),
@@ -400,11 +559,17 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                         Expanded(
                           child: TextFormField(
                             controller: entry.value,
-                            decoration: const InputDecoration(hintText: 'Inclusion description', border: OutlineInputBorder()),
+                            decoration: const InputDecoration(
+                              hintText: 'Inclusion description',
+                              border: OutlineInputBorder(),
+                            ),
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+                          icon: Icon(
+                            Icons.delete,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                           onPressed: () => setState(() {
                             _inclusionControllers[idx].dispose();
                             _inclusionControllers.removeAt(idx);
@@ -415,7 +580,9 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                   );
                 }),
                 TextButton.icon(
-                  onPressed: () => setState(() => _inclusionControllers.add(TextEditingController())),
+                  onPressed: () => setState(
+                    () => _inclusionControllers.add(TextEditingController()),
+                  ),
                   icon: const Icon(Icons.add),
                   label: const Text('Add Inclusion'),
                 ),
@@ -426,7 +593,9 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                   final item = entry.value;
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Column(
@@ -437,7 +606,10 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                                 flex: 1,
                                 child: TextFormField(
                                   controller: item.dayController,
-                                  decoration: const InputDecoration(labelText: 'Day', border: OutlineInputBorder()),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Day',
+                                    border: OutlineInputBorder(),
+                                  ),
                                   keyboardType: TextInputType.number,
                                 ),
                               ),
@@ -446,11 +618,18 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                                 flex: 4,
                                 child: TextFormField(
                                   controller: item.titleController,
-                                  decoration: const InputDecoration(labelText: 'Title', hintText: 'e.g. Arrival in City', border: OutlineInputBorder()),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Title',
+                                    hintText: 'e.g. Arrival in City',
+                                    border: OutlineInputBorder(),
+                                  ),
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+                                icon: Icon(
+                                  Icons.delete,
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
                                 onPressed: () => setState(() {
                                   item.dispose();
                                   _itineraryItems.removeAt(idx);
@@ -461,7 +640,10 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: item.descController,
-                            decoration: const InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
+                            decoration: const InputDecoration(
+                              labelText: 'Description',
+                              border: OutlineInputBorder(),
+                            ),
                             maxLines: 2,
                           ),
                         ],
@@ -472,14 +654,18 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                 TextButton.icon(
                   onPressed: () => setState(() {
                     final item = _ItineraryItem();
-                    item.dayController.text = (_itineraryItems.length + 1).toString();
+                    item.dayController.text = (_itineraryItems.length + 1)
+                        .toString();
                     _itineraryItems.add(item);
                   }),
                   icon: const Icon(Icons.add),
                   label: const Text('Add Itinerary Day'),
                 ),
 
-                _buildSectionHeader('Group Size Options', 'Pricing tiers based on group size'),
+                _buildSectionHeader(
+                  'Group Size Options',
+                  'Pricing tiers based on group size',
+                ),
                 ..._groupSizeItems.asMap().entries.map((entry) {
                   int idx = entry.key;
                   final item = entry.value;
@@ -490,7 +676,10 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                         Expanded(
                           child: TextFormField(
                             controller: item.sizeController,
-                            decoration: const InputDecoration(labelText: 'Max Group Size', border: OutlineInputBorder()),
+                            decoration: const InputDecoration(
+                              labelText: 'Max Group Size',
+                              border: OutlineInputBorder(),
+                            ),
                             keyboardType: TextInputType.number,
                           ),
                         ),
@@ -498,12 +687,19 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                         Expanded(
                           child: TextFormField(
                             controller: item.priceController,
-                            decoration: const InputDecoration(labelText: 'Price Per Person', prefixText: '\$ ', border: OutlineInputBorder()),
+                            decoration: const InputDecoration(
+                              labelText: 'Price Per Person',
+                              prefixText: '\$ ',
+                              border: OutlineInputBorder(),
+                            ),
                             keyboardType: TextInputType.number,
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+                          icon: Icon(
+                            Icons.delete,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                           onPressed: () => setState(() {
                             item.dispose();
                             _groupSizeItems.removeAt(idx);
@@ -514,11 +710,11 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
                   );
                 }),
                 TextButton.icon(
-                  onPressed: () => setState(() => _groupSizeItems.add(_GroupSizeItem())),
+                  onPressed: () =>
+                      setState(() => _groupSizeItems.add(_GroupSizeItem())),
                   icon: const Icon(Icons.add),
                   label: const Text('Add Group Size Option'),
                 ),
-                
               ],
             ),
           ),
@@ -526,13 +722,22 @@ class _AddTourDialogState extends ConsumerState<AddTourDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(false),
+          onPressed: _isSubmitting
+              ? null
+              : () => Navigator.of(context).pop(false),
           child: const Text('Cancel'),
         ),
         FilledButton(
           onPressed: _isSubmitting ? null : _submitForm,
-          child: _isSubmitting 
-              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+          child: _isSubmitting
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
               : const Text('Create Tour'),
         ),
       ],

@@ -4,19 +4,21 @@ import 'package:mvp_travel/core/widgets/app_chip.dart';
 import 'package:mvp_travel/core/theme/app_colors.dart';
 import 'package:mvp_travel/core/theme/app_theme.dart';
 
-Widget _wrap(Widget child) =>
-    MaterialApp(theme: AppTheme.lightTheme, home: Scaffold(body: child));
+Widget _wrap(Widget child) => MaterialApp(
+  theme: AppTheme.lightTheme,
+  home: Scaffold(body: child),
+);
 
 void main() {
   group('AppChip', () {
     testWidgets('renders label text', (tester) async {
-      await tester.pumpWidget(
-        _wrap(const AppChip(label: 'Beach')),
-      );
+      await tester.pumpWidget(_wrap(const AppChip(label: 'Beach')));
       expect(find.text('Beach'), findsOneWidget);
     });
 
-    testWidgets('inactive chip uses surfaceContainer background', (tester) async {
+    testWidgets('inactive chip uses surfaceContainer background', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(const AppChip(label: 'Beach', isActive: false)),
       );
@@ -35,11 +37,13 @@ void main() {
     testWidgets('onSelected callback fires when tapped', (tester) async {
       bool? lastValue;
       await tester.pumpWidget(
-        _wrap(AppChip(
-          label: 'Beach',
-          isActive: false,
-          onSelected: (val) => lastValue = val,
-        )),
+        _wrap(
+          AppChip(
+            label: 'Beach',
+            isActive: false,
+            onSelected: (val) => lastValue = val,
+          ),
+        ),
       );
       await tester.tap(find.byType(ChoiceChip));
       await tester.pump();
@@ -48,10 +52,7 @@ void main() {
 
     testWidgets('renders avatar when provided', (tester) async {
       await tester.pumpWidget(
-        _wrap(const AppChip(
-          label: 'Beach',
-          avatar: Icon(Icons.beach_access),
-        )),
+        _wrap(const AppChip(label: 'Beach', avatar: Icon(Icons.beach_access))),
       );
       expect(find.byIcon(Icons.beach_access), findsOneWidget);
     });

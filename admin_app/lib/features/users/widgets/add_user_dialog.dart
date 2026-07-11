@@ -14,7 +14,7 @@ class _AddUserDialogState extends ConsumerState<AddUserDialog> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
-  
+
   String _selectedTier = 'base';
   bool _isSubmitting = false;
 
@@ -31,16 +31,20 @@ class _AddUserDialogState extends ConsumerState<AddUserDialog> {
     setState(() => _isSubmitting = true);
 
     try {
-      await ref.read(usersApiProvider).addUser(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-        displayName: _nameController.text.trim(),
-        tier: _selectedTier,
-      );
+      await ref
+          .read(usersApiProvider)
+          .addUser(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+            displayName: _nameController.text.trim(),
+            tier: _selectedTier,
+          );
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -59,34 +63,60 @@ class _AddUserDialogState extends ConsumerState<AddUserDialog> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('Manually register a user account from the admin dashboard. In a production environment, this will trigger a cloud function to securely register the account via Firebase Auth.'),
+                const Text(
+                  'Manually register a user account from the admin dashboard. In a production environment, this will trigger a cloud function to securely register the account via Firebase Auth.',
+                ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email Address', border: OutlineInputBorder()),
-                  validator: (val) => val == null || val.isEmpty || !val.contains('@') ? 'Enter a valid email' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Email Address',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (val) =>
+                      val == null || val.isEmpty || !val.contains('@')
+                      ? 'Enter a valid email'
+                      : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Temporary Password', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Temporary Password',
+                    border: OutlineInputBorder(),
+                  ),
                   obscureText: true,
-                  validator: (val) => val == null || val.length < 6 ? 'Password must be at least 6 characters' : null,
+                  validator: (val) => val == null || val.length < 6
+                      ? 'Password must be at least 6 characters'
+                      : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Display Name', border: OutlineInputBorder()),
-                  validator: (val) => val == null || val.isEmpty ? 'Name is required' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Display Name',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'Name is required' : null,
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedTier,
-                  decoration: const InputDecoration(labelText: 'Initial Tier', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Initial Tier',
+                    border: OutlineInputBorder(),
+                  ),
                   items: const [
-                    DropdownMenuItem(value: 'base', child: Text('Base (Standard)')),
+                    DropdownMenuItem(
+                      value: 'base',
+                      child: Text('Base (Standard)'),
+                    ),
                     DropdownMenuItem(value: 'gold', child: Text('Gold')),
-                    DropdownMenuItem(value: 'platinum', child: Text('Platinum')),
+                    DropdownMenuItem(
+                      value: 'platinum',
+                      child: Text('Platinum'),
+                    ),
                   ],
                   onChanged: (val) {
                     if (val != null) setState(() => _selectedTier = val);
@@ -104,7 +134,13 @@ class _AddUserDialogState extends ConsumerState<AddUserDialog> {
         ),
         ElevatedButton(
           onPressed: _isSubmitting ? null : _submit,
-          child: _isSubmitting ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Create User'),
+          child: _isSubmitting
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Create User'),
         ),
       ],
     );

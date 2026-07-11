@@ -57,9 +57,7 @@ class NotificationService {
 
   Future<void> _saveToken(String uid, String token) async {
     try {
-      await _firestore.collection('users').doc(uid).update({
-        'fcmToken': token,
-      });
+      await _firestore.collection('users').doc(uid).update({'fcmToken': token});
     } catch (e) {
       if (kDebugMode) {
         print('Error saving FCM token to user profile: $e');
@@ -68,7 +66,10 @@ class NotificationService {
   }
 
   /// Writes foreground messaging payloads into the in-app notifications subcollection.
-  Future<void> _handleForegroundMessage(String uid, RemoteMessage message) async {
+  Future<void> _handleForegroundMessage(
+    String uid,
+    RemoteMessage message,
+  ) async {
     final notification = message.notification;
     if (notification == null) return;
 
@@ -78,13 +79,13 @@ class NotificationService {
           .doc(uid)
           .collection('items')
           .add({
-        'title': notification.title ?? '',
-        'body': notification.body ?? '',
-        'type': message.data['type'] ?? 'system',
-        'deepLink': message.data['deepLink'] ?? '',
-        'read': false,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+            'title': notification.title ?? '',
+            'body': notification.body ?? '',
+            'type': message.data['type'] ?? 'system',
+            'deepLink': message.data['deepLink'] ?? '',
+            'read': false,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
       if (kDebugMode) {
         print('Error handling foreground notification write: $e');

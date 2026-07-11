@@ -9,16 +9,16 @@ export const setAdminClaimsLogic = async (
   targetEmail: string,
 ) => {
   // 1. Verify caller is authorized to make others admin.
-  // We allow it if the caller is already an admin, OR if this is the bootstrap user.
+  // We allow it if the caller is already an admin, OR if this is the bootstrap user with a verified email.
   const isCallerAdmin = callerAuth?.token?.admin === true;
   
   // Super admin bootstrap mechanism
-  const isBootstrap = targetEmail === 'admin@mvptravel.com';
+  const isBootstrap = targetEmail === 'admin@mvptravel.com' && callerAuth?.token?.email === 'admin@mvptravel.com' && callerAuth?.token?.email_verified === true;
 
   if (!isCallerAdmin && !isBootstrap) {
     throw new HttpsError(
       'permission-denied',
-      'You must be an admin to grant administrative privileges.'
+      'You must be an admin to grant administrative privileges, or verify your email as the bootstrap admin.'
     );
   }
 

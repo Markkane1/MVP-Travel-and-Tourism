@@ -377,7 +377,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             children: [
               PrimaryButton(
                 buttonKey: const Key('checkout_pay_button'),
-                label: 'Pay ${booking.currency} ${total.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} now',
+                label:
+                    'Pay ${booking.currency} ${total.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} now',
                 onPressed: () => _processPayment(booking),
               ),
             ],

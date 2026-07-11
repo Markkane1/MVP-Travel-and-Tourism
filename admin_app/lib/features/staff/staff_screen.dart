@@ -60,8 +60,14 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
                       ),
                       items: const [
                         DropdownMenuItem(value: 'admin', child: Text('Admin')),
-                        DropdownMenuItem(value: 'super_admin', child: Text('Super Admin')),
-                        DropdownMenuItem(value: 'concierge', child: Text('Concierge')),
+                        DropdownMenuItem(
+                          value: 'super_admin',
+                          child: Text('Super Admin'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'concierge',
+                          child: Text('Concierge'),
+                        ),
                       ],
                       onChanged: (val) {
                         if (val != null) setState(() => selectedRole = val);
@@ -72,26 +78,38 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: isSubmitting ? null : () => Navigator.of(context).pop(),
+                  onPressed: isSubmitting
+                      ? null
+                      : () => Navigator.of(context).pop(),
                   child: const Text('Cancel'),
                 ),
                 ElevatedButton(
-                  onPressed: isSubmitting ? null : () async {
-                    setState(() => isSubmitting = true);
-                    try {
-                      await ref.read(staffApiProvider).registerStaffProfile(
-                        email: emailController.text.trim(),
-                        password: passwordController.text,
-                        role: selectedRole,
-                      );
-                      if (context.mounted) Navigator.of(context).pop();
-                    } catch (e) {
-                      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-                    } finally {
-                      setState(() => isSubmitting = false);
-                    }
-                  },
-                  child: isSubmitting ? const CircularProgressIndicator() : const Text('Register'),
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          setState(() => isSubmitting = true);
+                          try {
+                            await ref
+                                .read(staffApiProvider)
+                                .registerStaffProfile(
+                                  email: emailController.text.trim(),
+                                  password: passwordController.text,
+                                  role: selectedRole,
+                                );
+                            if (context.mounted) Navigator.of(context).pop();
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: $e')),
+                              );
+                            }
+                          } finally {
+                            setState(() => isSubmitting = false);
+                          }
+                        },
+                  child: isSubmitting
+                      ? const CircularProgressIndicator()
+                      : const Text('Register'),
                 ),
               ],
             );
@@ -100,7 +118,6 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
       },
     );
   }
-
 
   Future<void> _updateRole(String uid, String currentRole) async {
     String selectedRole = currentRole;
@@ -115,11 +132,20 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
               title: const Text('Update Role'),
               content: DropdownButtonFormField<String>(
                 initialValue: selectedRole,
-                decoration: const InputDecoration(labelText: 'Role', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                  labelText: 'Role',
+                  border: OutlineInputBorder(),
+                ),
                 items: const [
                   DropdownMenuItem(value: 'admin', child: Text('Admin')),
-                  DropdownMenuItem(value: 'super_admin', child: Text('Super Admin')),
-                  DropdownMenuItem(value: 'concierge', child: Text('Concierge')),
+                  DropdownMenuItem(
+                    value: 'super_admin',
+                    child: Text('Super Admin'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'concierge',
+                    child: Text('Concierge'),
+                  ),
                 ],
                 onChanged: (val) {
                   if (val != null) setState(() => selectedRole = val);
@@ -127,22 +153,34 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: isSubmitting ? null : () => Navigator.of(context).pop(),
+                  onPressed: isSubmitting
+                      ? null
+                      : () => Navigator.of(context).pop(),
                   child: const Text('Cancel'),
                 ),
                 ElevatedButton(
-                  onPressed: isSubmitting ? null : () async {
-                    setState(() => isSubmitting = true);
-                    try {
-                      await ref.read(staffApiProvider).updateRole(uid: uid, role: selectedRole);
-                      if (context.mounted) Navigator.of(context).pop();
-                    } catch (e) {
-                      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: \$e')));
-                    } finally {
-                      setState(() => isSubmitting = false);
-                    }
-                  },
-                  child: isSubmitting ? const CircularProgressIndicator() : const Text('Save'),
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          setState(() => isSubmitting = true);
+                          try {
+                            await ref
+                                .read(staffApiProvider)
+                                .updateRole(uid: uid, role: selectedRole);
+                            if (context.mounted) Navigator.of(context).pop();
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: \$e')),
+                              );
+                            }
+                          } finally {
+                            setState(() => isSubmitting = false);
+                          }
+                        },
+                  child: isSubmitting
+                      ? const CircularProgressIndicator()
+                      : const Text('Save'),
                 ),
               ],
             );
@@ -157,11 +195,18 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirm Deactivation'),
-        content: const Text('Are you sure you want to disable this staff member? This will immediately revoke their access.'),
+        content: const Text(
+          'Are you sure you want to disable this staff member? This will immediately revoke their access.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.errorContainer),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.errorContainer,
+            ),
             onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Deactivate'),
           ),
@@ -173,7 +218,11 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
       try {
         await ref.read(staffApiProvider).deactivate(uid: uid);
       } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: \$e')));
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: \$e')));
+        }
       }
     }
   }
@@ -194,7 +243,9 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
               children: [
                 Text(
                   'Staff Management',
-                  style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 ElevatedButton.icon(
                   onPressed: _showCreateStaffDialog,
@@ -205,45 +256,52 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
             ),
             const SizedBox(height: 24),
             staffAsync.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (err, stack) => Center(child: Text('Error: \$err')),
-                  data: (staff) {
-                    if (staff.isEmpty) return const Center(child: Text('No staff profiles found.'));
-                    
-                    final source = _StaffDataSource(
-                      staff: staff,
-                      context: context,
-                      onUpdateRole: _updateRole,
-                      onDeactivate: _deactivateStaff,
-                    );
-                    return SizedBox(
-                      width: double.infinity,
-                      child: Theme(
-                        data: theme.copyWith(
-                          cardTheme: const CardThemeData(
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(16)),
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                          ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('Error: \$err')),
+              data: (staff) {
+                if (staff.isEmpty) {
+                  return const Center(child: Text('No staff profiles found.'));
+                }
+
+                final source = _StaffDataSource(
+                  staff: staff,
+                  context: context,
+                  onUpdateRole: _updateRole,
+                  onDeactivate: _deactivateStaff,
+                );
+                return SizedBox(
+                  width: double.infinity,
+                  child: Theme(
+                    data: theme.copyWith(
+                      cardTheme: const CardThemeData(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
                         ),
-                        child: PaginatedDataTable(
-                          source: source,
-                          header: const Text('Staff Directory', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
-                          rowsPerPage: staff.length > 10 ? 10 : staff.length,
-                          columns: const [
-                            DataColumn(label: Text('Email')),
-                            DataColumn(label: Text('Role')),
-                            DataColumn(label: Text('Status')),
-                            DataColumn(label: Text('Actions')),
-                          ],
+                        clipBehavior: Clip.antiAlias,
+                      ),
+                    ),
+                    child: PaginatedDataTable(
+                      source: source,
+                      header: const Text(
+                        'Staff Directory',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
                         ),
                       ),
-                    );
-            },
-          ),
-
+                      rowsPerPage: staff.length > 10 ? 10 : staff.length,
+                      columns: const [
+                        DataColumn(label: Text('Email')),
+                        DataColumn(label: Text('Role')),
+                        DataColumn(label: Text('Status')),
+                        DataColumn(label: Text('Actions')),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -276,18 +334,18 @@ class _StaffDataSource extends DataTableSource {
         DataCell(
           Chip(
             label: Text(s.role.toUpperCase()),
-            backgroundColor: s.role == 'super_admin' 
-                ? Colors.red.withValues(alpha: 0.1) 
+            backgroundColor: s.role == 'super_admin'
+                ? Colors.red.withValues(alpha: 0.1)
                 : s.role == 'concierge'
-                    ? Colors.green.withValues(alpha: 0.1)
-                    : Colors.blue.withValues(alpha: 0.1),
+                ? Colors.green.withValues(alpha: 0.1)
+                : Colors.blue.withValues(alpha: 0.1),
           ),
         ),
         DataCell(
           Icon(
             s.isActive ? Icons.check_circle : Icons.cancel,
             color: s.isActive ? Colors.green : Colors.grey,
-          )
+          ),
         ),
         DataCell(
           Row(

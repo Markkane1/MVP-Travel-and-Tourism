@@ -30,7 +30,9 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
               children: [
                 Text(
                   'Users Management',
-                  style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const Spacer(),
                 SizedBox(
@@ -60,59 +62,71 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                   icon: const Icon(Icons.person_add),
                   label: const Text('Add User'),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
             usersAsync.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (err, stack) => Center(child: Text('Error: \$err')),
-                  data: (users) {
-                    final filteredUsers = users.where((u) {
-                      if (_searchQuery.isEmpty) return true;
-                      return u.email.toLowerCase().contains(_searchQuery) ||
-                             (u.displayName?.toLowerCase().contains(_searchQuery) ?? false) ||
-                             u.id.toLowerCase().contains(_searchQuery);
-                    }).toList();
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('Error: \$err')),
+              data: (users) {
+                final filteredUsers = users.where((u) {
+                  if (_searchQuery.isEmpty) return true;
+                  return u.email.toLowerCase().contains(_searchQuery) ||
+                      (u.displayName?.toLowerCase().contains(_searchQuery) ??
+                          false) ||
+                      u.id.toLowerCase().contains(_searchQuery);
+                }).toList();
 
-                    if (filteredUsers.isEmpty) {
-                      return const Center(child: Text('No users found.'));
-                    }
-                    final source = _UserDataSource(
-                      users: filteredUsers,
-                      context: context,
-                    );
-                    return SizedBox(
-                      width: double.infinity,
-                      child: Theme(
-                        data: theme.copyWith(
-                          cardTheme: const CardThemeData(
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(16)),
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                          ),
+                if (filteredUsers.isEmpty) {
+                  return const Center(child: Text('No users found.'));
+                }
+                final source = _UserDataSource(
+                  users: filteredUsers,
+                  context: context,
+                );
+                return SizedBox(
+                  width: double.infinity,
+                  child: Theme(
+                    data: theme.copyWith(
+                      cardTheme: const CardThemeData(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
                         ),
-                        child: PaginatedDataTable(
-                          source: source,
-                          header: const Text('Users Directory', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
-                          rowsPerPage: filteredUsers.length > 10 ? 10 : filteredUsers.length,
-                          columns: const [
-                            DataColumn(label: Text('User ID')),
-                            DataColumn(label: Text('Email')),
-                            DataColumn(label: Text('Name')),
-                            DataColumn(label: Text('Tier')),
-                            DataColumn(label: Text('Loyalty Pts')),
-                            DataColumn(label: Text('Concierge ID')),
-                          ],
+                        clipBehavior: Clip.antiAlias,
+                      ),
+                    ),
+                    child: PaginatedDataTable(
+                      source: source,
+                      header: const Text(
+                        'Users Directory',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
                         ),
                       ),
-                    );
-            },
-          ), // usersAsync.when
+                      rowsPerPage: filteredUsers.length > 10
+                          ? 10
+                          : filteredUsers.length,
+                      columns: const [
+                        DataColumn(label: Text('User ID')),
+                        DataColumn(label: Text('Email')),
+                        DataColumn(label: Text('Name')),
+                        DataColumn(label: Text('Tier')),
+                        DataColumn(label: Text('Loyalty Pts')),
+                        DataColumn(label: Text('Concierge ID')),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ), // usersAsync.when
           ],
         ),
       ),
@@ -148,8 +162,8 @@ class _UserDataSource extends DataTableSource {
             backgroundColor: u.tier == 'platinum'
                 ? Colors.purple.withValues(alpha: 0.1)
                 : u.tier == 'gold'
-                    ? Colors.orange.withValues(alpha: 0.1)
-                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                ? Colors.orange.withValues(alpha: 0.1)
+                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
           ),
         ),
         DataCell(Text(u.loyaltyPoints.toString())),

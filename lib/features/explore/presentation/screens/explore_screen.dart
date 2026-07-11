@@ -65,11 +65,16 @@ class ExploreScreen extends ConsumerWidget {
               child: CircleAvatar(
                 radius: 18.0,
                 backgroundColor: AppColors.primaryContainer,
-                backgroundImage: user?.photoUrl != null && user!.photoUrl!.isNotEmpty
+                backgroundImage:
+                    user?.photoUrl != null && user!.photoUrl!.isNotEmpty
                     ? NetworkImage(user.photoUrl!)
                     : null,
                 child: user?.photoUrl == null || user!.photoUrl!.isEmpty
-                    ? const Icon(Icons.person, size: 20.0, color: AppColors.primary)
+                    ? const Icon(
+                        Icons.person,
+                        size: 20.0,
+                        color: AppColors.primary,
+                      )
                     : null,
               ),
             ),
@@ -161,7 +166,9 @@ class ExploreScreen extends ConsumerWidget {
                     data: (tours) {
                       if (tours.isEmpty) {
                         return const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg,
+                          ),
                           child: Text(
                             'Featured tours will appear here once they are available.',
                             style: TextStyle(color: AppColors.onSurfaceVariant),
@@ -211,7 +218,9 @@ class ExploreScreen extends ConsumerWidget {
                     data: (destinations) {
                       if (destinations.isEmpty) {
                         return const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg,
+                          ),
                           child: Text(
                             'Popular destinations will appear here soon.',
                             style: TextStyle(color: AppColors.onSurfaceVariant),

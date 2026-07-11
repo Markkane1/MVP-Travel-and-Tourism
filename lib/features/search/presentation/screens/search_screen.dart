@@ -153,7 +153,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           icon: const Icon(Icons.menu, color: AppColors.onSurface),
           onPressed: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Search filters are available below.')),
+              const SnackBar(
+                content: Text('Search filters are available below.'),
+              ),
             );
           },
         ),
@@ -170,11 +172,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             child: CircleAvatar(
               radius: 18.0,
               backgroundColor: AppColors.primaryContainer,
-              backgroundImage: user?.photoUrl != null && user!.photoUrl!.isNotEmpty
+              backgroundImage:
+                  user?.photoUrl != null && user!.photoUrl!.isNotEmpty
                   ? NetworkImage(user.photoUrl!)
                   : null,
               child: user?.photoUrl == null || user!.photoUrl!.isEmpty
-                  ? const Icon(Icons.person, size: 20.0, color: AppColors.primary)
+                  ? const Icon(
+                      Icons.person,
+                      size: 20.0,
+                      color: AppColors.primary,
+                    )
                   : null,
             ),
           ),
@@ -426,7 +433,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   data: (tourList) {
                     // Sort by rating and take top 3
                     final sortedList = tourList.toList()
-                      ..sort((a, b) => b.ratingAverage.compareTo(a.ratingAverage));
+                      ..sort(
+                        (a, b) => b.ratingAverage.compareTo(a.ratingAverage),
+                      );
                     final tours = sortedList.take(3).toList();
 
                     if (tours.isEmpty) {

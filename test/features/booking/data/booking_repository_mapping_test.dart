@@ -75,38 +75,45 @@ void main() {
     mockDocRef = MockDocumentReference();
     mockSnapshot = MockDocumentSnapshot();
 
-    when(() => mockFirestore.collection('bookings'))
-        .thenReturn(mockCollection);
+    when(() => mockFirestore.collection('bookings')).thenReturn(mockCollection);
     when(() => mockCollection.doc('booking-1')).thenReturn(mockDocRef);
 
     when(() => mockSnapshot.exists).thenReturn(true);
     when(() => mockSnapshot.id).thenReturn('booking-1');
-    when(() => mockSnapshot.data())
-        .thenReturn(_rawBookingData(tourDate: tourDate, createdAt: createdAt));
-    when(() => mockDocRef.snapshots())
-        .thenAnswer((_) => Stream.value(mockSnapshot));
+    when(
+      () => mockSnapshot.data(),
+    ).thenReturn(_rawBookingData(tourDate: tourDate, createdAt: createdAt));
+    when(
+      () => mockDocRef.snapshots(),
+    ).thenAnswer((_) => Stream.value(mockSnapshot));
   });
 
   group('BookingRepository — Timestamp conversion', () {
-    test('watchBooking converts Timestamp tourDate to DateTime correctly', () async {
-      final repo = BookingRepository(mockFirestore);
-      final booking = await repo.watchBooking('booking-1').first;
+    test(
+      'watchBooking converts Timestamp tourDate to DateTime correctly',
+      () async {
+        final repo = BookingRepository(mockFirestore);
+        final booking = await repo.watchBooking('booking-1').first;
 
-      expect(booking, isNotNull);
-      expect(booking!.tourDate.year, equals(2026));
-      expect(booking.tourDate.month, equals(8));
-      expect(booking.tourDate.day, equals(15));
-    });
+        expect(booking, isNotNull);
+        expect(booking!.tourDate.year, equals(2026));
+        expect(booking.tourDate.month, equals(8));
+        expect(booking.tourDate.day, equals(15));
+      },
+    );
 
-    test('watchBooking converts Timestamp createdAt to DateTime correctly', () async {
-      final repo = BookingRepository(mockFirestore);
-      final booking = await repo.watchBooking('booking-1').first;
+    test(
+      'watchBooking converts Timestamp createdAt to DateTime correctly',
+      () async {
+        final repo = BookingRepository(mockFirestore);
+        final booking = await repo.watchBooking('booking-1').first;
 
-      expect(booking, isNotNull);
-      expect(booking!.createdAt.year, equals(2026));
-      expect(booking.createdAt.month, equals(7));
-      expect(booking.createdAt.day, equals(1));
-    });
+        expect(booking, isNotNull);
+        expect(booking!.createdAt.year, equals(2026));
+        expect(booking.createdAt.month, equals(7));
+        expect(booking.createdAt.day, equals(1));
+      },
+    );
 
     test('watchBooking maps status, totalPrice, adults correctly', () async {
       final repo = BookingRepository(mockFirestore);
@@ -126,8 +133,9 @@ void main() {
     });
 
     test('watchBooking maps backend stream errors to AppException', () async {
-      when(() => mockDocRef.snapshots())
-          .thenAnswer((_) => Stream.error(Exception('boom')));
+      when(
+        () => mockDocRef.snapshots(),
+      ).thenAnswer((_) => Stream.error(Exception('boom')));
 
       final repo = BookingRepository(mockFirestore);
 

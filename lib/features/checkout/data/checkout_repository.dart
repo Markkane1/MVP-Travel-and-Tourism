@@ -23,9 +23,7 @@ class CheckoutRepository {
       final data = response.data as Map?;
       return Result.success(data?.cast<String, dynamic>());
     } on FirebaseFunctionsException catch (e) {
-      if (
-          Env.isDev &&
-          (e.code == 'not-found' || e.code == 'unavailable')) {
+      if (Env.isDev && (e.code == 'not-found' || e.code == 'unavailable')) {
         final shortId = bookingId.length >= 5
             ? bookingId.substring(0, 5).toUpperCase()
             : bookingId.toUpperCase();

@@ -17,14 +17,12 @@ class AppTheme {
       colorScheme: colors,
       scaffoldBackgroundColor: colors.surface,
       textTheme: textTheme,
-      
+
       // Card Theme
       cardTheme: const CardThemeData(
         color: AppColors.surfaceContainerLowest,
         elevation: 0.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadii.borderLg,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppRadii.borderLg),
       ),
 
       // App Bar Theme
@@ -80,7 +78,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surfaceContainer,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 16.0,
+        ),
         border: const OutlineInputBorder(
           borderRadius: AppRadii.borderDefault,
           borderSide: BorderSide.none,
@@ -101,7 +102,9 @@ class AppTheme {
           borderRadius: AppRadii.borderDefault,
           borderSide: BorderSide(color: colors.error, width: 2.0),
         ),
-        labelStyle: AppTypography.bodyMd.copyWith(color: colors.onSurfaceVariant),
+        labelStyle: AppTypography.bodyMd.copyWith(
+          color: colors.onSurfaceVariant,
+        ),
         hintStyle: AppTypography.bodyMd.copyWith(color: colors.outline),
         errorStyle: AppTypography.labelSm.copyWith(color: colors.error),
       ),
@@ -115,7 +118,9 @@ class AppTheme {
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
         shape: const StadiumBorder(),
         labelStyle: AppTypography.labelSm.copyWith(color: colors.onSurface),
-        secondaryLabelStyle: AppTypography.labelSm.copyWith(color: colors.onPrimary),
+        secondaryLabelStyle: AppTypography.labelSm.copyWith(
+          color: colors.onPrimary,
+        ),
         checkmarkColor: colors.onPrimary,
         side: BorderSide.none,
       ),
@@ -125,8 +130,12 @@ class AppTheme {
         backgroundColor: AppColors.surfaceContainerLowest,
         selectedItemColor: colors.primary,
         unselectedItemColor: colors.onSurfaceVariant,
-        selectedLabelStyle: AppTypography.labelSm.copyWith(color: colors.primary),
-        unselectedLabelStyle: AppTypography.labelSm.copyWith(color: colors.onSurfaceVariant),
+        selectedLabelStyle: AppTypography.labelSm.copyWith(
+          color: colors.primary,
+        ),
+        unselectedLabelStyle: AppTypography.labelSm.copyWith(
+          color: colors.onSurfaceVariant,
+        ),
         type: BottomNavigationBarType.fixed,
         elevation: 8.0,
       ),

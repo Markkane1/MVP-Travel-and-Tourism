@@ -17,7 +17,8 @@ class CloudinaryService {
   // Replace these with your actual Cloudinary credentials.
   // These are safe to embed in a client app when using an UNSIGNED upload preset.
   static const String _cloudName = 'YOUR_CLOUD_NAME'; // e.g. 'mvp-travels'
-  static const String _uploadPreset = 'YOUR_UNSIGNED_PRESET'; // e.g. 'mvp_admin_uploads'
+  static const String _uploadPreset =
+      'YOUR_UNSIGNED_PRESET'; // e.g. 'mvp_admin_uploads'
 
   static String get _uploadUrl =>
       'https://api.cloudinary.com/v1_1/$_cloudName/image/upload';
@@ -41,11 +42,7 @@ class CloudinaryService {
       request.fields['folder'] = folder;
 
       request.files.add(
-        http.MultipartFile.fromBytes(
-          'file',
-          bytes,
-          filename: fileName,
-        ),
+        http.MultipartFile.fromBytes('file', bytes, filename: fileName),
       );
 
       final streamedResponse = await request.send();

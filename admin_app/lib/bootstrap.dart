@@ -17,42 +17,43 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   };
 
   // Run app in an error-boundary zone
-  unawaited(runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  unawaited(
+    runZonedGuarded(
+      () async {
+        WidgetsFlutterBinding.ensureInitialized();
 
-    // Initialize Firebase for Web
-    await Firebase.initializeApp(options: Env.firebaseOptions);
+        // Initialize Firebase for Web
+        await Firebase.initializeApp(options: Env.firebaseOptions);
 
-    if (Env.isProd) {
-      PlatformDispatcher.instance.onError = (error, stack) {
-        // Log to crashlytics later if configured
-        return true;
-      };
-    } else {
-      PlatformDispatcher.instance.onError = (error, stack) {
-        if (kDebugMode) {
-          print('Uncaught async error in debug mode: $error');
-          print(stack);
+        if (Env.isProd) {
+          PlatformDispatcher.instance.onError = (error, stack) {
+            // Log to crashlytics later if configured
+            return true;
+          };
+        } else {
+          PlatformDispatcher.instance.onError = (error, stack) {
+            if (kDebugMode) {
+              print('Uncaught async error in debug mode: $error');
+              print(stack);
+            }
+            return true;
+          };
         }
-        return true;
-      };
-    }
 
-    final appWidget = await builder();
+        final appWidget = await builder();
 
-    runApp(
-      ProviderScope(
-        child: appWidget,
-      ),
-    );
-  }, (error, stackTrace) {
-    if (Env.isProd) {
-      // Log to crashlytics
-    } else {
-      if (kDebugMode) {
-        print('Caught unhandled error in zone: $error');
-        print(stackTrace);
-      }
-    }
-  }));
+        runApp(ProviderScope(child: appWidget));
+      },
+      (error, stackTrace) {
+        if (Env.isProd) {
+          // Log to crashlytics
+        } else {
+          if (kDebugMode) {
+            print('Caught unhandled error in zone: $error');
+            print(stackTrace);
+          }
+        }
+      },
+    ),
+  );
 }

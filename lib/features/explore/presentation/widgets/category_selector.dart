@@ -83,7 +83,9 @@ class _CategorySelectorState extends State<CategorySelector> {
                       Text(
                         category['name'] as String,
                         style: theme.textTheme.labelMedium?.copyWith(
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.w500,
                           color: isSelected
                               ? AppColors.primary
                               : AppColors.onSurfaceVariant,

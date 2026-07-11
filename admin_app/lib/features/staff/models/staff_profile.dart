@@ -15,7 +15,8 @@ abstract class StaffProfile with _$StaffProfile {
     DateTime? updatedAt,
   }) = _StaffProfile;
 
-  factory StaffProfile.fromJson(Map<String, dynamic> json) => _$StaffProfileFromJson(json);
+  factory StaffProfile.fromJson(Map<String, dynamic> json) =>
+      _$StaffProfileFromJson(json);
 }
 
 DateTime? _timestampFromJson(dynamic value) {

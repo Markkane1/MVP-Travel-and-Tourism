@@ -128,13 +128,21 @@ class TierBenefitsScreen extends StatelessWidget {
               ),
             ],
           ),
-          const Divider(height: 24.0, color: AppColors.outlineVariant, thickness: 1.0),
+          const Divider(
+            height: 24.0,
+            color: AppColors.outlineVariant,
+            thickness: 1.0,
+          ),
           ...benefits.map((benefit) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: Row(
                 children: [
-                  Icon(Icons.check, color: isGold ? AppColors.secondary : AppColors.primary, size: 16.0),
+                  Icon(
+                    Icons.check,
+                    color: isGold ? AppColors.secondary : AppColors.primary,
+                    size: 16.0,
+                  ),
                   const SizedBox(width: 12.0),
                   Expanded(
                     child: Text(

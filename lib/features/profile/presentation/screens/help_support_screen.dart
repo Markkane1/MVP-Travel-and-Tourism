@@ -14,9 +14,7 @@ class HelpSupportScreen extends StatelessWidget {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
       path: 'support@mvptravel.com',
-      queryParameters: {
-        'subject': 'MVP Travel & Tourism - Support Request'
-      },
+      queryParameters: {'subject': 'MVP Travel & Tourism - Support Request'},
     );
 
     if (await canLaunchUrl(emailLaunchUri)) {
@@ -27,7 +25,9 @@ class HelpSupportScreen extends StatelessWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Unable to open your email app right now. Please try again later.'),
+          content: Text(
+            'Unable to open your email app right now. Please try again later.',
+          ),
         ),
       );
     }
@@ -139,9 +139,17 @@ class HelpSupportScreen extends StatelessWidget {
             AppCard(
               child: Column(
                 children: [
-                  _buildLegalRow(context, 'Terms of Use', () => context.push(RoutePaths.legalTerms)),
+                  _buildLegalRow(
+                    context,
+                    'Terms of Use',
+                    () => context.push(RoutePaths.legalTerms),
+                  ),
                   const Divider(height: 16.0, color: AppColors.outlineVariant),
-                  _buildLegalRow(context, 'Privacy Policy', () => context.push(RoutePaths.legalPrivacy)),
+                  _buildLegalRow(
+                    context,
+                    'Privacy Policy',
+                    () => context.push(RoutePaths.legalPrivacy),
+                  ),
                 ],
               ),
             ),
@@ -179,14 +187,19 @@ class HelpSupportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLegalRow(BuildContext context, String label, VoidCallback onTap) {
+  Widget _buildLegalRow(
+    BuildContext context,
+    String label,
+    VoidCallback onTap,
+  ) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      title: Text(
-        label,
-        style: const TextStyle(fontWeight: FontWeight.bold),
+      title: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+      trailing: const Icon(
+        Icons.arrow_forward_ios,
+        size: 14.0,
+        color: AppColors.onSurfaceVariant,
       ),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 14.0, color: AppColors.onSurfaceVariant),
       onTap: onTap,
     );
   }

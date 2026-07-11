@@ -9,10 +9,10 @@ final staffStreamProvider = StreamProvider.autoDispose<List<StaffModel>>((ref) {
       .orderBy('createdAt', descending: true)
       .snapshots()
       .map((snapshot) {
-    return snapshot.docs
-        .map((doc) => StaffModel.fromFirestore(doc.data(), doc.id))
-        .toList();
-  });
+        return snapshot.docs
+            .map((doc) => StaffModel.fromFirestore(doc.data(), doc.id))
+            .toList();
+      });
 });
 
 class StaffApi {
@@ -34,19 +34,12 @@ class StaffApi {
 
   Future<void> updateRole({required String uid, required String role}) async {
     final callable = _functions.httpsCallable('adminManageStaff');
-    await callable.call({
-      'action': 'updateRole',
-      'uid': uid,
-      'role': role,
-    });
+    await callable.call({'action': 'updateRole', 'uid': uid, 'role': role});
   }
 
   Future<void> deactivate({required String uid}) async {
     final callable = _functions.httpsCallable('adminManageStaff');
-    await callable.call({
-      'action': 'deactivate',
-      'uid': uid,
-    });
+    await callable.call({'action': 'deactivate', 'uid': uid});
   }
 }
 

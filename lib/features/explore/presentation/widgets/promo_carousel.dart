@@ -76,7 +76,9 @@ class _PromoCarouselState extends State<PromoCarousel> {
                 return GestureDetector(
                   onTap: () => context.push('/tour/${tour.id}'),
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: AppRadii.borderLg,
                       image: DecorationImage(

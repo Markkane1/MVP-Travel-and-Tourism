@@ -4,7 +4,8 @@ import 'dart:io';
 
 Future<void> main() async {
   final config = await _readFirebaseConfig();
-  final email = Platform.environment['SEED_EMAIL'] ?? 'codex.demo.mvptravel@gmail.com';
+  final email =
+      Platform.environment['SEED_EMAIL'] ?? 'codex.demo.mvptravel@gmail.com';
   final password = Platform.environment['SEED_PASSWORD'] ?? 'Codex1234!';
 
   final auth = await _authenticateEmailUser(
@@ -29,7 +30,8 @@ Future<void> main() async {
     data: {
       'displayName': 'Codex Demo',
       'email': email,
-      'photoUrl': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=300',
+      'photoUrl':
+          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=300',
       'tier': 'Gold',
       'loyaltyPoints': 1200,
       'milesTraveled': 18450,
@@ -52,11 +54,7 @@ Future<void> main() async {
     projectId: config.projectId,
     path: 'users/$uid/paymentMethods/demo-card',
     headers: headers,
-    data: {
-      'brand': 'Visa',
-      'last4': '4242',
-      'isDefault': true,
-    },
+    data: {'brand': 'Visa', 'last4': '4242', 'isDefault': true},
   );
 
   await _setDoc(
@@ -78,7 +76,8 @@ Future<void> main() async {
       'role': 'Senior Travel Specialist',
       'specialty': 'Luxury Safaris & Lodges',
       'languages': 'English, Spanish, French',
-      'photoUrl': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400',
+      'photoUrl':
+          'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400',
       'isOnline': true,
     },
   );
@@ -89,7 +88,8 @@ Future<void> main() async {
     headers: headers,
     data: {
       'typing': false,
-      'lastMessage': 'Welcome back. Your Kyoto follow-up is ready whenever you are.',
+      'lastMessage':
+          'Welcome back. Your Kyoto follow-up is ready whenever you are.',
       'lastMessageAt': DateTime.now().subtract(const Duration(hours: 2)),
     },
   );
@@ -117,7 +117,8 @@ Future<void> main() async {
       'tourId': 'kyoto-walk',
       'tourSnapshot': {
         'title': 'Kyoto Heritage Walk',
-        'heroImageUrl': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=800',
+        'heroImageUrl':
+            'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=800',
         'destination': 'Kyoto, Japan',
       },
       'tourDate': DateTime.now().subtract(const Duration(days: 10)),
@@ -253,12 +254,12 @@ Map<String, dynamic> encodeFirestoreValue(dynamic value) {
   if (value is int) return {'integerValue': value.toString()};
   if (value is double) return {'doubleValue': value};
   if (value is bool) return {'booleanValue': value};
-  if (value is DateTime) return {'timestampValue': value.toUtc().toIso8601String()};
+  if (value is DateTime) {
+    return {'timestampValue': value.toUtc().toIso8601String()};
+  }
   if (value is List) {
     return {
-      'arrayValue': {
-        'values': value.map(encodeFirestoreValue).toList(),
-      },
+      'arrayValue': {'values': value.map(encodeFirestoreValue).toList()},
     };
   }
   if (value is Map) {
@@ -283,8 +284,5 @@ class _FirebaseConfig {
   final String apiKey;
   final String projectId;
 
-  const _FirebaseConfig({
-    required this.apiKey,
-    required this.projectId,
-  });
+  const _FirebaseConfig({required this.apiKey, required this.projectId});
 }

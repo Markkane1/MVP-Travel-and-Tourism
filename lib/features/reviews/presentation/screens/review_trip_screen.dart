@@ -125,7 +125,9 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
   Future<void> _submitReview(Booking booking) async {
     if (_overallRating == 0.0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an overall rating before submitting.')),
+        const SnackBar(
+          content: Text('Please select an overall rating before submitting.'),
+        ),
       );
       return;
     }
@@ -133,7 +135,9 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
     final user = ref.read(authServiceProvider).currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please sign in before submitting a review.')),
+        const SnackBar(
+          content: Text('Please sign in before submitting a review.'),
+        ),
       );
       return;
     }

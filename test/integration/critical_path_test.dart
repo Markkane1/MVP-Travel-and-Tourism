@@ -226,7 +226,11 @@ Future<void> _settle(
 
 Future<void> _pressElevatedButton(WidgetTester tester, Finder finder) async {
   final button = tester.widget<ElevatedButton>(finder);
-  expect(button.onPressed, isNotNull, reason: 'Expected enabled button: $finder');
+  expect(
+    button.onPressed,
+    isNotNull,
+    reason: 'Expected enabled button: $finder',
+  );
   button.onPressed!.call();
   await tester.pump();
 }

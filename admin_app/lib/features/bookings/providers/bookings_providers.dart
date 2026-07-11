@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,10 +9,10 @@ final bookingsStreamProvider = StreamProvider.autoDispose<List<Booking>>((ref) {
       .orderBy('createdAt', descending: true)
       .snapshots()
       .map((snapshot) {
-    return snapshot.docs
-        .map((doc) => Booking.fromFirestore(doc.data(), doc.id))
-        .toList();
-  });
+        return snapshot.docs
+            .map((doc) => Booking.fromFirestore(doc.data(), doc.id))
+            .toList();
+      });
 });
 
 class BookingsApi {
@@ -37,9 +36,7 @@ class BookingsApi {
     final currentStatus = bookingDoc.data()?['status'] as String? ?? '';
     final allowed = _allowedTransitions[currentStatus] ?? [];
     if (!allowed.contains(nextStatus)) {
-      throw Exception(
-        'Invalid transition: $currentStatus → $nextStatus.',
-      );
+      throw Exception('Invalid transition: $currentStatus → $nextStatus.');
     }
 
     final actor = _auth.currentUser;
@@ -106,7 +103,7 @@ class BookingsApi {
     final data = newBooking.toJson();
     data['id'] = docRef.id;
     data['createdAt'] = FieldValue.serverTimestamp();
-    
+
     batch.set(docRef, data);
 
     batch.set(_db.collection('admin_audit_logs').doc(), {
@@ -122,7 +119,10 @@ class BookingsApi {
     await batch.commit();
   }
 
-  Future<void> updateBookingDetails(String bookingId, Map<String, dynamic> updates) async {
+  Future<void> updateBookingDetails(
+    String bookingId,
+    Map<String, dynamic> updates,
+  ) async {
     final actor = _auth.currentUser;
     final batch = _db.batch();
 

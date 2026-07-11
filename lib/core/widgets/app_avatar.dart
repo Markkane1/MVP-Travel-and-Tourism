@@ -27,10 +27,7 @@ class AppAvatar extends StatelessWidget {
         imageBuilder: (context, imageProvider) => Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            image: DecorationImage(
-              image: imageProvider,
-              fit: BoxFit.cover,
-            ),
+            image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
           ),
         ),
         placeholder: (context, url) => Container(
@@ -75,7 +72,9 @@ class AppAvatar extends StatelessWidget {
 
   Widget _buildFallback(BuildContext context) {
     final theme = Theme.of(context);
-    final fallbackText = initials != null && initials!.isNotEmpty ? initials! : '?';
+    final fallbackText = initials != null && initials!.isNotEmpty
+        ? initials!
+        : '?';
 
     return Container(
       decoration: const BoxDecoration(

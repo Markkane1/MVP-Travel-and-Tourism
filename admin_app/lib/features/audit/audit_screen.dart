@@ -27,10 +27,16 @@ class AuditScreen extends ConsumerWidget {
                 if (log.reason != null && log.reason!.isNotEmpty)
                   _DetailRow('Reason', log.reason!),
                 if (log.createdAt != null)
-                  _DetailRow('Date', DateFormat.yMMMd().add_Hms().format(log.createdAt!)),
+                  _DetailRow(
+                    'Date',
+                    DateFormat.yMMMd().add_Hms().format(log.createdAt!),
+                  ),
                 const SizedBox(height: 16),
                 if (log.before != null) ...[
-                  const Text('Before:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Before:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(8),
@@ -40,7 +46,10 @@ class AuditScreen extends ConsumerWidget {
                   const SizedBox(height: 8),
                 ],
                 if (log.after != null) ...[
-                  const Text('After:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'After:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(8),
@@ -74,7 +83,9 @@ class AuditScreen extends ConsumerWidget {
           children: [
             Text(
               'Security Audit Logs',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
             Expanded(
@@ -82,27 +93,44 @@ class AuditScreen extends ConsumerWidget {
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
                 ),
                 child: auditLogsAsync.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (err, stack) => Center(child: Text('Error loading logs: \$err')),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (err, stack) =>
+                      Center(child: Text('Error loading logs: \$err')),
                   data: (logs) {
                     if (logs.isEmpty) {
-                      return const Center(child: Text('No audit logs available.'));
+                      return const Center(
+                        child: Text('No audit logs available.'),
+                      );
                     }
                     return ListView.separated(
                       itemCount: logs.length,
-                      separatorBuilder: (context, index) => const Divider(height: 1),
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final log = logs[index];
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: _getActionColor(log.action).withValues(alpha: 0.1),
-                            child: Icon(_getActionIcon(log.action), color: _getActionColor(log.action)),
+                            backgroundColor: _getActionColor(
+                              log.action,
+                            ).withValues(alpha: 0.1),
+                            child: Icon(
+                              _getActionIcon(log.action),
+                              color: _getActionColor(log.action),
+                            ),
                           ),
-                          title: Text(log.summary, style: const TextStyle(fontWeight: FontWeight.w500)),
-                          subtitle: Text('${log.actorEmail} • ${log.createdAt != null ? DateFormat.yMMMd().add_jm().format(log.createdAt!) : ''}'),
+                          title: Text(
+                            log.summary,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                          subtitle: Text(
+                            '${log.actorEmail} • ${log.createdAt != null ? DateFormat.yMMMd().add_jm().format(log.createdAt!) : ''}',
+                          ),
                           trailing: IconButton(
                             icon: const Icon(Icons.chevron_right),
                             onPressed: () => _showDetails(context, log),
@@ -122,16 +150,24 @@ class AuditScreen extends ConsumerWidget {
   }
 
   Color _getActionColor(String action) {
-    if (action.contains('Delete') || action.contains('deactivate')) return Colors.red;
+    if (action.contains('Delete') || action.contains('deactivate')) {
+      return Colors.red;
+    }
     if (action.contains('Create')) return Colors.green;
-    if (action.contains('Update') || action.contains('updateRole')) return Colors.blue;
+    if (action.contains('Update') || action.contains('updateRole')) {
+      return Colors.blue;
+    }
     return Colors.grey;
   }
 
   IconData _getActionIcon(String action) {
-    if (action.contains('Delete') || action.contains('deactivate')) return Icons.delete;
+    if (action.contains('Delete') || action.contains('deactivate')) {
+      return Icons.delete;
+    }
     if (action.contains('Create')) return Icons.add_circle;
-    if (action.contains('Update') || action.contains('updateRole')) return Icons.edit;
+    if (action.contains('Update') || action.contains('updateRole')) {
+      return Icons.edit;
+    }
     return Icons.info;
   }
 }
@@ -150,7 +186,13 @@ class _DetailRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 100,
-            child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
+            ),
           ),
           Expanded(child: Text(value)),
         ],

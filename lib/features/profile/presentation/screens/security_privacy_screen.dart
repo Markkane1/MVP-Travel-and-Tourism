@@ -16,7 +16,8 @@ class SecurityPrivacyScreen extends ConsumerStatefulWidget {
   const SecurityPrivacyScreen({super.key});
 
   @override
-  ConsumerState<SecurityPrivacyScreen> createState() => _SecurityPrivacyScreenState();
+  ConsumerState<SecurityPrivacyScreen> createState() =>
+      _SecurityPrivacyScreenState();
 }
 
 class _SecurityPrivacyScreenState extends ConsumerState<SecurityPrivacyScreen> {
@@ -31,28 +32,36 @@ class _SecurityPrivacyScreenState extends ConsumerState<SecurityPrivacyScreen> {
     });
 
     try {
-      final res = await ref.read(authControllerProvider.notifier).sendPasswordReset(user.email);
+      final res = await ref
+          .read(authControllerProvider.notifier)
+          .sendPasswordReset(user.email);
       res.when(
         onSuccess: (_) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Password reset link sent to your email.')),
+              const SnackBar(
+                content: Text('Password reset link sent to your email.'),
+              ),
             );
           }
         },
         onFailure: (exception) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to send reset link: ${exception.message}')),
+              SnackBar(
+                content: Text(
+                  'Failed to send reset link: ${exception.message}',
+                ),
+              ),
             );
           }
         },
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
       }
     } finally {
       setState(() {
@@ -72,13 +81,19 @@ class _SecurityPrivacyScreenState extends ConsumerState<SecurityPrivacyScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel', style: TextStyle(color: AppColors.onSurfaceVariant)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.onSurfaceVariant),
+              ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
               child: Text(
                 AppStrings.profile.deleteConfirmButton,
-                style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: AppColors.error,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -94,7 +109,9 @@ class _SecurityPrivacyScreenState extends ConsumerState<SecurityPrivacyScreen> {
 
     try {
       // 1. Call Cloud Function to delete user-related Firestore data
-      final cleanupRes = await ref.read(profileRepositoryProvider).cleanupUserData();
+      final cleanupRes = await ref
+          .read(profileRepositoryProvider)
+          .cleanupUserData();
 
       await cleanupRes.when(
         onSuccess: (_) async {
@@ -114,7 +131,11 @@ class _SecurityPrivacyScreenState extends ConsumerState<SecurityPrivacyScreen> {
             onFailure: (exception) {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Auth account deletion failed: ${exception.message}')),
+                  SnackBar(
+                    content: Text(
+                      'Auth account deletion failed: ${exception.message}',
+                    ),
+                  ),
                 );
               }
             },
@@ -122,9 +143,9 @@ class _SecurityPrivacyScreenState extends ConsumerState<SecurityPrivacyScreen> {
         },
         onFailure: (exception) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(exception.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(exception.message)));
           }
         },
       );

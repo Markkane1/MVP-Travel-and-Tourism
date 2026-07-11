@@ -86,5 +86,6 @@ class NotificationsApi {
   }
 }
 
-final notificationsApiProvider =
-    Provider<NotificationsApi>((ref) => NotificationsApi());
+final notificationsApiProvider = Provider<NotificationsApi>(
+  (ref) => NotificationsApi(),
+);

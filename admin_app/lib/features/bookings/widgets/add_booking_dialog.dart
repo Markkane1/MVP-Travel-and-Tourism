@@ -15,7 +15,7 @@ class _AddBookingDialogState extends ConsumerState<AddBookingDialog> {
   final _userIdController = TextEditingController();
   final _tourIdController = TextEditingController();
   final _pickupLocationController = TextEditingController();
-  
+
   DateTime? _selectedDate;
   int _adults = 1;
   int _children = 0;
@@ -48,10 +48,12 @@ class _AddBookingDialogState extends ConsumerState<AddBookingDialog> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a date')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a date')));
       return;
     }
-    
+
     setState(() => _isSubmitting = true);
 
     try {
@@ -73,7 +75,9 @@ class _AddBookingDialogState extends ConsumerState<AddBookingDialog> {
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -94,21 +98,36 @@ class _AddBookingDialogState extends ConsumerState<AddBookingDialog> {
               children: [
                 TextFormField(
                   controller: _userIdController,
-                  decoration: const InputDecoration(labelText: 'User ID', border: OutlineInputBorder()),
-                  validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'User ID',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _tourIdController,
-                  decoration: const InputDecoration(labelText: 'Tour ID', border: OutlineInputBorder()),
-                  validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Tour ID',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 ListTile(
-                  title: Text(_selectedDate == null ? 'Select Date' : 'Date: ${_selectedDate!.toLocal().toString().split(' ')[0]}'),
+                  title: Text(
+                    _selectedDate == null
+                        ? 'Select Date'
+                        : 'Date: ${_selectedDate!.toLocal().toString().split(' ')[0]}',
+                  ),
                   trailing: const Icon(Icons.calendar_today),
                   onTap: _selectDate,
-                  shape: RoundedRectangleBorder(side: BorderSide(color: Colors.grey.shade400), borderRadius: BorderRadius.circular(4)),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(color: Colors.grey.shade400),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -116,8 +135,17 @@ class _AddBookingDialogState extends ConsumerState<AddBookingDialog> {
                     Expanded(
                       child: DropdownButtonFormField<int>(
                         initialValue: _adults,
-                        decoration: const InputDecoration(labelText: 'Adults', border: OutlineInputBorder()),
-                        items: List.generate(10, (i) => DropdownMenuItem(value: i + 1, child: Text('${i + 1}'))),
+                        decoration: const InputDecoration(
+                          labelText: 'Adults',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: List.generate(
+                          10,
+                          (i) => DropdownMenuItem(
+                            value: i + 1,
+                            child: Text('${i + 1}'),
+                          ),
+                        ),
                         onChanged: (val) => setState(() => _adults = val ?? 1),
                       ),
                     ),
@@ -125,9 +153,16 @@ class _AddBookingDialogState extends ConsumerState<AddBookingDialog> {
                     Expanded(
                       child: DropdownButtonFormField<int>(
                         initialValue: _children,
-                        decoration: const InputDecoration(labelText: 'Children', border: OutlineInputBorder()),
-                        items: List.generate(10, (i) => DropdownMenuItem(value: i, child: Text('$i'))),
-                        onChanged: (val) => setState(() => _children = val ?? 0),
+                        decoration: const InputDecoration(
+                          labelText: 'Children',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: List.generate(
+                          10,
+                          (i) => DropdownMenuItem(value: i, child: Text('$i')),
+                        ),
+                        onChanged: (val) =>
+                            setState(() => _children = val ?? 0),
                       ),
                     ),
                   ],
@@ -135,8 +170,12 @@ class _AddBookingDialogState extends ConsumerState<AddBookingDialog> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _pickupLocationController,
-                  decoration: const InputDecoration(labelText: 'Pickup Location', border: OutlineInputBorder()),
-                  validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Pickup Location',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
                 SwitchListTile(
@@ -147,10 +186,14 @@ class _AddBookingDialogState extends ConsumerState<AddBookingDialog> {
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Total Price (\$)', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Total Price (\$)',
+                    border: OutlineInputBorder(),
+                  ),
                   keyboardType: TextInputType.number,
                   onChanged: (val) => _totalPrice = double.tryParse(val) ?? 0.0,
-                  validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'Required' : null,
                 ),
               ],
             ),
@@ -164,7 +207,13 @@ class _AddBookingDialogState extends ConsumerState<AddBookingDialog> {
         ),
         ElevatedButton(
           onPressed: _isSubmitting ? null : _submit,
-          child: _isSubmitting ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Create Booking'),
+          child: _isSubmitting
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Create Booking'),
         ),
       ],
     );

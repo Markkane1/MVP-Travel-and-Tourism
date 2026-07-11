@@ -51,6 +51,34 @@ export const adminUpdateBookingStatusLogic = async (
       lastAdminActionBy: callerAuth.uid,
     });
 
+    // 3.1 Points Handling
+    if (currentStatus === 'pending' && nextStatus === 'confirmed') {
+       // Award points
+       const totalPrice = bookingData.totalPrice || 0;
+       const pointsToAward = Math.floor(totalPrice / 10);
+       
+       const userRef = db.collection('users').doc(bookingData.userId);
+       const userDoc = await transaction.get(userRef);
+       let currentPoints = 0;
+       if (userDoc.exists) {
+         currentPoints = userDoc.data()?.loyaltyPoints || 0;
+       }
+       transaction.update(userRef, { loyaltyPoints: currentPoints + pointsToAward });
+    } else if (currentStatus === 'confirmed' && nextStatus === 'cancelled') {
+       // Claw back points
+       const totalPrice = bookingData.totalPrice || 0;
+       const pointsToDeduct = Math.floor(totalPrice / 10);
+       
+       const userRef = db.collection('users').doc(bookingData.userId);
+       const userDoc = await transaction.get(userRef);
+       let currentPoints = 0;
+       if (userDoc.exists) {
+         currentPoints = userDoc.data()?.loyaltyPoints || 0;
+       }
+       const newPoints = Math.max(0, currentPoints - pointsToDeduct);
+       transaction.update(userRef, { loyaltyPoints: newPoints });
+    }
+
     // 4. Optionally emit notification to user
     const notificationRef = db.collection('notifications').doc(bookingData.userId).collection('items').doc();
     transaction.set(notificationRef, {

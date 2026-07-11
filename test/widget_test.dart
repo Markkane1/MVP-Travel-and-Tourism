@@ -6,7 +6,9 @@ import 'package:mvp_travel/app.dart';
 import 'package:mvp_travel/core/routing/app_router.dart';
 
 void main() {
-  testWidgets('App boots up successfully smoke test', (WidgetTester tester) async {
+  testWidgets('App boots up successfully smoke test', (
+    WidgetTester tester,
+  ) async {
     final router = GoRouter(
       routes: [
         GoRoute(

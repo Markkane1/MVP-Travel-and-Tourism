@@ -23,7 +23,8 @@ void main() {
         },
       });
 
-      final notificationPrefs = normalized['notificationPrefs'] as Map<String, dynamic>;
+      final notificationPrefs =
+          normalized['notificationPrefs'] as Map<String, dynamic>;
       final preferences = normalized['preferences'] as Map<String, dynamic>;
 
       expect(normalized['displayName'], 'Guest');

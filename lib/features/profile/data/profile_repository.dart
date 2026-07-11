@@ -13,36 +13,42 @@ part 'profile_repository.g.dart';
 Map<String, dynamic> normalizeProfileData(Map<String, dynamic>? data) {
   final profile = Map<String, dynamic>.from(data ?? {});
 
-  profile['displayName'] = profile['displayName'] is String &&
+  profile['displayName'] =
+      profile['displayName'] is String &&
           (profile['displayName'] as String).isNotEmpty
       ? profile['displayName'] as String
       : 'Guest';
-  profile['email'] = profile['email'] is String ? profile['email'] as String : '';
-  profile['loyaltyPoints'] =
-      profile['loyaltyPoints'] is num ? profile['loyaltyPoints'] as num : 0;
-  profile['milesTraveled'] =
-      profile['milesTraveled'] is num ? profile['milesTraveled'] as num : 0;
-  profile['tier'] = profile['tier'] is String &&
-          (profile['tier'] as String).isNotEmpty
+  profile['email'] = profile['email'] is String
+      ? profile['email'] as String
+      : '';
+  profile['loyaltyPoints'] = profile['loyaltyPoints'] is num
+      ? profile['loyaltyPoints'] as num
+      : int.tryParse(profile['loyaltyPoints']?.toString() ?? '') ?? 0;
+  profile['milesTraveled'] = profile['milesTraveled'] is num
+      ? profile['milesTraveled'] as num
+      : int.tryParse(profile['milesTraveled']?.toString() ?? '') ?? 0;
+  profile['tier'] =
+      profile['tier'] is String && (profile['tier'] as String).isNotEmpty
       ? profile['tier'] as String
       : 'Standard';
-  profile['photoUrl'] =
-      profile['photoUrl'] is String ? profile['photoUrl'] as String : '';
+  profile['photoUrl'] = profile['photoUrl'] is String
+      ? profile['photoUrl'] as String
+      : '';
 
   final notificationPrefs = profile['notificationPrefs'] is Map
       ? Map<String, dynamic>.from(profile['notificationPrefs'] as Map)
       : <String, dynamic>{};
   notificationPrefs['bookingUpdates'] =
       notificationPrefs['bookingUpdates'] is bool
-          ? notificationPrefs['bookingUpdates'] as bool
-          : true;
+      ? notificationPrefs['bookingUpdates'] as bool
+      : (notificationPrefs['bookingUpdates']?.toString().toLowerCase() == 'false' ? false : true);
   notificationPrefs['promotions'] = notificationPrefs['promotions'] is bool
       ? notificationPrefs['promotions'] as bool
-      : true;
+      : (notificationPrefs['promotions']?.toString().toLowerCase() == 'false' ? false : true);
   notificationPrefs['conciergeMessages'] =
       notificationPrefs['conciergeMessages'] is bool
-          ? notificationPrefs['conciergeMessages'] as bool
-          : true;
+      ? notificationPrefs['conciergeMessages'] as bool
+      : (notificationPrefs['conciergeMessages']?.toString().toLowerCase() == 'false' ? false : true);
   profile['notificationPrefs'] = notificationPrefs;
 
   final preferences = profile['preferences'] is Map
@@ -51,7 +57,9 @@ Map<String, dynamic> normalizeProfileData(Map<String, dynamic>? data) {
   preferences['dietary'] = preferences['dietary'] is String
       ? preferences['dietary'] as String
       : '';
-  preferences['seat'] = preferences['seat'] is String ? preferences['seat'] as String : '';
+  preferences['seat'] = preferences['seat'] is String
+      ? preferences['seat'] as String
+      : '';
   preferences['hotelClass'] = preferences['hotelClass'] is String
       ? preferences['hotelClass'] as String
       : '';

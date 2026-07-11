@@ -17,16 +17,18 @@ abstract class UserModel with _$UserModel {
     String? conciergeId,
     Map<String, dynamic>? preferences,
     @Default([]) List<String> savedTours,
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson) DateTime? createdAt,
+    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    DateTime? createdAt,
   }) = _UserModel;
 
-  factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
 
-  factory UserModel.fromFirestore(Map<String, dynamic> data, String documentId) {
-    return UserModel.fromJson({
-      ...data,
-      'id': documentId,
-    });
+  factory UserModel.fromFirestore(
+    Map<String, dynamic> data,
+    String documentId,
+  ) {
+    return UserModel.fromJson({...data, 'id': documentId});
   }
 }
 

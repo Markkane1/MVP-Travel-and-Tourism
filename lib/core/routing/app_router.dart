@@ -6,7 +6,7 @@ import '../services/auth_service.dart';
 import 'app_shell.dart';
 import '../../features/auth/presentation/screens/login_register_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
-import '../../features/auth/presentation/screens/legal_placeholder_screen.dart';
+import '../../features/auth/presentation/screens/legal_screens.dart';
 import '../../features/explore/presentation/screens/explore_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/search/presentation/screens/search_results_screen.dart';
@@ -40,7 +40,9 @@ final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final exploreNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'exploreTab');
 final searchNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'searchTab');
 final tripsNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'tripsTab');
-final conciergeNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'conciergeTab');
+final conciergeNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'conciergeTab',
+);
 final profileNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'profileTab');
 
 /// Provider for the declarative GoRouter instance.
@@ -71,7 +73,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Persistent Bottom-Nav Shell
       StatefulShellRoute.indexedStack(
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state, navigationShell) => ShellScaffold(navigationShell: navigationShell),
+        builder: (context, state, navigationShell) =>
+            ShellScaffold(navigationShell: navigationShell),
         branches: [
           // Explore Tab (Branch 1)
           StatefulShellBranch(
@@ -145,9 +148,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.searchResults,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => SearchResultsScreen(
-          queryParameters: state.uri.queryParameters,
-        ),
+        builder: (context, state) =>
+            SearchResultsScreen(queryParameters: state.uri.queryParameters),
       ),
       GoRoute(
         path: RoutePaths.tourDetails,
@@ -188,7 +190,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final bookingId = state.pathParameters['bookingId'] ?? 'unknown';
-          final Map<String, dynamic> data = (state.extra as Map?)?.cast<String, dynamic>() ?? {};
+          final Map<String, dynamic> data =
+              (state.extra as Map?)?.cast<String, dynamic>() ?? {};
           final refCode = data['bookingReferenceCode'] as String? ?? 'LT-XXXXX';
           return PaymentSuccessScreen(
             bookingId: bookingId,

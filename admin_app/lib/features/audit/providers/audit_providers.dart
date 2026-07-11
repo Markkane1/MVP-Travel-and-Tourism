@@ -9,6 +9,8 @@ final auditLogsProvider = StreamProvider.autoDispose<List<AuditModel>>((ref) {
       .limit(100)
       .snapshots()
       .map((snapshot) {
-    return snapshot.docs.map((doc) => AuditModel.fromFirestore(doc.data(), doc.id)).toList();
-  });
+        return snapshot.docs
+            .map((doc) => AuditModel.fromFirestore(doc.data(), doc.id))
+            .toList();
+      });
 });

@@ -29,36 +29,45 @@ void main() {
     mockSavedToursCollection = MockCollectionReference();
     mockSavedTourDoc = MockDocumentReference();
 
-    when(() => mockFirestore.collection('users'))
-        .thenReturn(mockUsersCollection);
+    when(
+      () => mockFirestore.collection('users'),
+    ).thenReturn(mockUsersCollection);
     when(() => mockUsersCollection.doc('user-1')).thenReturn(mockUserDoc);
-    when(() => mockUserDoc.collection('savedTours'))
-        .thenReturn(mockSavedToursCollection);
-    when(() => mockSavedToursCollection.doc('tour-1'))
-        .thenReturn(mockSavedTourDoc);
+    when(
+      () => mockUserDoc.collection('savedTours'),
+    ).thenReturn(mockSavedToursCollection);
+    when(
+      () => mockSavedToursCollection.doc('tour-1'),
+    ).thenReturn(mockSavedTourDoc);
   });
 
   group('SavedToursRepository', () {
-    test('saveTour returns Failure instead of throwing on backend error', () async {
-      when(
-        () => mockSavedTourDoc.set(any()),
-      ).thenThrow(Exception('write failed'));
+    test(
+      'saveTour returns Failure instead of throwing on backend error',
+      () async {
+        when(
+          () => mockSavedTourDoc.set(any()),
+        ).thenThrow(Exception('write failed'));
 
-      final repo = SavedToursRepository(mockFirestore);
-      final result = await repo.saveTour('user-1', 'tour-1');
+        final repo = SavedToursRepository(mockFirestore);
+        final result = await repo.saveTour('user-1', 'tour-1');
 
-      expect(result, isA<Failure<void>>());
-    });
+        expect(result, isA<Failure<void>>());
+      },
+    );
 
-    test('unsaveTour returns Failure instead of throwing on backend error', () async {
-      when(
-        () => mockSavedTourDoc.delete(),
-      ).thenThrow(Exception('delete failed'));
+    test(
+      'unsaveTour returns Failure instead of throwing on backend error',
+      () async {
+        when(
+          () => mockSavedTourDoc.delete(),
+        ).thenThrow(Exception('delete failed'));
 
-      final repo = SavedToursRepository(mockFirestore);
-      final result = await repo.unsaveTour('user-1', 'tour-1');
+        final repo = SavedToursRepository(mockFirestore);
+        final result = await repo.unsaveTour('user-1', 'tour-1');
 
-      expect(result, isA<Failure<void>>());
-    });
+        expect(result, isA<Failure<void>>());
+      },
+    );
   });
 }

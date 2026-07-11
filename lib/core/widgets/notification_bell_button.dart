@@ -40,7 +40,10 @@ class NotificationBellButton extends ConsumerWidget {
           children: [
             IconButton(
               tooltip: 'Notifications',
-              icon: const Icon(Icons.notifications_none, color: AppColors.onSurface),
+              icon: const Icon(
+                Icons.notifications_none,
+                color: AppColors.onSurface,
+              ),
               onPressed: () => _pushNotifications(context),
             ),
             if (count > 0)

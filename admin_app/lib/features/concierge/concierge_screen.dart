@@ -25,7 +25,9 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
           children: [
             Text(
               'Concierge Operations',
-              style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 24),
             Expanded(
@@ -38,28 +40,40 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(color: theme.colorScheme.outlineVariant),
+                        side: BorderSide(
+                          color: theme.colorScheme.outlineVariant,
+                        ),
                       ),
                       child: threadsAsync.when(
-                        loading: () => const Center(child: CircularProgressIndicator()),
-                        error: (err, stack) => Center(child: Text('Error: $err')),
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (err, stack) =>
+                            Center(child: Text('Error: $err')),
                         data: (threads) {
-                          if (threads.isEmpty) return const Center(child: Text('No active threads.'));
+                          if (threads.isEmpty) {
+                            return const Center(
+                              child: Text('No active threads.'),
+                            );
+                          }
                           return ListView.builder(
                             itemCount: threads.length,
                             itemBuilder: (context, index) {
                               final thread = threads[index];
                               final isSelected = thread.id == _selectedUserId;
                               return ListTile(
-                                title: Text('User ${thread.id.substring(0, 8)}...'),
+                                title: Text(
+                                  'User ${thread.id.substring(0, 8)}...',
+                                ),
                                 subtitle: Text(
                                   thread.lastMessageText ?? 'No messages yet',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 selected: isSelected,
-                                selectedTileColor: theme.colorScheme.primaryContainer,
-                                onTap: () => setState(() => _selectedUserId = thread.id),
+                                selectedTileColor:
+                                    theme.colorScheme.primaryContainer,
+                                onTap: () =>
+                                    setState(() => _selectedUserId = thread.id),
                               );
                             },
                           );
@@ -76,7 +90,9 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                       clipBehavior: Clip.antiAlias,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(color: theme.colorScheme.outlineVariant),
+                        side: BorderSide(
+                          color: theme.colorScheme.outlineVariant,
+                        ),
                       ),
                       child: _selectedUserId == null
                           ? const Center(child: Text('Select a thread to view'))
@@ -99,10 +115,12 @@ class _ConciergeThreadDetail extends ConsumerStatefulWidget {
   const _ConciergeThreadDetail({required this.userId});
 
   @override
-  ConsumerState<_ConciergeThreadDetail> createState() => _ConciergeThreadDetailState();
+  ConsumerState<_ConciergeThreadDetail> createState() =>
+      _ConciergeThreadDetailState();
 }
 
-class _ConciergeThreadDetailState extends ConsumerState<_ConciergeThreadDetail> {
+class _ConciergeThreadDetailState
+    extends ConsumerState<_ConciergeThreadDetail> {
   final _controller = TextEditingController();
   bool _isSending = false;
 
@@ -115,7 +133,11 @@ class _ConciergeThreadDetailState extends ConsumerState<_ConciergeThreadDetail> 
       await ref.read(conciergeApiProvider).replyToThread(widget.userId, text);
       _controller.clear();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isSending = false);
     }
@@ -129,7 +151,9 @@ class _ConciergeThreadDetailState extends ConsumerState<_ConciergeThreadDetail> 
 
   @override
   Widget build(BuildContext context) {
-    final messagesAsync = ref.watch(conciergeMessagesStreamProvider(widget.userId));
+    final messagesAsync = ref.watch(
+      conciergeMessagesStreamProvider(widget.userId),
+    );
     final theme = Theme.of(context);
 
     return Column(
@@ -148,7 +172,9 @@ class _ConciergeThreadDetailState extends ConsumerState<_ConciergeThreadDetail> 
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, stack) => Center(child: Text('Error: $err')),
             data: (messages) {
-              if (messages.isEmpty) return const Center(child: Text('No messages.'));
+              if (messages.isEmpty) {
+                return const Center(child: Text('No messages.'));
+              }
               return ListView.builder(
                 reverse: true, // Assuming orderby desc means latest is first
                 itemCount: messages.length,
@@ -156,12 +182,19 @@ class _ConciergeThreadDetailState extends ConsumerState<_ConciergeThreadDetail> 
                   final msg = messages[index];
                   final isConcierge = msg.senderType != 'user';
                   return Align(
-                    alignment: isConcierge ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: isConcierge
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
                     child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 16,
+                      ),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isConcierge ? theme.colorScheme.primaryContainer : theme.colorScheme.surfaceContainerHighest,
+                        color: isConcierge
+                            ? theme.colorScheme.primaryContainer
+                            : theme.colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(msg.text),
@@ -190,7 +223,11 @@ class _ConciergeThreadDetailState extends ConsumerState<_ConciergeThreadDetail> 
               IconButton(
                 onPressed: _isSending ? null : _sendMessage,
                 icon: _isSending
-                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : const Icon(Icons.send),
                 color: theme.colorScheme.primary,
               ),

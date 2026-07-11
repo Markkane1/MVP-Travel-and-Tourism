@@ -21,8 +21,11 @@ class NotificationsRepository {
         .collection('items')
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((doc) => NotificationItem.fromFirestore(doc)).toList())
+        .map(
+          (snap) => snap.docs
+              .map((doc) => NotificationItem.fromFirestore(doc))
+              .toList(),
+        )
         .mapAppException('Failed to load notifications');
   }
 
@@ -37,7 +40,11 @@ class NotificationsRepository {
           .update({'read': true});
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Failed to mark notification as read: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown(
+          'Failed to mark notification as read: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -58,7 +65,11 @@ class NotificationsRepository {
       await batch.commit();
       return const Result.success(null);
     } catch (e) {
-      return Result.failure(AppException.unknown('Failed to mark notifications as read: ${e.toString()}'));
+      return Result.failure(
+        AppException.unknown(
+          'Failed to mark notifications as read: ${e.toString()}',
+        ),
+      );
     }
   }
 }

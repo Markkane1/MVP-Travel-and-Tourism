@@ -12,10 +12,12 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
   const NotificationSettingsScreen({super.key});
 
   @override
-  ConsumerState<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();
+  ConsumerState<NotificationSettingsScreen> createState() =>
+      _NotificationSettingsScreenState();
 }
 
-class _NotificationSettingsScreenState extends ConsumerState<NotificationSettingsScreen> {
+class _NotificationSettingsScreenState
+    extends ConsumerState<NotificationSettingsScreen> {
   bool _bookingUpdates = true;
   bool _promotions = false;
   bool _conciergeMessages = true;
@@ -34,17 +36,19 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     }
   }
 
-  Future<void> _updateNotificationPreference(String key, bool value, String uid) async {
+  Future<void> _updateNotificationPreference(
+    String key,
+    bool value,
+    String uid,
+  ) async {
     setState(() {
       _isSaving = true;
     });
 
     try {
-      final result = await ref.read(profileRepositoryProvider).updateNotificationPreference(
-            uid: uid,
-            key: key,
-            value: value,
-          );
+      final result = await ref
+          .read(profileRepositoryProvider)
+          .updateNotificationPreference(uid: uid, key: key, value: value);
 
       await result.when(
         onSuccess: (_) {
@@ -60,7 +64,11 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
         onFailure: (exception) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to update preference: ${exception.message}')),
+              SnackBar(
+                content: Text(
+                  'Failed to update preference: ${exception.message}',
+                ),
+              ),
             );
           }
         },
@@ -68,7 +76,9 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update preference: ${e.toString()}')),
+          SnackBar(
+            content: Text('Failed to update preference: ${e.toString()}'),
+          ),
         );
       }
     } finally {
@@ -134,7 +144,11 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
                     'Booking Updates',
                     'Alerts regarding status confirmations, cancellations and schedule modifications.',
                     _bookingUpdates,
-                    (val) => _updateNotificationPreference('bookingUpdates', val, user.uid),
+                    (val) => _updateNotificationPreference(
+                      'bookingUpdates',
+                      val,
+                      user.uid,
+                    ),
                   ),
                   const Divider(height: 24.0, color: AppColors.outlineVariant),
 
@@ -144,7 +158,11 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
                     'Promotions & Discounts',
                     'Receive exclusive member discounts, promo tier benefits and limited safari deals.',
                     _promotions,
-                    (val) => _updateNotificationPreference('promotions', val, user.uid),
+                    (val) => _updateNotificationPreference(
+                      'promotions',
+                      val,
+                      user.uid,
+                    ),
                   ),
                   const Divider(height: 24.0, color: AppColors.outlineVariant),
 
@@ -154,7 +172,11 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
                     'Concierge Messaging',
                     'Instant alert alerts when your personal travel coordinator sends you gear suggestions.',
                     _conciergeMessages,
-                    (val) => _updateNotificationPreference('conciergeMessages', val, user.uid),
+                    (val) => _updateNotificationPreference(
+                      'conciergeMessages',
+                      val,
+                      user.uid,
+                    ),
                   ),
                 ],
               ),

@@ -18,7 +18,6 @@ class SearchMapScreen extends StatefulWidget {
 }
 
 class _SearchMapScreenState extends State<SearchMapScreen> {
-
   void _showTourDetailBottomSheet(BuildContext context, Tour tour) {
     showModalBottomSheet(
       context: context,
@@ -127,7 +126,10 @@ class _SearchMapScreenState extends State<SearchMapScreen> {
   Widget build(BuildContext context) {
     LatLng initialCenter = const LatLng(20.0, 0.0);
     if (widget.tours.isNotEmpty) {
-      initialCenter = LatLng(widget.tours.first.latitude, widget.tours.first.longitude);
+      initialCenter = LatLng(
+        widget.tours.first.latitude,
+        widget.tours.first.longitude,
+      );
     }
 
     final Set<Marker> markers = widget.tours.map((tour) {
