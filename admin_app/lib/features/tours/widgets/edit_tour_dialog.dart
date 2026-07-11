@@ -223,10 +223,10 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueGrey)),
+          Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
-            Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+            Text(subtitle, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
           const Divider(),
         ],
@@ -261,7 +261,7 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
                     const SizedBox(width: 16),
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _selectedCategory,
+                        initialValue: _selectedCategory,
                         decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder()),
                         items: _categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
                         onChanged: (val) {
@@ -308,7 +308,7 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
                     const SizedBox(width: 16),
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _currency,
+                        initialValue: _currency,
                         decoration: const InputDecoration(labelText: 'Currency', border: OutlineInputBorder()),
                         items: _currencies.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
                         onChanged: (val) {
@@ -384,12 +384,12 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
                         ),
                         const SizedBox(width: 8),
                         IconButton(
-                          icon: const Icon(Icons.upload_file, color: Colors.blue),
+                          icon: Icon(Icons.upload_file, color: Theme.of(context).colorScheme.primary),
                           onPressed: _isUploadingImage ? null : () => _pickAndUploadGalleryImage(idx),
                           tooltip: 'Upload Image',
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
+                          icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
                           onPressed: () => setState(() {
                             _galleryControllers[idx].dispose();
                             _galleryControllers.removeAt(idx);
@@ -421,7 +421,7 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
+                          icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
                           onPressed: () => setState(() {
                             _badgeControllers[idx].dispose();
                             _badgeControllers.removeAt(idx);
@@ -453,7 +453,7 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
+                          icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
                           onPressed: () => setState(() {
                             _inclusionControllers[idx].dispose();
                             _inclusionControllers.removeAt(idx);
@@ -475,7 +475,7 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
                   final item = entry.value;
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
-                    color: Colors.grey.shade50,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Column(
@@ -499,7 +499,7 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
+                                icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
                                 onPressed: () => setState(() {
                                   item.dispose();
                                   _itineraryItems.removeAt(idx);
@@ -551,7 +551,7 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
+                          icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
                           onPressed: () => setState(() {
                             item.dispose();
                             _groupSizeItems.removeAt(idx);

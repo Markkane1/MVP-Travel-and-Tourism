@@ -98,11 +98,11 @@ class AuditScreen extends ConsumerWidget {
                         final log = logs[index];
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: _getActionColor(log.action).withOpacity(0.1),
+                            backgroundColor: _getActionColor(log.action).withValues(alpha: 0.1),
                             child: Icon(_getActionIcon(log.action), color: _getActionColor(log.action)),
                           ),
                           title: Text(log.summary, style: const TextStyle(fontWeight: FontWeight.w500)),
-                          subtitle: Text('\${log.actorEmail} • \${log.createdAt != null ? DateFormat.yMMMd().add_jm().format(log.createdAt!) : ''}'),
+                          subtitle: Text('${log.actorEmail} • ${log.createdAt != null ? DateFormat.yMMMd().add_jm().format(log.createdAt!) : ''}'),
                           trailing: IconButton(
                             icon: const Icon(Icons.chevron_right),
                             onPressed: () => _showDetails(context, log),

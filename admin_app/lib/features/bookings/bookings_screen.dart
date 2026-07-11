@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'providers/bookings_providers.dart';
 import 'widgets/booking_detail_dialog.dart';
+import 'widgets/add_booking_dialog.dart';
 
 class BookingsScreen extends ConsumerStatefulWidget {
   const BookingsScreen({super.key});
@@ -19,7 +19,6 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
   Widget build(BuildContext context) {
     final bookingsAsync = ref.watch(bookingsStreamProvider);
     final theme = Theme.of(context);
-    final currencyFormatter = NumberFormat.currency(symbol: '\$');
 
     return Scaffold(
       body: Padding(
@@ -67,6 +66,20 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                       });
                     }
                   },
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const AddBookingDialog(),
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Booking'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  ),
                 ),
               ],
             ),
@@ -134,12 +147,12 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                   Chip(
                                     label: Text(b.status.toUpperCase()),
                                     backgroundColor: b.status == 'confirmed'
-                                        ? Colors.green.withOpacity(0.1)
+                                        ? Colors.green.withValues(alpha: 0.1)
                                         : b.status == 'cancelled'
-                                            ? Colors.red.withOpacity(0.1)
+                                            ? Colors.red.withValues(alpha: 0.1)
                                             : b.status == 'completed'
-                                                ? Colors.blue.withOpacity(0.1)
-                                                : Colors.orange.withOpacity(0.1),
+                                                ? Colors.blue.withValues(alpha: 0.1)
+                                                : Colors.orange.withValues(alpha: 0.1),
                                     labelStyle: TextStyle(
                                       color: b.status == 'confirmed'
                                           ? Colors.green
@@ -174,9 +187,9 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                 },
               ); // return LayoutBuilder
             },
-          ),
-              ),
-            ),
+          ), // bookingsAsync.when data
+        ), // Card
+      ), // Expanded
           ],
         ),
       ),

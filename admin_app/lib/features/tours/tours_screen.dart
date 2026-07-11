@@ -55,7 +55,7 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
                 if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error, foregroundColor: Theme.of(context).colorScheme.onError),
             child: const Text('Archive'),
           ),
         ],
@@ -67,12 +67,12 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
         ],
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -83,9 +83,9 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
               onChanged: (val) => setState(() => _searchQuery = val),
               decoration: InputDecoration(
                 hintText: 'Search tours...',
-                prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B)),
+                prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 filled: true,
-                fillColor: const Color(0xFFF8FAFC),
+                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -100,7 +100,7 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
             ),
             child: DropdownButtonHideUnderline(
@@ -108,8 +108,8 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
                 value: _selectedCategory,
                 items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
                 onChanged: (val) => setState(() => _selectedCategory = val ?? 'All'),
-                icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF64748B)),
-                style: const TextStyle(color: Color(0xFF0F172A), fontSize: 14),
+                icon: Icon(Icons.keyboard_arrow_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
               ),
             ),
           ),
@@ -119,7 +119,7 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
             ),
             child: DropdownButtonHideUnderline(
@@ -127,8 +127,8 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
                 value: _selectedStatus,
                 items: _statuses.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
                 onChanged: (val) => setState(() => _selectedStatus = val ?? 'All'),
-                icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF64748B)),
-                style: const TextStyle(color: Color(0xFF0F172A), fontSize: 14),
+                icon: Icon(Icons.keyboard_arrow_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
               ),
             ),
           ),
@@ -144,9 +144,9 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
             selected: {_isGridView},
             onSelectionChanged: (set) => setState(() => _isGridView = set.first),
             style: SegmentedButton.styleFrom(
-              backgroundColor: Colors.white,
-              selectedBackgroundColor: const Color(0xFF0F172A),
-              selectedForegroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              selectedBackgroundColor: Theme.of(context).colorScheme.primary,
+              selectedForegroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
           ),
         ],
@@ -182,7 +182,7 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.shade200),
+        side: BorderSide(color: Theme.of(context).colorScheme.surfaceContainerHighest),
       ),
       clipBehavior: Clip.antiAlias,
       child: LayoutBuilder(
@@ -193,16 +193,16 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(minWidth: constraints.maxWidth),
                 child: DataTable(
-                  headingRowColor: MaterialStateProperty.all(const Color(0xFFF8FAFC)),
+                  headingRowColor: WidgetStateProperty.all(Theme.of(context).colorScheme.surface),
             dataRowMaxHeight: 80,
             dataRowMinHeight: 80,
-            columns: const [
-              DataColumn(label: Text('Tour', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-              DataColumn(label: Text('Category', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-              DataColumn(label: Text('Price', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-              DataColumn(label: Text('Duration', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-              DataColumn(label: Text('Status', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-              DataColumn(label: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
+            columns: [
+              DataColumn(label: Text('Tour', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant))),
+              DataColumn(label: Text('Category', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant))),
+              DataColumn(label: Text('Price', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant))),
+              DataColumn(label: Text('Duration', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant))),
+              DataColumn(label: Text('Status', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant))),
+              DataColumn(label: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant))),
             ],
             rows: tours.map((tour) {
               final hasImage = tour.heroImageUrl.isNotEmpty && tour.heroImageUrl.startsWith('http');
@@ -215,7 +215,7 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
                           borderRadius: BorderRadius.circular(8),
                           child: hasImage
                               ? Image.network(tour.heroImageUrl, width: 60, height: 60, fit: BoxFit.cover)
-                              : Container(width: 60, height: 60, color: Colors.grey.shade200, child: const Icon(Icons.image, color: Colors.grey)),
+                              : Container(width: 60, height: 60, color: Theme.of(context).colorScheme.surfaceContainerHighest, child: Icon(Icons.image, color: Theme.of(context).colorScheme.outline)),
                         ),
                         const SizedBox(width: 16),
                         Column(
@@ -224,16 +224,16 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
                           children: [
                             Text(
                               tour.title.isEmpty ? 'Untitled' : tour.title,
-                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Color(0xFF0F172A)),
+                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
                             ),
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                const Icon(Icons.location_on, size: 14, color: Color(0xFF64748B)),
+                                Icon(Icons.location_on, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 const SizedBox(width: 4),
                                 Text(
                                   tour.destination.isEmpty ? 'Unknown' : tour.destination,
-                                  style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
                                 ),
                               ],
                             ),
@@ -246,10 +246,10 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text(tour.category.isEmpty ? 'Misc' : tour.category, style: const TextStyle(color: Color(0xFF475569), fontWeight: FontWeight.w500)),
+                      child: Text(tour.category.isEmpty ? 'Misc' : tour.category, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500)),
                     )
                   ),
                   DataCell(Text('\$${tour.pricePerPerson.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w600))),
@@ -258,13 +258,13 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: tour.isActive ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                        color: tour.isActive ? Colors.green.withValues(alpha: 0.1) : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         tour.isActive ? 'Active' : 'Archived',
                         style: TextStyle(
-                          color: tour.isActive ? Colors.green.shade700 : Colors.grey.shade700,
+                          color: tour.isActive ? Colors.green.shade700 : Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -275,13 +275,13 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.edit_outlined, color: Color(0xFF0F172A)),
+                          icon: Icon(Icons.edit_outlined, color: Theme.of(context).colorScheme.onSurface),
                           onPressed: () => _showEditTourDialog(context, tour),
                           tooltip: 'Edit',
                         ),
                         if (tour.isActive)
                           IconButton(
-                            icon: const Icon(Icons.archive_outlined, color: Colors.redAccent),
+                            icon: Icon(Icons.archive_outlined, color: Theme.of(context).colorScheme.error),
                             onPressed: () => _confirmArchive(context, ref, tour),
                             tooltip: 'Archive',
                           ),
@@ -305,7 +305,7 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
     final toursAsync = ref.watch(toursStreamProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Column(
@@ -321,13 +321,13 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
                       'Tours Management',
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                             fontWeight: FontWeight.w800,
-                            color: const Color(0xFF0F172A),
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'Manage and curate premium travel experiences',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 16),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
                     ),
                   ],
                 ),
@@ -336,7 +336,7 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
                   icon: const Icon(Icons.add),
                   label: const Text('Add New Tour'),
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F172A),
+                    backgroundColor: Theme.of(context).colorScheme.onSurface,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -378,9 +378,9 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.search_off, size: 64, color: Colors.grey.shade400),
+                          Icon(Icons.search_off, size: 64, color: Theme.of(context).colorScheme.outline),
                           const SizedBox(height: 16),
-                          const Text('No tours found matching your criteria.', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                          Text('No tours found matching your criteria.', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.outline)),
                         ],
                       ),
                     );
@@ -390,7 +390,7 @@ class _ToursScreenState extends ConsumerState<ToursScreen> {
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (err, stack) => Center(
-                  child: Text('Error loading tours:\n$err', style: const TextStyle(color: Colors.red)),
+                  child: Text('Error loading tours:\n$err', style: TextStyle(color: Theme.of(context).colorScheme.error)),
                 ),
               ),
             ),
@@ -435,7 +435,7 @@ class _PremiumTourCardState extends ConsumerState<PremiumTourCard> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: _isHovered ? Colors.black.withOpacity(0.12) : Colors.black.withOpacity(0.04),
+                color: _isHovered ? Colors.black.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.04),
                 blurRadius: _isHovered ? 24 : 10,
                 offset: _isHovered ? const Offset(0, 12) : const Offset(0, 4),
               ),
@@ -456,8 +456,8 @@ class _PremiumTourCardState extends ConsumerState<PremiumTourCard> {
                       Image.network(widget.tour.heroImageUrl, fit: BoxFit.cover)
                     else
                       Container(
-                        color: Colors.grey.shade200,
-                        child: const Icon(Icons.image, size: 64, color: Colors.grey),
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        child: Icon(Icons.image, size: 64, color: Theme.of(context).colorScheme.outline),
                       ),
                     
                     // Gradient Overlay
@@ -467,10 +467,10 @@ class _PremiumTourCardState extends ConsumerState<PremiumTourCard> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withOpacity(0.4),
+                            Colors.black.withValues(alpha: 0.4),
                             Colors.transparent,
                             Colors.transparent,
-                            Colors.black.withOpacity(0.8),
+                            Colors.black.withValues(alpha: 0.8),
                           ],
                           stops: const [0.0, 0.2, 0.6, 1.0],
                         ),
@@ -483,7 +483,7 @@ class _PremiumTourCardState extends ConsumerState<PremiumTourCard> {
                       left: 16,
                       child: _GlassBadge(
                         text: widget.tour.isActive ? 'Active' : 'Archived',
-                        color: widget.tour.isActive ? Colors.greenAccent : Colors.grey,
+                        color: widget.tour.isActive ? Colors.greenAccent : Theme.of(context).colorScheme.outline,
                       ),
                     ),
 
@@ -536,19 +536,19 @@ class _PremiumTourCardState extends ConsumerState<PremiumTourCard> {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A), height: 1.2),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface, height: 1.2),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.location_on, size: 16, color: Color(0xFF64748B)),
+                          Icon(Icons.location_on, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               destination,
-                              style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -562,7 +562,7 @@ class _PremiumTourCardState extends ConsumerState<PremiumTourCard> {
                         children: [
                           if (widget.tour.isActive)
                             IconButton(
-                              icon: const Icon(Icons.archive_outlined, color: Colors.redAccent),
+                              icon: Icon(Icons.archive_outlined, color: Theme.of(context).colorScheme.error),
                               tooltip: 'Archive Tour',
                               onPressed: widget.onArchive,
                             ),
@@ -572,8 +572,8 @@ class _PremiumTourCardState extends ConsumerState<PremiumTourCard> {
                             icon: const Icon(Icons.edit, size: 16),
                             label: const Text('Edit'),
                             style: FilledButton.styleFrom(
-                              backgroundColor: const Color(0xFFF1F5F9),
-                              foregroundColor: const Color(0xFF0F172A),
+                              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              foregroundColor: Theme.of(context).colorScheme.onSurface,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
@@ -605,7 +605,7 @@ class _GlassBadge extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          color: Colors.black.withOpacity(0.3),
+          color: Colors.black.withValues(alpha: 0.3),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

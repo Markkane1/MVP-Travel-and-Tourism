@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_spacing.dart';
 
-/// Placeholder screen displaying MVP Travel's Terms of Use.
+/// Screen displaying MVP Travel's Terms of Use.
 class TermsOfUseScreen extends StatelessWidget {
   const TermsOfUseScreen({super.key});
 
@@ -62,7 +62,7 @@ class TermsOfUseScreen extends StatelessWidget {
   }
 }
 
-/// Placeholder screen displaying MVP Travel's Privacy Policy.
+/// Screen displaying MVP Travel's Privacy Policy.
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
 

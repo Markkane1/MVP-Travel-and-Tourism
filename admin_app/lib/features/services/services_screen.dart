@@ -77,17 +77,18 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
                 ),
                 child: servicesAsync.when(
                   loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (err, stack) => Center(child: Text('Error: \$err')),
+                  error: (err, stack) => Center(child: Text('Error: $err')),
                   data: (services) {
                     final filteredServices = services.where((s) {
                       if (_filter == 'Active') return s.isActive;
                       if (_filter == 'Archived') return !s.isActive;
-                      return true; // All
+                      return true;
                     }).toList();
 
                     if (filteredServices.isEmpty) {
                       return const Center(child: Text('No services found.'));
                     }
+
                     return LayoutBuilder(
                       builder: (context, constraints) {
                         return SingleChildScrollView(
@@ -96,67 +97,74 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
                             child: ConstrainedBox(
                               constraints: BoxConstraints(minWidth: constraints.maxWidth),
                               child: DataTable(
-                          columns: const [
-                            DataColumn(label: Text('Name')),
-                            DataColumn(label: Text('Category')),
-                            DataColumn(label: Text('Price')),
-                            DataColumn(label: Text('Unit Type')),
-                            DataColumn(label: Text('Sort Order')),
-                            DataColumn(label: Text('Status')),
-                            DataColumn(label: Text('Actions')),
-                          ],
-                          rows: filteredServices.map((service) {
-                            return DataRow(
-                              cells: [
-                                DataCell(Text(service.name, style: const TextStyle(fontWeight: FontWeight.bold))),
-                                DataCell(Text(service.category)),
-                                DataCell(Text('\${service.currency} \${service.basePrice.toStringAsFixed(2)}')),
-                                DataCell(Text(service.unitType.replaceAll('_', ' '))),
-                                DataCell(Text(service.sortOrder.toString())),
-                                DataCell(
-                                  Chip(
-                                    label: Text(service.isActive ? 'Active' : 'Archived'),
-                                    backgroundColor: service.isActive ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
-                                    labelStyle: TextStyle(color: service.isActive ? Colors.green : Colors.grey),
-                                  ),
-                                ),
-                                DataCell(
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.edit, size: 20),
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) => EditServiceDialog(service: service),
-                                          );
-                                        },
-                                      ),
-                                      if (service.isActive)
-                                        IconButton(
-                                          icon: const Icon(Icons.archive, size: 20),
-                                          onPressed: () async {
-                                            // Archive service
-                                            await ref.read(servicesApiProvider).archiveService(service.id, 'admin_user');
-                                          },
-                                          color: Colors.orange,
+                                showCheckboxColumn: false,
+                                columns: const [
+                                  DataColumn(label: Text('Name')),
+                                  DataColumn(label: Text('Category')),
+                                  DataColumn(label: Text('Price')),
+                                  DataColumn(label: Text('Unit Type')),
+                                  DataColumn(label: Text('Sort Order')),
+                                  DataColumn(label: Text('Status')),
+                                  DataColumn(label: Text('Actions')),
+                                ],
+                                rows: filteredServices.map((service) {
+                                  return DataRow(
+                                    cells: [
+                                      DataCell(Text(service.name, style: const TextStyle(fontWeight: FontWeight.bold))),
+                                      DataCell(Text(service.category)),
+                                      DataCell(Text('${service.currency} ${service.basePrice.toStringAsFixed(2)}')),
+                                      DataCell(Text(service.unitType.replaceAll('_', ' '))),
+                                      DataCell(Text(service.sortOrder.toString())),
+                                      DataCell(
+                                        Chip(
+                                          label: Text(service.isActive ? 'Active' : 'Archived'),
+                                          backgroundColor: service.isActive
+                                              ? Colors.green.withValues(alpha: 0.1)
+                                              : Colors.grey.withValues(alpha: 0.1),
+                                          labelStyle: TextStyle(
+                                            color: service.isActive ? Colors.green : Colors.grey,
+                                          ),
                                         ),
+                                      ),
+                                      DataCell(
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconButton(
+                                              icon: const Icon(Icons.edit, size: 20),
+                                              onPressed: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) => EditServiceDialog(service: service),
+                                                );
+                                              },
+                                            ),
+                                            if (service.isActive)
+                                              IconButton(
+                                                icon: const Icon(Icons.archive, size: 20),
+                                                onPressed: () async {
+                                                  await ref
+                                                      .read(servicesApiProvider)
+                                                      .archiveService(service.id, 'admin_user');
+                                                },
+                                                color: Colors.orange,
+                                              ),
+                                          ],
+                                        ),
+                                      ),
                                     ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-                  );
-                });
+                                  );
+                                }).toList(),
+                              ), // DataTable
+                            ), // ConstrainedBox
+                          ), // inner SingleChildScrollView
+                        ); // outer SingleChildScrollView
+                      },
+                    ); // LayoutBuilder
                   },
-                ),
-              ),
-            ),
+                ), // servicesAsync.when
+              ), // Card
+            ), // Expanded
           ],
         ),
       ),

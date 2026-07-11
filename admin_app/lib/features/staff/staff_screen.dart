@@ -52,7 +52,7 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
-                      value: selectedRole,
+                      initialValue: selectedRole,
                       decoration: const InputDecoration(
                         labelText: 'Role',
                         border: OutlineInputBorder(),
@@ -113,7 +113,7 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
             return AlertDialog(
               title: const Text('Update Role'),
               content: DropdownButtonFormField<String>(
-                value: selectedRole,
+                initialValue: selectedRole,
                 decoration: const InputDecoration(labelText: 'Role', border: OutlineInputBorder()),
                 items: const [
                   DropdownMenuItem(value: 'admin', child: Text('Admin')),
@@ -238,10 +238,10 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
                                   Chip(
                                     label: Text(s.role.toUpperCase()),
                                     backgroundColor: s.role == 'super_admin' 
-                                        ? Colors.red.withOpacity(0.1) 
+                                        ? Colors.red.withValues(alpha: 0.1) 
                                         : s.role == 'concierge'
-                                            ? Colors.green.withOpacity(0.1)
-                                            : Colors.blue.withOpacity(0.1),
+                                            ? Colors.green.withValues(alpha: 0.1)
+                                            : Colors.blue.withValues(alpha: 0.1),
                                   ),
                                 ),
                                 DataCell(
@@ -277,8 +277,8 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
                   ); // return SingleChildScrollView
                 },
               ); // return LayoutBuilder
-                  },
-                ),
+            },
+          ),
               ),
             ),
           ],

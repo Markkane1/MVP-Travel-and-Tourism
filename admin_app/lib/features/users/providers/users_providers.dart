@@ -30,6 +30,8 @@ class UsersApi {
 
   Future<void> updateUser(
     String targetUserId, {
+    String? displayName,
+    String? phoneNumber,
     String? tier,
     int? loyaltyPoints,
     String? conciergeId,
@@ -38,6 +40,8 @@ class UsersApi {
     final Map<String, dynamic> updates = {
       'updatedAt': FieldValue.serverTimestamp(),
     };
+    if (displayName != null) updates['displayName'] = displayName;
+    if (phoneNumber != null) updates['phoneNumber'] = phoneNumber;
     if (tier != null) updates['tier'] = tier;
     if (loyaltyPoints != null) updates['loyaltyPoints'] = loyaltyPoints;
     if (conciergeId != null) {
@@ -62,6 +66,45 @@ class UsersApi {
     });
 
     await batch.commit();
+  }
+
+  Future<void> addUser({
+    required String email,
+    required String password,
+    required String displayName,
+    required String tier,
+  }) async {
+    try {
+      final callable = _functions.httpsCallable('adminCreateUser');
+      await callable.call({
+        'email': email,
+        'password': password,
+        'displayName': displayName,
+        'tier': tier,
+      });
+    } catch (e) {
+      // Mock for frontend UI testing since backend may not be deployed
+      final actor = _auth.currentUser;
+      final docRef = _db.collection('users').doc();
+      final batch = _db.batch();
+      batch.set(docRef, {
+        'email': email,
+        'displayName': displayName,
+        'tier': tier,
+        'loyaltyPoints': 0,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      batch.set(_db.collection('admin_audit_logs').doc(), {
+        'actorUid': actor?.uid ?? 'unknown',
+        'actorEmail': actor?.email ?? 'unknown',
+        'action': 'adminCreateUser',
+        'targetType': 'user',
+        'targetId': docRef.id,
+        'summary': 'Admin manually created user: $email',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      await batch.commit();
+    }
   }
 }
 

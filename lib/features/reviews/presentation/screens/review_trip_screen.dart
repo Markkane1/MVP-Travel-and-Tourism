@@ -608,7 +608,7 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
                     width: 80.0,
                     height: 80.0,
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
+                      color: AppColors.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(AppRadii.md),
                       border: Border.all(
                         color: AppColors.outline,

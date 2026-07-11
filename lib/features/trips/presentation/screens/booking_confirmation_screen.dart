@@ -716,32 +716,41 @@ class _BookingConfirmationScreenState
 
   Widget _buildMapPlaceholder(String pickupLocation) {
     return Container(
-      color: AppColors.surfaceContainerLow,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: AppColors.outlineVariant),
+      ),
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(
-            Icons.map_outlined,
+            Icons.location_on,
             size: 36.0,
-            color: AppColors.onSurfaceVariant,
+            color: AppColors.primary,
           ),
           const SizedBox(height: 12.0),
           Text(
+            'Pickup Location',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 4.0),
+          Text(
             pickupLocation,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: AppColors.onSurface,
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 6.0),
-          Text(
-            'Map preview unavailable in this build.',
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.onSurfaceVariant),
+          const SizedBox(height: 12.0),
+          TextButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.directions, size: 18),
+            label: const Text('Get Directions'),
           ),
         ],
       ),

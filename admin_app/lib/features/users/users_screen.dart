@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/users_providers.dart';
 import 'widgets/user_detail_dialog.dart';
+import 'widgets/add_user_dialog.dart';
 
 class UsersScreen extends ConsumerStatefulWidget {
   const UsersScreen({super.key});
@@ -47,6 +48,20 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                     },
                   ),
                 ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const AddUserDialog(),
+                    );
+                  },
+                  icon: const Icon(Icons.person_add),
+                  label: const Text('Add User'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -80,7 +95,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                               constraints: BoxConstraints(minWidth: constraints.maxWidth),
                               child: DataTable(
                           showCheckboxColumn: false,
-                          columns: const [
+                          columns: [
                             DataColumn(label: Text('User ID')),
                             DataColumn(label: Text('Email')),
                             DataColumn(label: Text('Name')),
@@ -104,10 +119,10 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                                   Chip(
                                     label: Text(u.tier.toUpperCase()),
                                     backgroundColor: u.tier == 'platinum'
-                                        ? Colors.purple.withOpacity(0.1)
+                                        ? Colors.purple.withValues(alpha: 0.1)
                                         : u.tier == 'gold'
-                                            ? Colors.orange.withOpacity(0.1)
-                                            : Colors.grey.withOpacity(0.1),
+                                            ? Colors.orange.withValues(alpha: 0.1)
+                                            : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
                                   ),
                                 ),
                                 DataCell(Text(u.loyaltyPoints.toString())),
@@ -122,9 +137,9 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                 },
               ); // return LayoutBuilder
             },
-          ),
-              ),
-            ),
+          ), // usersAsync.when data
+        ), // Card
+      ), // Expanded
           ],
         ),
       ),

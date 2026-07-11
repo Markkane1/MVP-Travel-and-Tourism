@@ -11,7 +11,6 @@ class AppTheme {
         primary: const Color(0xFF0F172A), // Slate 900
         secondary: const Color(0xFF3B82F6), // Blue 500
         surface: const Color(0xFFF8FAFC), // Slate 50
-        background: const Color(0xFFF1F5F9), // Slate 100
       ),
       useMaterial3: true,
       textTheme: GoogleFonts.interTextTheme(),

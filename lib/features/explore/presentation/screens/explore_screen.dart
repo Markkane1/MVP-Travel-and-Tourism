@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_paths.dart';
+import '../../../../core/services/auth_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/section_header.dart';
@@ -24,6 +25,7 @@ class ExploreScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     // Watch independent streams
+    final user = ref.watch(authServiceProvider).currentUser;
     final heroPromo = ref.watch(heroPromotionsProvider);
     final featured = ref.watch(featuredToursProvider);
     final popular = ref.watch(popularDestinationsProvider);
@@ -60,11 +62,15 @@ class ExploreScreen extends ConsumerWidget {
             padding: const EdgeInsets.only(right: AppSpacing.md),
             child: GestureDetector(
               onTap: () => context.go('/profile'),
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 18.0,
-                backgroundImage: NetworkImage(
-                  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150',
-                ),
+                backgroundColor: AppColors.primaryContainer,
+                backgroundImage: user?.photoUrl != null && user!.photoUrl!.isNotEmpty
+                    ? NetworkImage(user.photoUrl!)
+                    : null,
+                child: user?.photoUrl == null || user!.photoUrl!.isEmpty
+                    ? const Icon(Icons.person, size: 20.0, color: AppColors.primary)
+                    : null,
               ),
             ),
           ),

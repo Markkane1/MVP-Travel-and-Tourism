@@ -51,7 +51,7 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                               final thread = threads[index];
                               final isSelected = thread.id == _selectedUserId;
                               return ListTile(
-                                title: Text('User \${thread.id.substring(0, 8)}...'),
+                                title: Text('User ${thread.id.substring(0, 8)}...'),
                                 subtitle: Text(
                                   thread.lastMessageText ?? 'No messages yet',
                                   maxLines: 1,
@@ -135,10 +135,10 @@ class _ConciergeThreadDetailState extends ConsumerState<_ConciergeThreadDetail> 
       children: [
         Container(
           padding: const EdgeInsets.all(16),
-          color: theme.colorScheme.surfaceVariant,
+          color: theme.colorScheme.surfaceContainerHighest,
           width: double.infinity,
           child: Text(
-            'Chat with User \${widget.userId.substring(0, 8)}...',
+            'Chat with User ${widget.userId.substring(0, 8)}...',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -160,7 +160,7 @@ class _ConciergeThreadDetailState extends ConsumerState<_ConciergeThreadDetail> 
                       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isConcierge ? theme.colorScheme.primaryContainer : theme.colorScheme.surfaceVariant,
+                        color: isConcierge ? theme.colorScheme.primaryContainer : theme.colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(msg.text),

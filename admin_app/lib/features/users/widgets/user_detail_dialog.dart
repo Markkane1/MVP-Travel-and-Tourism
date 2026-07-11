@@ -17,6 +17,8 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
   bool _isLoading = false;
   late TextEditingController _loyaltyPointsController;
   late TextEditingController _conciergeIdController;
+  late TextEditingController _displayNameController;
+  late TextEditingController _phoneNumberController;
   late String _selectedTier;
 
   @override
@@ -24,6 +26,8 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
     super.initState();
     _loyaltyPointsController = TextEditingController(text: widget.user.loyaltyPoints.toString());
     _conciergeIdController = TextEditingController(text: widget.user.conciergeId ?? '');
+    _displayNameController = TextEditingController(text: widget.user.displayName ?? '');
+    _phoneNumberController = TextEditingController(text: '');
     
     // Normalize tier string to avoid DropdownButton crashes
     String t = widget.user.tier.toLowerCase();
@@ -38,6 +42,8 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
   void dispose() {
     _loyaltyPointsController.dispose();
     _conciergeIdController.dispose();
+    _displayNameController.dispose();
+    _phoneNumberController.dispose();
     super.dispose();
   }
 
@@ -46,9 +52,13 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
     try {
       final points = int.tryParse(_loyaltyPointsController.text) ?? widget.user.loyaltyPoints;
       final cId = _conciergeIdController.text.trim();
+      final displayName = _displayNameController.text.trim();
+      final phoneNumber = _phoneNumberController.text.trim();
 
       await ref.read(usersApiProvider).updateUser(
         widget.user.id,
+        displayName: displayName.isEmpty ? null : displayName,
+        phoneNumber: phoneNumber.isEmpty ? null : phoneNumber,
         tier: _selectedTier,
         loyaltyPoints: points,
         conciergeId: cId.isEmpty ? '' : cId,
@@ -72,7 +82,7 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Delete', style: TextStyle(color: Colors.white)),
           ),
@@ -100,7 +110,7 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
     final u = widget.user;
 
     return AlertDialog(
-      title: Text('User \${u.id.substring(0, 8)}...'),
+      title: Text('User ${u.id.substring(0, 8)}...'),
       content: SizedBox(
         width: 400,
         child: SingleChildScrollView(
@@ -108,24 +118,23 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Email: \${u.email}'),
-              Text("Display Name: \${u.displayName ?? 'N/A'}"),
-              if (u.createdAt != null) Text('Joined: \${u.createdAt}'),
+              Text('Email: ${u.email}'),
+              if (u.createdAt != null) Text('Joined: ${u.createdAt}'),
               const SizedBox(height: 16),
               
               const Text('User Insights', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               if (u.preferences != null && u.preferences!.isNotEmpty)
-                Text('Preferences: \${u.preferences.toString()}'),
+                Text('Preferences: ${u.preferences.toString()}'),
               if (u.preferences == null || u.preferences!.isEmpty)
                 const Text('Preferences: None stated'),
               
               const SizedBox(height: 8),
-              Text('Saved Tours: \${u.savedTours.length} tours saved'),
+              Text('Saved Tours: ${u.savedTours.length} tours saved'),
               if (u.savedTours.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0, top: 4.0),
-                  child: Text(u.savedTours.join(', '), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  child: Text(u.savedTours.join(', '), style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.outline)),
                 ),
               
               const Text('Bookings Summary:', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -139,7 +148,7 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
                     );
                   }
                   if (snapshot.hasError) {
-                    return Text('Error loading bookings', style: const TextStyle(color: Colors.red));
+                    return Text('Error loading bookings', style: TextStyle(color: Theme.of(context).colorScheme.error));
                   }
                   final docs = snapshot.data?.docs ?? [];
                   if (docs.isEmpty) return const Text('No bookings found.');
@@ -150,10 +159,20 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
               
               const Divider(height: 32),
               
-              const Text('Update User Status', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Update User Details', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _displayNameController,
+                decoration: const InputDecoration(labelText: 'Display Name', border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _phoneNumberController,
+                decoration: const InputDecoration(labelText: 'Phone Number', border: OutlineInputBorder()),
+              ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _selectedTier,
+                initialValue: _selectedTier,
                 decoration: const InputDecoration(labelText: 'Tier', border: OutlineInputBorder()),
                 items: const [
                   DropdownMenuItem(value: 'base', child: Text('Base')),
@@ -182,7 +201,7 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
       actions: [
         TextButton(
           onPressed: _isLoading ? null : _deleteUser,
-          style: TextButton.styleFrom(foregroundColor: Colors.red),
+          style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
           child: const Text('Delete User'),
         ),
         const Spacer(),

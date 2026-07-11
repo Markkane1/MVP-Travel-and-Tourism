@@ -22,7 +22,7 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(boxShadow: AppShadows.level2),
+      decoration: const BoxDecoration(boxShadow: AppShadows.level2),
       child: Material(
         color: backgroundColor,
         borderRadius: borderRadius,

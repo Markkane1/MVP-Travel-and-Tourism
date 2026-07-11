@@ -197,7 +197,7 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                             child: Padding(
                               padding: const EdgeInsets.only(bottom: 16.0),
                               child: DropdownButtonFormField<String>(
-                                value: _currency,
+                                initialValue: _currency,
                                 decoration: InputDecoration(
                                   labelText: 'Currency',
                                   filled: true,
@@ -215,7 +215,7 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                             child: Padding(
                               padding: const EdgeInsets.only(bottom: 16.0),
                               child: DropdownButtonFormField<String>(
-                                value: _unitType,
+                                initialValue: _unitType,
                                 decoration: InputDecoration(
                                   labelText: 'Unit Type',
                                   filled: true,
@@ -327,7 +327,7 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                                   Switch(
                                     value: _isActive,
                                     onChanged: (val) => setState(() => _isActive = val),
-                                    activeColor: Colors.green,
+                                    activeThumbColor: Colors.green,
                                   ),
                                 ],
                               ),

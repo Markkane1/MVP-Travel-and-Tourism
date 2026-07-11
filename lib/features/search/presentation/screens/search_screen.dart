@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/services/auth_service.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../explore/explore.dart';
 
@@ -140,6 +141,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final featured = ref.watch(featuredToursProvider);
+    final user = ref.watch(authServiceProvider).currentUser;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -158,14 +160,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           ),
         ),
         centerTitle: true,
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: AppSpacing.md),
+            padding: const EdgeInsets.only(right: AppSpacing.md),
             child: CircleAvatar(
               radius: 18.0,
-              backgroundImage: NetworkImage(
-                'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150',
-              ),
+              backgroundColor: AppColors.primaryContainer,
+              backgroundImage: user?.photoUrl != null && user!.photoUrl!.isNotEmpty
+                  ? NetworkImage(user.photoUrl!)
+                  : null,
+              child: user?.photoUrl == null || user!.photoUrl!.isEmpty
+                  ? const Icon(Icons.person, size: 20.0, color: AppColors.primary)
+                  : null,
             ),
           ),
         ],
@@ -414,20 +420,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 AppSpacing.gapMd,
                 featured.when(
                   data: (tourList) {
-                    // Combine and filter for matching tours
-                    final displayTours = tourList
-                        .where(
-                          (t) =>
-                              t.id == 'maldives-retreat' ||
-                              t.id == 'swiss-alpine' ||
-                              t.id == 'kyoto-walk',
-                        )
-                        .toList();
-
-                    // Fallback to first 3 tours if they are not in the database yet
-                    final tours = displayTours.isNotEmpty
-                        ? displayTours
-                        : tourList.take(3).toList();
+                    // Sort by rating and take top 3
+                    final sortedList = tourList.toList()
+                      ..sort((a, b) => b.ratingAverage.compareTo(a.ratingAverage));
+                    final tours = sortedList.take(3).toList();
 
                     if (tours.isEmpty) {
                       return const Center(

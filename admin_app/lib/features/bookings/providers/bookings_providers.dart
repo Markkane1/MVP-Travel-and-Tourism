@@ -49,7 +49,7 @@ class BookingsApi {
       'status': nextStatus,
       'lastAdminActionAt': FieldValue.serverTimestamp(),
       'lastAdminActionBy': actor?.email ?? 'unknown',
-      if (reason != null) 'adminNotes': reason,
+      'adminNotes': ?reason,
     });
 
     // 2. Write audit log.
@@ -60,7 +60,7 @@ class BookingsApi {
       'targetType': 'booking',
       'targetId': bookingId,
       'summary': 'Status changed from $currentStatus to $nextStatus',
-      if (reason != null) 'reason': reason,
+      'reason': ?reason,
       'before': {'status': currentStatus},
       'after': {'status': nextStatus},
       'createdAt': FieldValue.serverTimestamp(),
@@ -91,6 +91,53 @@ class BookingsApi {
       'targetId': bookingId,
       'summary': 'Refund requested. Manual Stripe action required.',
       'reason': reason,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+
+    await batch.commit();
+  }
+
+  Future<void> addBooking(Booking newBooking) async {
+    final actor = _auth.currentUser;
+    final docRef = _db.collection('bookings').doc();
+    final batch = _db.batch();
+
+    final data = newBooking.toJson();
+    data['id'] = docRef.id;
+    data['createdAt'] = FieldValue.serverTimestamp();
+    
+    batch.set(docRef, data);
+
+    batch.set(_db.collection('admin_audit_logs').doc(), {
+      'actorUid': actor?.uid ?? 'unknown',
+      'actorEmail': actor?.email ?? 'unknown',
+      'action': 'adminCreateBooking',
+      'targetType': 'booking',
+      'targetId': docRef.id,
+      'summary': 'Admin manually created booking for user ${newBooking.userId}',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+
+    await batch.commit();
+  }
+
+  Future<void> updateBookingDetails(String bookingId, Map<String, dynamic> updates) async {
+    final actor = _auth.currentUser;
+    final batch = _db.batch();
+
+    updates['lastAdminActionAt'] = FieldValue.serverTimestamp();
+    updates['lastAdminActionBy'] = actor?.email ?? 'unknown';
+
+    batch.update(_db.collection('bookings').doc(bookingId), updates);
+
+    batch.set(_db.collection('admin_audit_logs').doc(), {
+      'actorUid': actor?.uid ?? 'unknown',
+      'actorEmail': actor?.email ?? 'unknown',
+      'action': 'adminUpdateBookingDetails',
+      'targetType': 'booking',
+      'targetId': bookingId,
+      'summary': 'Admin modified booking details (Dates, Participants, etc.)',
+      'after': updates,
       'createdAt': FieldValue.serverTimestamp(),
     });
 

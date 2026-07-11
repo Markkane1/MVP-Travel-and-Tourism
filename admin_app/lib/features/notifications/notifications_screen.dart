@@ -101,7 +101,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                           const Text('Target Audience', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(
-                            value: _targetType,
+                            initialValue: _targetType,
                             decoration: const InputDecoration(border: OutlineInputBorder()),
                             items: const [
                               DropdownMenuItem(value: 'single', child: Text('Single User')),
@@ -120,7 +120,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                             ),
                           if (_targetType == 'cohort')
                             DropdownButtonFormField<String>(
-                              value: _cohortTier,
+                              initialValue: _cohortTier,
                               decoration: const InputDecoration(labelText: 'Target Tier', border: OutlineInputBorder()),
                               items: const [
                                 DropdownMenuItem(value: 'base', child: Text('Base')),
@@ -236,8 +236,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const SizedBox(height: 4),
-                                    Text("Target: \${data['targetType']}"),
-                                    Text("Sent by: \${data['actorEmail']}"),
+                                    Text("Target: ${data['targetType']}"),
+                                    Text("Sent by: ${data['actorEmail']}"),
                                     if (ts != null)
                                       Text(ts.toDate().toString(), style: const TextStyle(fontSize: 12, color: Colors.grey)),
                                   ],
