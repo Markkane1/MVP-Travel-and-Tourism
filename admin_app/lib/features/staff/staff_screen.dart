@@ -216,10 +216,14 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
                   data: (staff) {
                     if (staff.isEmpty) return const Center(child: Text('No staff profiles found.'));
                     
-                    return SingleChildScrollView(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                              child: DataTable(
                           columns: const [
                             DataColumn(label: Text('Email')),
                             DataColumn(label: Text('Role')),
@@ -267,9 +271,12 @@ class _StaffScreenState extends ConsumerState<StaffScreen> {
                               ],
                             );
                           }).toList(),
-                        ),
-                      ),
-                    );
+                        ), // DataTable
+                      ), // ConstrainedBox
+                    ), // SingleChildScrollView
+                  ); // return SingleChildScrollView
+                },
+              ); // return LayoutBuilder
                   },
                 ),
               ),

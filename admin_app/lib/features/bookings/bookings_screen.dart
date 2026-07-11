@@ -99,10 +99,14 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                     if (filteredBookings.isEmpty) {
                       return const Center(child: Text('No bookings found.'));
                     }
-                    return SingleChildScrollView(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                              child: DataTable(
                           showCheckboxColumn: false,
                           columns: const [
                             DataColumn(label: Text('ID')),
@@ -111,6 +115,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                             DataColumn(label: Text('Price')),
                             DataColumn(label: Text('Status')),
                             DataColumn(label: Text('Refunded')),
+                            DataColumn(label: Text('Actions')),
                           ],
                           rows: filteredBookings.map((b) {
                             return DataRow(
@@ -124,7 +129,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                 DataCell(Text(b.id.substring(0, 8))),
                                 DataCell(Text(b.userId.substring(0, 8))),
                                 DataCell(Text(b.tourId.substring(0, 8))),
-                                DataCell(Text(currencyFormatter.format(b.totalPrice))),
+                                DataCell(Text('${b.currency} ${b.totalPrice.toInt()}')),
                                 DataCell(
                                   Chip(
                                     label: Text(b.status.toUpperCase()),
@@ -147,14 +152,29 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                   ),
                                 ),
                                 DataCell(Text(b.refunded ? 'Yes' : 'No')),
+                                DataCell(
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: Colors.blue),
+                                    tooltip: 'Manage Booking',
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => BookingDetailDialog(booking: b),
+                                      );
+                                    },
+                                  ),
+                                ),
                               ],
                             );
                           }).toList(),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                        ), // DataTable
+                      ), // ConstrainedBox
+                    ), // SingleChildScrollView
+                  ); // return SingleChildScrollView
+                },
+              ); // return LayoutBuilder
+            },
+          ),
               ),
             ),
           ],

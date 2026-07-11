@@ -14,6 +14,7 @@ abstract class Booking with _$Booking {
     required String tourId,
     required String status,
     required double totalPrice,
+    @Default('USD') String currency,
     String? bookingReferenceCode,
     @Default(false) bool refunded,
     String? refundReason,

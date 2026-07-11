@@ -206,7 +206,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                           return const Center(child: CircularProgressIndicator());
                         }
                         if (snapshot.hasError) {
-                          return Center(child: Text('Error: \${snapshot.error}'));
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: SelectableText('Error: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+                            ),
+                          );
                         }
                         final docs = snapshot.data?.docs ?? [];
                         if (docs.isEmpty) {

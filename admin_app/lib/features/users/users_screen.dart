@@ -71,10 +71,14 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                     if (filteredUsers.isEmpty) {
                       return const Center(child: Text('No users found.'));
                     }
-                    return SingleChildScrollView(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                              child: DataTable(
                           showCheckboxColumn: false,
                           columns: const [
                             DataColumn(label: Text('User ID')),
@@ -111,11 +115,14 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
                               ],
                             );
                           }).toList(),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                        ), // DataTable
+                      ), // ConstrainedBox
+                    ), // SingleChildScrollView
+                  ); // return SingleChildScrollView
+                },
+              ); // return LayoutBuilder
+            },
+          ),
               ),
             ),
           ],
