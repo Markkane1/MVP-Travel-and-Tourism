@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user.dart';
 import '../providers/users_providers.dart';
 
@@ -18,7 +17,6 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
   late TextEditingController _loyaltyPointsController;
   late TextEditingController _conciergeIdController;
   late TextEditingController _displayNameController;
-  late TextEditingController _phoneNumberController;
   late String _selectedTier;
 
   @override
@@ -33,7 +31,6 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
     _displayNameController = TextEditingController(
       text: widget.user.displayName ?? '',
     );
-    _phoneNumberController = TextEditingController(text: '');
 
     // Normalize tier string to avoid DropdownButton crashes
     String t = widget.user.tier.toLowerCase();
@@ -49,7 +46,6 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
     _loyaltyPointsController.dispose();
     _conciergeIdController.dispose();
     _displayNameController.dispose();
-    _phoneNumberController.dispose();
     super.dispose();
   }
 
@@ -61,14 +57,12 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
           widget.user.loyaltyPoints;
       final cId = _conciergeIdController.text.trim();
       final displayName = _displayNameController.text.trim();
-      final phoneNumber = _phoneNumberController.text.trim();
 
       await ref
           .read(usersApiProvider)
           .updateUser(
             widget.user.id,
             displayName: displayName.isEmpty ? null : displayName,
-            phoneNumber: phoneNumber.isEmpty ? null : phoneNumber,
             tier: _selectedTier,
             loyaltyPoints: points,
             conciergeId: cId.isEmpty ? '' : cId,
@@ -78,7 +72,7 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error: \$e')));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -171,44 +165,29 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
                 'Bookings Summary:',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('bookings')
-                    .where('userId', isEqualTo: u.id)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Padding(
+              ref
+                  .watch(userBookingsSummaryProvider(u.id))
+                  .when(
+                    data: (summary) => Text(
+                      summary.total == 0
+                          ? 'No bookings found.'
+                          : '${summary.total} total booking(s), ${summary.confirmed} active/confirmed',
+                    ),
+                    loading: () => const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return Text(
+                    ),
+                    error: (_, __) => Text(
                       'Error loading bookings',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.error,
                       ),
-                    );
-                  }
-                  final docs = snapshot.data?.docs ?? [];
-                  if (docs.isEmpty) return const Text('No bookings found.');
-                  final activeCount = docs
-                      .where(
-                        (d) =>
-                            (d.data() as Map<String, dynamic>)['status'] ==
-                            'confirmed',
-                      )
-                      .length;
-                  return Text(
-                    '${docs.length} total booking(s), $activeCount active/confirmed',
-                  );
-                },
-              ),
+                    ),
+                  ),
 
               const Divider(height: 32),
 
@@ -221,14 +200,6 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
                 controller: _displayNameController,
                 decoration: const InputDecoration(
                   labelText: 'Display Name',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _phoneNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
                   border: OutlineInputBorder(),
                 ),
               ),

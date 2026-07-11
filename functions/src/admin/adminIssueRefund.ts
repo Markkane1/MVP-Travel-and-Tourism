@@ -1,5 +1,10 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock', {
+  apiVersion: '2023-10-16',
+});
 
 /**
  * Callable Cloud Function to issue a refund by an admin.
@@ -28,13 +33,24 @@ export const adminIssueRefundLogic = async (
 
     const bookingData = bookingDoc.data()!;
 
-    // 2. Validate refund eligibility (e.g. must not be already refunded, must have a payment)
+    // 2. Validate refund eligibility
     if (bookingData.refunded) {
       throw new HttpsError('failed-precondition', 'Booking is already refunded');
     }
 
-    // MOCK: In a real implementation, we would call Stripe.refunds.create({ charge: bookingData.stripeChargeId }) here.
-    // For v1, we assume the refund succeeds or is handled manually if no Stripe is wired up.
+    if (!bookingData.stripePaymentIntentId) {
+      // If there's no payment intent, we can still process a logical refund (e.g., if it was manual or mocked)
+      console.warn(`Booking ${bookingId} has no stripePaymentIntentId. Proceeding with logical refund.`);
+    } else {
+      try {
+        await stripe.refunds.create({
+          payment_intent: bookingData.stripePaymentIntentId,
+          reason: 'requested_by_customer',
+        });
+      } catch (stripeError: any) {
+        throw new HttpsError('internal', `Stripe refund failed: ${stripeError.message}`);
+      }
+    }
 
     // 3. Update booking
     transaction.update(bookingRef, {

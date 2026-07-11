@@ -20,7 +20,6 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/result.dart';
 import '../../../booking/booking.dart';
 import '../../domain/payment_service.dart';
-import '../../data/mock_payment_service.dart';
 import '../../domain/card_details_validator.dart';
 
 /// Screen managing simulated checkout and payments.
@@ -82,51 +81,56 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
       await paymentResult.when(
         onSuccess: (outcome) async {
-          final checkoutRepo = ref.read(checkoutRepositoryProvider);
-          final confirmResult = await checkoutRepo.confirmBooking(booking.id);
-
-          await confirmResult.when(
-            onSuccess: (data) async {
-              // If the user selected to save the card for future bookings, save display-only details
-              if (_saveCard) {
-                final authUser = ref.read(authServiceProvider).currentUser;
-                if (authUser != null) {
-                  String brand = 'Visa';
-                  final cardNo = _cardNumberController.text.trim();
-                  if (cardNo.startsWith('3')) {
-                    brand = 'Amex';
-                  } else if (cardNo.startsWith('5')) {
-                    brand = 'Mastercard';
-                  } else if (cardNo.startsWith('4')) {
-                    brand = 'Visa';
-                  } else {
-                    brand = 'Other';
-                  }
-
-                  final cleanNo = cardNo.replaceAll(RegExp(r'\s+'), '');
-                  final last4 = cleanNo.length >= 4
-                      ? cleanNo.substring(cleanNo.length - 4)
-                      : '9999';
-
-                  await checkoutRepo.savePaymentMethod(
-                    uid: authUser.uid,
-                    brand: brand,
-                    last4: last4,
-                  );
-                }
+          // If the user selected to save the card for future bookings, save display-only details
+          if (_saveCard) {
+            final authUser = ref.read(authServiceProvider).currentUser;
+            if (authUser != null) {
+              String brand = 'Visa';
+              final cardNo = _cardNumberController.text.trim();
+              if (cardNo.startsWith('3')) {
+                brand = 'Amex';
+              } else if (cardNo.startsWith('5')) {
+                brand = 'Mastercard';
+              } else if (cardNo.startsWith('4')) {
+                brand = 'Visa';
+              } else {
+                brand = 'Other';
               }
 
-              if (mounted) {
-                context.go('/booking/${booking.id}/success', extra: data);
-              }
+              final cleanNo = cardNo.replaceAll(RegExp(r'\s+'), '');
+              final last4 = cleanNo.length >= 4
+                  ? cleanNo.substring(cleanNo.length - 4)
+                  : '9999';
+
+              final checkoutRepo = ref.read(checkoutRepositoryProvider);
+              await checkoutRepo.savePaymentMethod(
+                uid: authUser.uid,
+                brand: brand,
+                last4: last4,
+              );
+            }
+          }
+
+          // Wait for Stripe Webhook to confirm the booking in Firestore
+          final confirmationResult = await ref
+              .read(checkoutRepositoryProvider)
+              .waitForBookingConfirmation(booking.id);
+
+          if (!mounted) return;
+
+          await confirmationResult.when(
+            onSuccess: (referenceCode) async {
+              context.go(
+                '/booking/${booking.id}/success',
+                extra: {'bookingReferenceCode': referenceCode},
+              );
             },
-            onFailure: (exception) {
-              if (mounted) {
-                setState(() {
-                  _isProcessing = false;
-                  _errorMessage = exception.message;
-                });
-              }
+            onFailure: (_) async {
+              // If it times out or fails, still go to success but without the code (it will sync later)
+              context.go(
+                '/booking/${booking.id}/success',
+                extra: {'bookingReferenceCode': 'PROCESSING...'},
+              );
             },
           );
         },

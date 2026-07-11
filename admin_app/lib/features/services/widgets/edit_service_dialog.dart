@@ -144,19 +144,33 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
     }
   }
 
+  ColorScheme _colors(BuildContext context) => Theme.of(context).colorScheme;
+
+  InputDecoration _fieldDecoration(BuildContext context, String label) =>
+      InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: _colors(context).surface,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      );
+
   Widget _buildSectionHeader(String title, IconData icon) {
+    final colors = _colors(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24.0),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFF0F172A)),
+          Icon(icon, color: colors.primary),
           const SizedBox(width: 8),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF0F172A),
+              color: colors.primary,
             ),
           ),
           const SizedBox(width: 16),
@@ -177,15 +191,7 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
         controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: const Color(0xFFF8FAFC),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-        ),
+        decoration: _fieldDecoration(context, label),
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
         maxLines: maxLines,
         validator: required
@@ -203,6 +209,7 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = _colors(context);
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Container(
@@ -220,7 +227,7 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A),
+                    color: colors.primary,
                   ),
                 ),
                 IconButton(
@@ -271,14 +278,9 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                               padding: const EdgeInsets.only(bottom: 16.0),
                               child: DropdownButtonFormField<String>(
                                 initialValue: _currency,
-                                decoration: InputDecoration(
-                                  labelText: 'Currency',
-                                  filled: true,
-                                  fillColor: const Color(0xFFF8FAFC),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
+                                decoration: _fieldDecoration(
+                                  context,
+                                  'Currency',
                                 ),
                                 items: _currencies
                                     .map(
@@ -300,14 +302,9 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                               padding: const EdgeInsets.only(bottom: 16.0),
                               child: DropdownButtonFormField<String>(
                                 initialValue: _unitType,
-                                decoration: InputDecoration(
-                                  labelText: 'Unit Type',
-                                  filled: true,
-                                  fillColor: const Color(0xFFF8FAFC),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
+                                decoration: _fieldDecoration(
+                                  context,
+                                  'Unit Type',
                                 ),
                                 items: _unitTypes
                                     .map(
@@ -342,9 +339,9 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
+                          color: colors.surface,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade200),
+                          border: Border.all(color: colors.outlineVariant),
                         ),
                         child: Row(
                           children: [
@@ -409,16 +406,15 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF8FAFC),
+                                color: colors.surface,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.grey.shade200),
+                                border: Border.all(
+                                  color: colors.outlineVariant,
+                                ),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(
-                                    Icons.sort,
-                                    color: Color(0xFF64748B),
-                                  ),
+                                  Icon(Icons.sort, color: colors.outline),
                                   const SizedBox(width: 12),
                                   const Expanded(
                                     child: Column(
@@ -436,7 +432,7 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                                           'Lower number appears first',
                                           style: TextStyle(
                                             fontSize: 12,
-                                            color: Colors.grey,
+                                            color: colors.outline,
                                           ),
                                         ),
                                       ],
@@ -479,9 +475,11 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF8FAFC),
+                                color: colors.surface,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.grey.shade200),
+                                border: Border.all(
+                                  color: colors.outlineVariant,
+                                ),
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -531,7 +529,7 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                 FilledButton(
                   onPressed: _isSubmitting ? null : _submit,
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F172A),
+                    backgroundColor: colors.primary,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 32,
                       vertical: 20,

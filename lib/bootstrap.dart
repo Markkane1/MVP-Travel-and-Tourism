@@ -5,13 +5,14 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'core/config/env.dart';
 
 /// Bootstraps the application, runs configuration setups, and handles errors.
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   // Capture Flutter framework errors
   FlutterError.onError = (details) {
-    if (Env.isProd) {
+    if (Env.isProd && Firebase.apps.isNotEmpty) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(details);
     } else {
       FlutterError.dumpErrorToConsole(details);
@@ -71,12 +72,15 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
               : const AppleDebugProvider(),
         );
 
+        // Initialize Stripe
+        Stripe.publishableKey = 'pk_test_mock'; // This should be configured via Env, using mock for MVP
+
         final appWidget = await builder();
 
         runApp(ProviderScope(child: appWidget));
       },
       (error, stackTrace) {
-        if (Env.isProd) {
+        if (Env.isProd && Firebase.apps.isNotEmpty) {
           FirebaseCrashlytics.instance.recordError(
             error,
             stackTrace,

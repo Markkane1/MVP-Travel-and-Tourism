@@ -62,6 +62,27 @@ class CheckoutRepository {
       );
     }
   }
+
+  Future<Result<String>> waitForBookingConfirmation(String bookingId) async {
+    try {
+      final docSnap = await _firestore
+          .collection('bookings')
+          .doc(bookingId)
+          .snapshots()
+          .firstWhere((snap) {
+            final data = snap.data();
+            return data != null && data['status'] == 'confirmed';
+          })
+          .timeout(const Duration(seconds: 15));
+
+      final referenceCode = docSnap.data()?['bookingReferenceCode'] as String?;
+      return Result.success(referenceCode ?? 'PENDING');
+    } catch (e) {
+      return Result.failure(
+        AppException.unknown('Booking confirmation polling failed: $e'),
+      );
+    }
+  }
 }
 
 @riverpod

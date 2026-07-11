@@ -8,7 +8,12 @@ export const adminUpdateUserLogic = async (
   db: admin.firestore.Firestore,
   callerAuth: any,
   targetUserId: string,
-  updates: { tier?: string; loyaltyPoints?: number; conciergeId?: string }
+  updates: {
+    displayName?: string;
+    tier?: string;
+    loyaltyPoints?: number;
+    conciergeId?: string;
+  }
 ) => {
   // 1. Verify caller is authorized
   if (callerAuth?.token?.admin !== true) {
@@ -30,6 +35,7 @@ export const adminUpdateUserLogic = async (
 
     // 2. Build update payload
     const updatePayload: any = {};
+    if (updates.displayName !== undefined) updatePayload.displayName = updates.displayName;
     if (updates.tier !== undefined) updatePayload.tier = updates.tier;
     if (updates.loyaltyPoints !== undefined) updatePayload.loyaltyPoints = updates.loyaltyPoints;
     
@@ -54,6 +60,7 @@ export const adminUpdateUserLogic = async (
       targetId: targetUserId,
       summary: `Updated user profile properties`,
       before: {
+        displayName: userData.displayName,
         tier: userData.tier,
         loyaltyPoints: userData.loyaltyPoints,
         conciergeId: userData.conciergeId,

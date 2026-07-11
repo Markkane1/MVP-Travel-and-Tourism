@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'providers/notifications_providers.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
@@ -78,7 +77,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error: \$e')));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSending = false);
@@ -278,43 +277,29 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   ),
                   const SizedBox(height: 16),
                   Expanded(
-                    child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('admin_audit_logs')
-                          .where('action', isEqualTo: 'adminSendNotification')
-                          .orderBy('createdAt', descending: true)
-                          .limit(20)
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: SelectableText(
-                                'Error: ${snapshot.error}',
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          );
-                        }
-                        final docs = snapshot.data?.docs ?? [];
+                    child: ref.watch(notificationHistoryProvider).when(
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (error, _) => Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: SelectableText(
+                            'Error: $error',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ),
+                      data: (docs) {
                         if (docs.isEmpty) {
                           return const Center(child: Text('No history found.'));
                         }
                         return ListView.builder(
                           itemCount: docs.length,
                           itemBuilder: (context, index) {
-                            final data =
-                                docs[index].data() as Map<String, dynamic>;
+                            final data = docs[index].data();
                             final payload =
                                 data['payload'] as Map<String, dynamic>? ?? {};
-                            final ts = data['createdAt'] as Timestamp?;
+                            final ts = data['createdAt'];
                             return Card(
                               margin: const EdgeInsets.only(bottom: 12),
                               elevation: 0,

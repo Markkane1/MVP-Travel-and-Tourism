@@ -1,3 +1,4 @@
+@Tags(['integration'])
 // Critical path integration test.
 //
 // This test runs against the dev Firebase project with MockPaymentService.

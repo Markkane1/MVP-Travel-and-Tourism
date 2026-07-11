@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/bookings_providers.dart';
 import 'widgets/booking_detail_dialog.dart';
-import 'widgets/add_booking_dialog.dart';
 import 'models/booking.dart';
 
 class BookingsScreen extends ConsumerStatefulWidget {
@@ -79,29 +78,12 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                     }
                   },
                 ),
-                const SizedBox(width: 16),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const AddBookingDialog(),
-                    );
-                  },
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add Booking'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 16,
-                    ),
-                  ),
-                ),
               ],
             ),
             const SizedBox(height: 24),
             bookingsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error: \$err')),
+              error: (err, stack) => Center(child: Text('Error: $err')),
               data: (bookings) {
                 final filteredBookings = bookings.where((b) {
                   bool matchesStatus = true;

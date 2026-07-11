@@ -60,6 +60,7 @@ export const adminSendNotificationLogic = async (
         body,
         type: type || 'system',
         deepLink: deepLink || '',
+        read: false,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
     });

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/booking.dart';
 import '../providers/bookings_providers.dart';
-import 'edit_booking_dialog.dart';
 
 class BookingDetailDialog extends ConsumerStatefulWidget {
   final Booking booking;
@@ -32,7 +31,7 @@ class _BookingDetailDialogState extends ConsumerState<BookingDetailDialog> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error: \$e')));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -132,17 +131,6 @@ class _BookingDetailDialogState extends ConsumerState<BookingDetailDialog> {
                       ElevatedButton(
                         onPressed: () => _updateStatus('confirmed'),
                         child: const Text('Confirm Booking'),
-                      ),
-                    if (b.status == 'pending' || b.status == 'confirmed')
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          showDialog(
-                            context: context,
-                            builder: (context) => EditBookingDialog(booking: b),
-                          );
-                        },
-                        child: const Text('Edit Details'),
                       ),
                     if (b.status == 'confirmed')
                       ElevatedButton(

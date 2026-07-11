@@ -9,7 +9,8 @@ import * as admin from 'firebase-admin';
 export async function confirmBookingLogic(
   db: admin.firestore.Firestore,
   bookingId: string,
-  userId: string
+  userId: string,
+  stripePaymentIntentId?: string
 ): Promise<{ bookingReferenceCode: string; totalPrice: number }> {
   const bookingRef = db.collection('bookings').doc(bookingId);
   const userRef = db.collection('users').doc(userId);
@@ -56,10 +57,14 @@ export async function confirmBookingLogic(
     const bookingReferenceCode = `LT-${randomDigits}-${categoryCode}`;
 
     // 4. Update booking to status: 'confirmed'
-    transaction.update(bookingRef, {
+    const updateData: any = {
       status: 'confirmed',
       bookingReferenceCode: bookingReferenceCode,
-    });
+    };
+    if (stripePaymentIntentId) {
+      updateData.stripePaymentIntentId = stripePaymentIntentId;
+    }
+    transaction.update(bookingRef, updateData);
 
     // 5. Calculate authentic price and override client data
     const pricePerPerson = tourData.pricePerPerson || 0;
