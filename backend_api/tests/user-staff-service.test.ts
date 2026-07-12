@@ -22,6 +22,23 @@ describe('UserService', () => {
 });
 
 describe('StaffService', () => {
+  it('promotes a user role when creating a staff profile', async () => {
+    const userRepository = {
+      findById: jest.fn().mockResolvedValue({ id: 'user-2', role: 'CUSTOMER', status: Status.ACTIVE }),
+      update: jest.fn().mockResolvedValue({ id: 'user-2', role: 'ADMIN' }),
+    };
+    const staffRepository = {
+      findByUserId: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockResolvedValue({ id: 'staff-1', userId: 'user-2', isActive: true }),
+    };
+
+    const service = new StaffService(userRepository as any, staffRepository as any);
+    await service.createStaffProfile('user-2', { role: 'ADMIN' });
+
+    expect(userRepository.update).toHaveBeenCalledWith('user-2', { role: 'ADMIN' });
+    expect(staffRepository.create).toHaveBeenCalledWith({ userId: 'user-2' });
+  });
+
   it('deactivates a staff profile and marks the user inactive', async () => {
     const staffRepository = {
       findById: jest.fn().mockResolvedValue({ id: 'staff-1', userId: 'user-2', isActive: true }),

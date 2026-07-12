@@ -1,5 +1,5 @@
 import { StaffRepository } from '../repositories/StaffRepository';
-import { Prisma } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 import { UserRepository } from '../repositories/UserRepository';
 
 export class StaffService {
@@ -8,7 +8,10 @@ export class StaffService {
     private readonly staffRepository = new StaffRepository(),
   ) {}
 
-  async createStaffProfile(userId: string, data: Omit<Prisma.StaffProfileUncheckedCreateInput, 'userId'>) {
+  async createStaffProfile(
+    userId: string,
+    data: Omit<Prisma.StaffProfileUncheckedCreateInput, 'userId'> & { role?: Role },
+  ) {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new Error('User not found');
@@ -18,8 +21,10 @@ export class StaffService {
       throw new Error('User must be active');
     }
 
-    if (user.role === 'CUSTOMER') {
-      throw new Error('Customer accounts cannot have staff profiles');
+    const { role, ...profileData } = data;
+    const staffRole = role ?? user.role;
+    if (!['ADMIN', 'SUPER_ADMIN', 'CONCIERGE'].includes(staffRole)) {
+      throw new Error('Staff role required');
     }
 
     const existingProfile = await this.staffRepository.findByUserId(userId);
@@ -27,9 +32,13 @@ export class StaffService {
       throw new Error('Staff profile already exists');
     }
 
+    if (user.role !== staffRole) {
+      await this.userRepository.update(userId, { role: staffRole });
+    }
+
     return this.staffRepository.create({
       userId,
-      ...data,
+      ...profileData,
     });
   }
 

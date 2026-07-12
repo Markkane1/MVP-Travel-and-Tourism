@@ -16,6 +16,13 @@ export class TourRepository {
     });
   }
 
+  async findDateById(id: string): Promise<(TourDate & { tour: Tour }) | null> {
+    return prisma.tourDate.findUnique({
+      where: { id },
+      include: { tour: true },
+    });
+  }
+
   async findAll(status?: TourStatus): Promise<Tour[]> {
     return prisma.tour.findMany({
       where: status ? { status } : undefined,

@@ -26,6 +26,39 @@ test('booking creation always starts in pending status', async () => {
   );
 });
 
+test('booking creation accepts tour date and guests from the app flow', async () => {
+  const bookingRepository = {
+    create: jest.fn().mockResolvedValue({ id: 'booking-1', status: 'PENDING' }),
+  };
+  const tourRepository = {
+    findDateById: jest.fn().mockResolvedValue({
+      id: 'date-1',
+      tourId: 'tour-1',
+      availableSeats: 4,
+      priceOverride: null,
+      status: 'SCHEDULED',
+      tour: { id: 'tour-1', basePrice: 10000, status: 'PUBLISHED' },
+    }),
+  };
+
+  const service = new BookingService(bookingRepository as any, tourRepository as any);
+
+  await service.createBooking({
+    userId: 'user-1',
+    tourDateId: 'date-1',
+    guests: 2,
+  });
+
+  expect(bookingRepository.create).toHaveBeenCalledWith(
+    expect.objectContaining({
+      userId: 'user-1',
+      tourId: 'tour-1',
+      totalAmount: 20000,
+      status: 'PENDING',
+    }),
+  );
+});
+
 test('payment intent uses booking amount and blocks cross-user access', async () => {
   const bookingService = {
     getBookingById: jest.fn().mockResolvedValue({

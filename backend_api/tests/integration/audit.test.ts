@@ -23,6 +23,9 @@ integrationDescribe('Audit Logs (Phase 9)', () => {
       where: { id: registerRes.body.user.id },
       data: { role: 'SUPER_ADMIN' }
     });
+    await prisma.staffProfile.create({
+      data: { userId: registerRes.body.user.id }
+    });
 
     const loginRes = await request(app).post('/auth/login').send({ email: superAdmin.email, password: superAdmin.password });
     adminToken = loginRes.body.accessToken;

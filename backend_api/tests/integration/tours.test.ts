@@ -25,6 +25,9 @@ integrationDescribe('Tours Flow (Phase 6)', () => {
       where: { id: registerRes.body.user.id },
       data: { role: 'SUPER_ADMIN' }
     });
+    await prisma.staffProfile.create({
+      data: { userId: registerRes.body.user.id }
+    });
 
     const loginRes = await request(app)
       .post('/auth/login')
