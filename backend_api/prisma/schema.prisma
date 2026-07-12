@@ -1,0 +1,339 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String    // Hashed
+  firstName     String
+  lastName      String
+  role          Role      @default(CUSTOMER)
+  status        Status    @default(ACTIVE)
+  tier          Tier      @default(STANDARD)
+  loyaltyPoints Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions      Session[]
+  staffProfile  StaffProfile?
+  bookings      Booking[]
+  reviews       Review[]
+  conciergeThread ConciergeThread?
+  notifications   Notification[]
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  refreshToken String   @unique // Hashed token to match against client side token
+  expiresAt    DateTime
+  isRevoked    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model StaffProfile {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  isActive     Boolean  @default(true)
+  department   String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  SUPER_ADMIN
+  CONCIERGE
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+  DELETED
+}
+
+enum Tier {
+  STANDARD
+  GOLD
+  PLATINUM
+}
+
+model Booking {
+  id              String   @id @default(uuid())
+  userId          String
+  tourId          String?  
+  serviceId       String?  
+  status          BookingStatus @default(PENDING)
+  totalAmount     Int      
+  currency        String   @default("USD")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id])
+  tour            Tour?    @relation(fields: [tourId], references: [id])
+  service         Service? @relation(fields: [serviceId], references: [id])
+  review          Review?
+  payments        Payment[]
+  statusHistory   BookingStatusHistory[]
+}
+
+model BookingStatusHistory {
+  id              String   @id @default(uuid())
+  bookingId       String
+  status          BookingStatus
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  bookingId       String
+  stripeIntentId  String   @unique
+  amount          Int
+  currency        String
+  status          PaymentStatus @default(PENDING)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  booking         Booking  @relation(fields: [bookingId], references: [id])
+  refunds         Refund[]
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+model Refund {
+  id              String   @id @default(uuid())
+  paymentId       String
+  stripeRefundId  String   @unique
+  amount          Int
+  reason          String?
+  status          RefundStatus @default(PENDING)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  payment         Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+}
+
+enum RefundStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+model Tour {
+  id              String   @id @default(uuid())
+  title           String
+  slug            String   @unique
+  description     String?
+  type            TourType @default(GROUP)
+  durationDays    Int
+  basePrice       Int
+  status          TourStatus @default(DRAFT)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  itineraries     TourItinerary[]
+  dates           TourDate[]
+  bookings        Booking[]
+  reviews         Review[]
+  media           TourMedia[]
+}
+
+model TourItinerary {
+  id              String   @id @default(uuid())
+  tourId          String
+  dayNumber       Int
+  title           String
+  description     String?
+  accommodation   String?
+  mealsIncluded   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tour            Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+}
+
+model TourDate {
+  id              String   @id @default(uuid())
+  tourId          String
+  startDate       DateTime
+  endDate         DateTime
+  priceOverride   Int?
+  capacity        Int
+  availableSeats  Int
+  status          TourDateStatus @default(SCHEDULED)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tour            Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+}
+
+enum TourType {
+  GROUP
+  PRIVATE
+  CORPORATE
+}
+
+enum TourStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum TourDateStatus {
+  SCHEDULED
+  GUARANTEED
+  CANCELLED
+  COMPLETED
+}
+
+model Service {
+  id              String   @id @default(uuid())
+  title           String
+  description     String?
+  basePrice       Int
+  status          ServiceStatus @default(ACTIVE)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  bookings        Booking[]
+  media           ServiceMedia[]
+}
+
+model Review {
+  id              String   @id @default(uuid())
+  bookingId       String   @unique
+  userId          String
+  tourId          String?
+  rating          Int      
+  comment         String?
+  rewardIssued    Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  booking         Booking  @relation(fields: [bookingId], references: [id])
+  user            User     @relation(fields: [userId], references: [id])
+  tour            Tour?    @relation(fields: [tourId], references: [id])
+}
+
+enum ServiceStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model ConciergeThread {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  status          ThreadStatus @default(OPEN)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages        ConciergeMessage[]
+}
+
+model ConciergeMessage {
+  id              String   @id @default(uuid())
+  threadId        String
+  senderId        String
+  senderRole      Role
+  content         String
+  createdAt       DateTime @default(now())
+
+  thread          ConciergeThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id              String   @id @default(uuid())
+  userId          String
+  type            String   
+  title           String
+  message         String
+  isRead          Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ThreadStatus {
+  OPEN
+  CLOSED
+}
+
+model MediaAsset {
+  id              String   @id @default(uuid())
+  publicId        String   @unique
+  url             String
+  resourceType    String   @default("image") // e.g., image, video
+  format          String?
+  bytes           Int?
+  folder          String?
+  createdAt       DateTime @default(now())
+
+  tourMedia       TourMedia[]
+  serviceMedia    ServiceMedia[]
+}
+
+model TourMedia {
+  id              String   @id @default(uuid())
+  tourId          String
+  mediaAssetId    String
+  isPrimary       Boolean  @default(false)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  tour            Tour       @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  mediaAsset      MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+}
+
+model ServiceMedia {
+  id              String   @id @default(uuid())
+  serviceId       String
+  mediaAssetId    String
+  isPrimary       Boolean  @default(false)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  service         Service    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  mediaAsset      MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id              String   @id @default(uuid())
+  actorId         String
+  actorEmail      String?
+  actorRole       Role
+  action          String
+  targetType      String
+  targetId        String
+  summary         String?
+  snapshot        Json?
+  createdAt       DateTime @default(now())
+}

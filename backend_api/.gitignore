@@ -1,0 +1,11 @@
+node_modules
+# Keep environment variables out of version control
+.env
+dist
+coverage
+src/**/*.js
+src/**/*.js.map
+src/**/*.d.ts
+src/**/*.d.ts.map
+
+/src/generated/prisma
