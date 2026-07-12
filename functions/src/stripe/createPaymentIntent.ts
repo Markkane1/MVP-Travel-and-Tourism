@@ -3,12 +3,18 @@ import * as admin from 'firebase-admin';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock', {
-  apiVersion: '2023-10-16', // Use latest API version compatible with your setup
+  apiVersion: '2023-10-16',
 });
 
 /**
  * Creates a Stripe PaymentIntent for a pending booking.
  * Calculates the exact authentic price from Firestore securely.
+ *
+ * SECURITY FIX #15: Idempotency \u2014 the function now:
+ *   1. Persists the stripeCustomerId on the user document so we reuse one customer per user.
+ *   2. Persists the pending stripePaymentIntentId on the booking so repeat calls
+ *      return the same intent rather than creating new ones.
+ *   3. Uses Stripe idempotency keys tied to the bookingId for safe retries.
  */
 export const createPaymentIntent = onCall(async (request) => {
   if (!request.auth) {
@@ -38,8 +44,35 @@ export const createPaymentIntent = onCall(async (request) => {
     throw new HttpsError('failed-precondition', `Booking is already ${bookingData?.status}`);
   }
 
-  // Fetch Tour to calculate price
-  const tourId = bookingData.tourId;
+  // SECURITY FIX #15: If a payment intent already exists for this booking,
+  // return it directly instead of creating a new one.
+  if (bookingData?.pendingStripePaymentIntentId) {
+    try {
+      const existingIntent = await stripe.paymentIntents.retrieve(
+        bookingData.pendingStripePaymentIntentId
+      );
+      if (existingIntent.status === 'requires_payment_method' || existingIntent.status === 'requires_confirmation') {
+        // Reuse the existing intent — no new Stripe objects created
+        const userDoc = await db.collection('users').doc(userId).get();
+        const customerId = userDoc.data()?.stripeCustomerId || existingIntent.customer as string;
+        const ephemeralKey = await stripe.ephemeralKeys.create(
+          { customer: customerId as string },
+          { apiVersion: '2023-10-16' }
+        );
+        return {
+          paymentIntent: existingIntent.client_secret,
+          ephemeralKey: ephemeralKey.secret,
+          customer: customerId,
+          publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_mock',
+        };
+      }
+    } catch (_) {
+      // If retrieval fails, fall through and create a fresh one
+    }
+  }
+
+  // Fetch Tour to calculate authentic price
+  const tourId = bookingData?.tourId;
   const tourRef = db.collection('tours').doc(tourId);
   const tourDoc = await tourRef.get();
   if (!tourDoc.exists) {
@@ -48,26 +81,24 @@ export const createPaymentIntent = onCall(async (request) => {
 
   const tourData = tourDoc.data();
   
-  // Calculate authentic price
+  // Calculate authentic price server-side
   const pricePerPerson = tourData?.pricePerPerson || 0;
-  const adults = bookingData.adults || 0;
-  const children = bookingData.children || 0;
+  const adults = bookingData?.adults || 0;
+  const children = bookingData?.children || 0;
   
   let authenticTotalPrice = pricePerPerson * (adults + (children * 0.5));
   
   const groupSizeOptions = tourData?.groupSizeOptions || [];
-  const clientOption = bookingData.groupSizeOption || '';
+  const clientOption = bookingData?.groupSizeOption || '';
   const selectedOption = groupSizeOptions.find((opt: any) => opt.label === clientOption);
   if (selectedOption && typeof selectedOption.priceModifier === 'number') {
     authenticTotalPrice += selectedOption.priceModifier;
   }
   
-  if (bookingData.privateVehicle === true) {
+  if (bookingData?.privateVehicle === true) {
     authenticTotalPrice += (tourData?.privateVehicleSurcharge || 0);
   }
 
-  // Stripe requires amount in smallest currency unit (e.g. cents)
-  // Assuming authenticTotalPrice is in USD dollars
   const amountInCents = Math.round(authenticTotalPrice * 100);
 
   if (amountInCents <= 0) {
@@ -75,27 +106,34 @@ export const createPaymentIntent = onCall(async (request) => {
   }
 
   try {
-    // 1. Optional: Create or retrieve Stripe Customer
-    // For simplicity, we just create an ephemeral customer or omit it if not saving cards.
-    // We'll create a customer for the session.
-    const customer = await stripe.customers.create({
-      metadata: {
-        firebaseUID: userId,
-      }
-    });
+    // SECURITY FIX #15: Reuse existing Stripe customer or create one and persist it
+    const userDoc = await db.collection('users').doc(userId).get();
+    let customerId = userDoc.data()?.stripeCustomerId as string | undefined;
+    
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        metadata: { firebaseUID: userId },
+      }, {
+        idempotencyKey: `customer-${userId}`,
+      });
+      customerId = customer.id;
+      // Persist the customer ID so we reuse it on every future checkout
+      await db.collection('users').doc(userId).update({
+        stripeCustomerId: customerId,
+      });
+    }
 
-    // 2. Create Ephemeral Key
+    // Create Ephemeral Key
     const ephemeralKey = await stripe.ephemeralKeys.create(
-      { customer: customer.id },
+      { customer: customerId },
       { apiVersion: '2023-10-16' }
     );
 
-    // 3. Create PaymentIntent
+    // Create PaymentIntent with idempotency key so retries are safe
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
       currency: 'usd',
-      customer: customer.id,
-      // Automatic payment methods enabled by default
+      customer: customerId,
       automatic_payment_methods: {
         enabled: true,
       },
@@ -103,12 +141,19 @@ export const createPaymentIntent = onCall(async (request) => {
         bookingId: bookingId,
         userId: userId,
       },
+    }, {
+      idempotencyKey: `payment-intent-${bookingId}`,
+    });
+
+    // Persist the pending intent ID on the booking to prevent duplicate creation
+    await bookingRef.update({
+      pendingStripePaymentIntentId: paymentIntent.id,
     });
 
     return {
       paymentIntent: paymentIntent.client_secret,
       ephemeralKey: ephemeralKey.secret,
-      customer: customer.id,
+      customer: customerId,
       publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_mock',
     };
   } catch (error: any) {

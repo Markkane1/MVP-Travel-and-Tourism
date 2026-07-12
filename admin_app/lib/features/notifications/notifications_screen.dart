@@ -277,67 +277,73 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   ),
                   const SizedBox(height: 16),
                   Expanded(
-                    child: ref.watch(notificationHistoryProvider).when(
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
-                      error: (error, _) => Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: SelectableText(
-                            'Error: $error',
-                            style: const TextStyle(color: Colors.red),
+                    child: ref
+                        .watch(notificationHistoryProvider)
+                        .when(
+                          loading: () =>
+                              const Center(child: CircularProgressIndicator()),
+                          error: (error, _) => Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: SelectableText(
+                                'Error: $error',
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      data: (docs) {
-                        if (docs.isEmpty) {
-                          return const Center(child: Text('No history found.'));
-                        }
-                        return ListView.builder(
-                          itemCount: docs.length,
-                          itemBuilder: (context, index) {
-                            final data = docs[index].data();
-                            final payload =
-                                data['payload'] as Map<String, dynamic>? ?? {};
-                            final ts = data['createdAt'];
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                  color: theme.colorScheme.outlineVariant,
-                                ),
-                              ),
-                              child: ListTile(
-                                title: Text(
-                                  payload['title'] ?? 'No Title',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
+                          data: (docs) {
+                            if (docs.isEmpty) {
+                              return const Center(
+                                child: Text('No history found.'),
+                              );
+                            }
+                            return ListView.builder(
+                              itemCount: docs.length,
+                              itemBuilder: (context, index) {
+                                final data = docs[index].data();
+                                final payload =
+                                    data['payload'] as Map<String, dynamic>? ??
+                                    {};
+                                final ts = data['createdAt'];
+                                return Card(
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    side: BorderSide(
+                                      color: theme.colorScheme.outlineVariant,
+                                    ),
                                   ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 4),
-                                    Text("Target: ${data['targetType']}"),
-                                    Text("Sent by: ${data['actorEmail']}"),
-                                    if (ts != null)
-                                      Text(
-                                        ts.toDate().toString(),
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey,
-                                        ),
+                                  child: ListTile(
+                                    title: Text(
+                                      payload['title'] ?? 'No Title',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                  ],
-                                ),
-                              ),
+                                    ),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(height: 4),
+                                        Text("Target: ${data['targetType']}"),
+                                        Text("Sent by: ${data['actorEmail']}"),
+                                        if (ts != null)
+                                          Text(
+                                            ts.toDate().toString(),
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             );
                           },
-                        );
-                      },
-                    ),
+                        ),
                   ),
                 ],
               ),

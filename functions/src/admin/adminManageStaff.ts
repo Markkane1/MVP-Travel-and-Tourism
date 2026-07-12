@@ -1,5 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
+import { assertActiveSuperAdmin } from './authz';
 
 /**
  * Callable Cloud Function to manage staff profiles and claims.
@@ -15,16 +16,7 @@ export const adminManageStaffLogic = async (
     role?: 'admin' | 'super_admin' | 'concierge';
   }
 ) => {
-  // 1. Verify caller is authorized (super_admin or bootstrap)
-  const isBootstrap = callerAuth?.token?.email === 'admin@mvptravel.com' && callerAuth?.token?.email_verified === true;
-  const isSuperAdmin = callerAuth?.token?.super_admin === true;
-  
-  if (!isBootstrap && !isSuperAdmin) {
-    throw new HttpsError(
-      'permission-denied',
-      'You must be a super admin to manage staff.'
-    );
-  }
+  await assertActiveSuperAdmin(db, callerAuth);
 
   const { action, uid, email, password, role } = payload;
 
@@ -71,7 +63,12 @@ export const adminManageStaffLogic = async (
         throw new HttpsError('invalid-argument', 'Missing fields for deactivate.');
       }
 
+      // SECURITY FIX #4: Disable the account, set isActive=false, AND revoke
+      // all refresh tokens so existing sessions cannot continue being used.
       await admin.auth().updateUser(uid, { disabled: true });
+      // Revoke tokens immediately — deactivated staff should not retain access
+      // until token expiry.
+      await admin.auth().revokeRefreshTokens(uid);
       await db.collection('staff_profiles').doc(uid).update({
         isActive: false,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -96,7 +93,7 @@ export const adminManageStaffLogic = async (
   }
 };
 
-export const adminManageStaff = onCall(async (request) => {
+export const adminManageStaff = onCall({ enforceAppCheck: true }, async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'You must be logged in.');
   }

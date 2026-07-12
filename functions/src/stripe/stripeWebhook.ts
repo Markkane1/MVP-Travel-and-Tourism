@@ -7,9 +7,16 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock', {
   apiVersion: '2023-10-16',
 });
 
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_mock';
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export const stripeWebhook = onRequest(async (request, response) => {
+  // SECURITY FIX #9: Fail closed — do not proceed if the webhook secret is
+  // not configured. Shipping a known fallback secret allows forged events.
+  if (!endpointSecret) {
+    console.error('STRIPE_WEBHOOK_SECRET is not set. Rejecting webhook request.');
+    response.status(500).send('Webhook secret not configured.');
+    return;
+  }
   const sig = request.headers['stripe-signature'];
 
   let event: Stripe.Event;

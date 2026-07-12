@@ -47,4 +47,9 @@ class Env {
     'GOOGLE_MAPS_API_KEY',
     defaultValue: '',
   );
+
+  static const String appCheckWebSiteKey = String.fromEnvironment(
+    'FIREBASE_APP_CHECK_WEB_KEY',
+    defaultValue: '',
+  );
 }

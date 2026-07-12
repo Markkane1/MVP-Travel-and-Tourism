@@ -62,6 +62,12 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
           };
         }
 
+        if (kIsWeb && Env.appCheckWebSiteKey.isEmpty) {
+          throw StateError(
+            'FIREBASE_APP_CHECK_WEB_KEY is required for web builds.',
+          );
+        }
+
         // Initialize Firebase App Check
         await FirebaseAppCheck.instance.activate(
           providerAndroid: Env.isProd
@@ -70,10 +76,13 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
           providerApple: Env.isProd
               ? const AppleDeviceCheckProvider()
               : const AppleDebugProvider(),
+          webProvider: kIsWeb
+              ? ReCaptchaV3Provider(Env.appCheckWebSiteKey)
+              : null,
         );
 
         // Initialize Stripe
-        Stripe.publishableKey = 'pk_test_mock'; // This should be configured via Env, using mock for MVP
+        Stripe.publishableKey = Env.stripePublishableKey;
 
         final appWidget = await builder();
 

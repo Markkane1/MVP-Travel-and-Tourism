@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../services/auth_service.dart';
 import '../services/notification_service.dart';
+import '../services/client_notification_trigger_service.dart';
 import '../widgets/app_bottom_nav.dart';
 
 /// Scaffold container for the persistent bottom navigation shell.
@@ -23,7 +24,11 @@ class _ShellScaffoldState extends ConsumerState<ShellScaffold> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = ref.read(authServiceProvider).currentUser;
       if (user != null) {
+        // Set up FCM token registration and foreground message handling.
         ref.read(notificationServiceProvider).setupNotifications(user.uid);
+        // Start client-side Firestore event listeners that write notification
+        // docs without requiring Cloud Functions (Spark plan compatible).
+        ref.read(clientNotificationTriggerProvider).startListening(user.uid);
       }
     });
   }

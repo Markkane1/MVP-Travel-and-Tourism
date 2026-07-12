@@ -21,4 +21,9 @@ class Env {
   static FirebaseOptions get firebaseOptions {
     return DefaultFirebaseOptions.currentPlatform;
   }
+
+  static const String appCheckWebSiteKey = String.fromEnvironment(
+    'FIREBASE_APP_CHECK_WEB_KEY',
+    defaultValue: '',
+  );
 }

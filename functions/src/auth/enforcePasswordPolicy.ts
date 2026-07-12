@@ -13,7 +13,8 @@ export const enforcePasswordPolicy = beforeUserCreated(async (event) => {
   const user = event.data;
 
   // OAuth users have no password — allow them through unconditionally.
-  if (!user.passwordHash) return;
+  if (!user || !user.passwordHash) return;
+
 
   // The plain-text password is only available during the blocking trigger.
   // It is not stored; we validate and discard it immediately.

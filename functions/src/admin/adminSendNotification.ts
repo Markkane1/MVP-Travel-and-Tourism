@@ -1,5 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
+import { assertActiveAdmin } from './authz';
 
 /**
  * Callable Cloud Function to broadcast or target notifications.
@@ -17,13 +18,7 @@ export const adminSendNotificationLogic = async (
     cohortTier?: string;
   }
 ) => {
-  // 1. Verify caller is authorized
-  if (callerAuth?.token?.admin !== true) {
-    throw new HttpsError(
-      'permission-denied',
-      'You must be an admin to perform this action.'
-    );
-  }
+  await assertActiveAdmin(db, callerAuth);
 
   const { targetType, title, body, type, deepLink, targetUserId, cohortTier } = payload;
   let targetUids: string[] = [];
@@ -83,7 +78,7 @@ export const adminSendNotificationLogic = async (
   return { success: true, count: targetUids.length };
 };
 
-export const adminSendNotification = onCall(async (request) => {
+export const adminSendNotification = onCall({ enforceAppCheck: true }, async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'You must be logged in.');
   }

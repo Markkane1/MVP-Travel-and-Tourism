@@ -1,31 +1,26 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../data/checkout_repository.dart';
-import '../../../../core/services/auth_service.dart';
 
+import '../../data/checkout_repository.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_radii.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../widgets/checkout_stateless_widgets.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_state_view.dart';
-import '../../../../core/constants/app_strings.dart';
-import '../../../../core/utils/result.dart';
+import '../widgets/checkout_stateless_widgets.dart';
 import '../../../booking/booking.dart';
-import '../../domain/payment_service.dart';
-import '../../domain/card_details_validator.dart';
 
-/// Screen managing simulated checkout and payments.
+enum _PaymentOption { bankTransfer, payOnArrival }
+
+/// Checkout screen offering Bank Transfer and Pay on Arrival.
+/// Works entirely on the Firebase Spark (free) plan — no Stripe, no Cloud Functions.
 class CheckoutScreen extends ConsumerStatefulWidget {
   final String bookingId;
-
   const CheckoutScreen({super.key, required this.bookingId});
 
   @override
@@ -33,124 +28,42 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 }
 
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
-  final _nameController = TextEditingController();
-  final _cardNumberController = TextEditingController();
-  final _expiryController = TextEditingController();
-  final _cvvController = TextEditingController();
-
-  bool _saveCard = false;
+  _PaymentOption _selectedOption = _PaymentOption.bankTransfer;
   bool _isProcessing = false;
   String? _errorMessage;
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _cardNumberController.dispose();
-    _expiryController.dispose();
-    _cvvController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _processPayment(Booking booking) async {
-    final validation = validateCardDetails(
-      name: _nameController.text,
-      cardNumber: _cardNumberController.text,
-      expiry: _expiryController.text,
-      cvv: _cvvController.text,
-    );
-
-    if (!validation.isValid) {
-      setState(() {
-        _errorMessage = validation.errorMessage;
-      });
-      return;
-    }
-
+  Future<void> _submitBooking(Booking booking) async {
     setState(() {
       _isProcessing = true;
       _errorMessage = null;
     });
 
-    try {
-      final PaymentService paymentService = ref.read(paymentServiceProvider);
-      final Result<PaymentOutcome> paymentResult = await paymentService.pay(
-        bookingId: booking.id,
-        amount: booking.totalPrice,
-        currency: booking.currency,
-      );
+    final method = _selectedOption == _PaymentOption.bankTransfer
+        ? 'bank_transfer'
+        : 'pay_on_arrival';
 
-      await paymentResult.when(
-        onSuccess: (outcome) async {
-          // If the user selected to save the card for future bookings, save display-only details
-          if (_saveCard) {
-            final authUser = ref.read(authServiceProvider).currentUser;
-            if (authUser != null) {
-              String brand = 'Visa';
-              final cardNo = _cardNumberController.text.trim();
-              if (cardNo.startsWith('3')) {
-                brand = 'Amex';
-              } else if (cardNo.startsWith('5')) {
-                brand = 'Mastercard';
-              } else if (cardNo.startsWith('4')) {
-                brand = 'Visa';
-              } else {
-                brand = 'Other';
-              }
+    final result = await ref
+        .read(checkoutRepositoryProvider)
+        .submitPaymentIntent(bookingId: booking.id, paymentMethod: method);
 
-              final cleanNo = cardNo.replaceAll(RegExp(r'\s+'), '');
-              final last4 = cleanNo.length >= 4
-                  ? cleanNo.substring(cleanNo.length - 4)
-                  : '9999';
+    if (!mounted) return;
 
-              final checkoutRepo = ref.read(checkoutRepositoryProvider);
-              await checkoutRepo.savePaymentMethod(
-                uid: authUser.uid,
-                brand: brand,
-                last4: last4,
-              );
-            }
-          }
-
-          // Wait for Stripe Webhook to confirm the booking in Firestore
-          final confirmationResult = await ref
-              .read(checkoutRepositoryProvider)
-              .waitForBookingConfirmation(booking.id);
-
-          if (!mounted) return;
-
-          await confirmationResult.when(
-            onSuccess: (referenceCode) async {
-              context.go(
-                '/booking/${booking.id}/success',
-                extra: {'bookingReferenceCode': referenceCode},
-              );
-            },
-            onFailure: (_) async {
-              // If it times out or fails, still go to success but without the code (it will sync later)
-              context.go(
-                '/booking/${booking.id}/success',
-                extra: {'bookingReferenceCode': 'PROCESSING...'},
-              );
-            },
-          );
-        },
-        onFailure: (exception) {
-          if (mounted) {
-            setState(() {
-              _isProcessing = false;
-              _errorMessage = exception.message;
-            });
-          }
-        },
-      );
-    } catch (e) {
-      if (mounted) {
+    result.when(
+      onSuccess: (_) {
+        context.go(
+          '/booking/${booking.id}/success',
+          extra: {
+            'bookingReferenceCode': booking.id.substring(0, 6).toUpperCase(),
+          },
+        );
+      },
+      onFailure: (e) {
         setState(() {
           _isProcessing = false;
-          _errorMessage = 'Payment execution failed: ${e.toString()}';
+          _errorMessage = e.message;
         });
-      }
-    }
+      },
+    );
   }
 
   @override
@@ -163,7 +76,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
-          AppStrings.checkout.title,
+          'Secure Checkout',
           style: theme.textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -198,7 +111,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
           return Stack(
             children: [
-              // Main Scrollable Checkout Flow
               SingleChildScrollView(
                 padding: const EdgeInsets.only(
                   left: AppSpacing.containerMargin,
@@ -209,48 +121,75 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 1. Error Banner
+                    // Error banner
                     if (_errorMessage != null) ...[
-                      ErrorBannerWidget(
-                        errorMessage:
-                            _errorMessage ?? AppStrings.checkout.paymentFailed,
-                      ),
+                      ErrorBannerWidget(errorMessage: _errorMessage!),
                       AppSpacing.gapMd,
                     ],
 
-                    // 2. Order Summary
+                    // Order summary
                     OrderSummaryCardWidget(booking: booking),
                     AppSpacing.gapLg,
 
-                    // 3. Apple & Google Pay Digital Wallets (visual only with DEMO badge)
-                    DigitalWalletsWidget(
-                      booking: booking,
-                      onPay: _processPayment,
+                    // Section header
+                    Text(
+                      'Choose Payment Method',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.onSurface,
+                      ),
+                    ),
+                    AppSpacing.gapMd,
+
+                    // Option 1: Bank Transfer
+                    _PaymentOptionCard(
+                      icon: Icons.account_balance_outlined,
+                      title: 'Bank Transfer',
+                      subtitle:
+                          'Transfer the amount to our account. We confirm your booking within 24 hours.',
+                      isSelected:
+                          _selectedOption == _PaymentOption.bankTransfer,
+                      onTap: () => setState(
+                        () => _selectedOption = _PaymentOption.bankTransfer,
+                      ),
+                    ),
+                    AppSpacing.gapMd,
+
+                    // Option 2: Pay on Arrival
+                    _PaymentOptionCard(
+                      icon: Icons.payments_outlined,
+                      title: 'Pay on Arrival',
+                      subtitle:
+                          'Reserve now, pay cash or card when you arrive at the destination.',
+                      isSelected:
+                          _selectedOption == _PaymentOption.payOnArrival,
+                      onTap: () => setState(
+                        () => _selectedOption = _PaymentOption.payOnArrival,
+                      ),
                     ),
                     AppSpacing.gapLg,
 
-                    // 4. Divider
-                    const OrPayWithCardDividerWidget(),
+                    // Bank transfer details (shown when selected)
+                    if (_selectedOption == _PaymentOption.bankTransfer)
+                      _BankDetailsCard(
+                        totalPrice: booking.totalPrice,
+                        currency: booking.currency,
+                      ),
+
                     AppSpacing.gapLg,
 
-                    // 5. Credit or Debit Card inputs
-                    _buildCreditCardForm(),
+                    // Info notice
+                    _buildPendingNotice(theme),
                     AppSpacing.gapLg,
 
-                    // 6. Bank Transfer Alternative Option
-                    _buildBankTransferRow(booking),
-                    AppSpacing.gapLg,
-
-                    // 7. Security copy footer
                     const TrustFootnoteWidget(),
                   ],
                 ),
               ),
 
-              // Sticky Bottom Payment Button
+              // Sticky submit button
               _buildStickyBottomBar(booking),
 
-              // Full-screen Blurring Processing Overlay
               if (_isProcessing) const ProcessingOverlayWidget(),
             ],
           );
@@ -259,109 +198,39 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     );
   }
 
-  Widget _buildCreditCardForm() {
-    return AppCard(
-      child: Column(
+  Widget _buildPendingNotice(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.primaryContainer.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(AppRadii.defaultRadius),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+      ),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Credit or Debit Card',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppColors.onSurface,
+          const Icon(Icons.info_outline, color: AppColors.primary, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              _selectedOption == _PaymentOption.bankTransfer
+                  ? 'After submitting, transfer the exact amount to our account. Your booking will be confirmed within 24 hours once we verify the transfer.'
+                  : 'Your booking will be reserved. Our team will confirm it and you\'ll pay on the day of your tour.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: AppColors.primary,
+              ),
             ),
-          ),
-          AppSpacing.gapMd,
-          AppTextField(
-            controller: _nameController,
-            labelText: AppStrings.checkout.cardholderNameLabel,
-            hintText: AppStrings.checkout.cardholderNameHint,
-          ),
-          AppSpacing.gapMd,
-          AppTextField(
-            controller: _cardNumberController,
-            labelText: AppStrings.checkout.cardNumberLabel,
-            hintText: AppStrings.checkout.cardNumberHint,
-            keyboardType: TextInputType.number,
-          ),
-          AppSpacing.gapMd,
-          Row(
-            children: [
-              Expanded(
-                child: AppTextField(
-                  controller: _expiryController,
-                  labelText: AppStrings.checkout.expiryLabel,
-                  hintText: AppStrings.checkout.expiryHint,
-                  keyboardType: TextInputType.datetime,
-                ),
-              ),
-              const SizedBox(width: 16.0),
-              Expanded(
-                child: AppTextField(
-                  controller: _cvvController,
-                  labelText: AppStrings.checkout.cvvLabel,
-                  hintText: AppStrings.checkout.cvvHint,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-            ],
-          ),
-          AppSpacing.gapMd,
-          Row(
-            children: [
-              Checkbox(
-                value: _saveCard,
-                activeColor: AppColors.primary,
-                onChanged: (val) {
-                  setState(() {
-                    _saveCard = val ?? false;
-                  });
-                },
-              ),
-              Expanded(
-                child: Text(
-                  AppStrings.checkout.saveCardLabel,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBankTransferRow(Booking booking) {
-    return GestureDetector(
-      onTap: () => context.push(
-        '/booking/${booking.id}/checkout/bank',
-        extra: booking.totalPrice,
-      ),
-      child: AppCard(
-        child: Row(
-          children: [
-            const Icon(Icons.account_balance, color: AppColors.primary),
-            const SizedBox(width: 16.0),
-            Expanded(
-              child: Text(
-                AppStrings.checkout.bankTransferRow,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.onSurface,
-                ),
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildStickyBottomBar(Booking booking) {
     final double total = booking.totalPrice;
+    final label = _selectedOption == _PaymentOption.bankTransfer
+        ? 'Submit & Get Bank Details'
+        : 'Reserve Now — Pay on Arrival';
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -379,11 +248,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Text(
+                'Total: ${booking.currency} ${total.toStringAsFixed(0)}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
               PrimaryButton(
-                buttonKey: const Key('checkout_pay_button'),
-                label:
-                    'Pay ${booking.currency} ${total.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} now',
-                onPressed: () => _processPayment(booking),
+                buttonKey: const Key('checkout_submit_button'),
+                label: label,
+                onPressed: () => _submitBooking(booking),
               ),
             ],
           ),
@@ -393,4 +269,228 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   }
 }
 
-/// Dynamic rotating ring graphic.
+/// Selectable payment option card.
+class _PaymentOptionCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _PaymentOptionCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primaryContainer.withValues(alpha: 0.25)
+              : AppColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(AppRadii.defaultRadius),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.outlineVariant,
+            width: isSelected ? 2.0 : 1.0,
+          ),
+        ),
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.surfaceContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 22,
+                color: isSelected ? Colors.white : AppColors.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: AppColors.primary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Bank account details card shown when bank transfer is selected.
+class _BankDetailsCard extends StatelessWidget {
+  final double totalPrice;
+  final String currency;
+
+  const _BankDetailsCard({required this.totalPrice, required this.currency});
+
+  void _copyToClipboard(BuildContext context, String value, String label) {
+    Clipboard.setData(ClipboardData(text: value));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$label copied to clipboard'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // TODO: Replace with your real bank account details before going live.
+    const bankName = 'HBL — Habib Bank Limited';
+    const accountTitle = 'MVP Travel & Tourism';
+    const accountNumber = '0123-4567890-03';
+    const iban = 'PK00HABB0000000123456789';
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.account_balance,
+                color: AppColors.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Bank Transfer Details',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.onSurface,
+                ),
+              ),
+            ],
+          ),
+          const Divider(height: 24),
+          const _DetailRow(label: 'Bank', value: bankName, onCopy: null),
+          _DetailRow(
+            label: 'Account Title',
+            value: accountTitle,
+            onCopy: () =>
+                _copyToClipboard(context, accountTitle, 'Account title'),
+          ),
+          _DetailRow(
+            label: 'Account Number',
+            value: accountNumber,
+            onCopy: () =>
+                _copyToClipboard(context, accountNumber, 'Account number'),
+          ),
+          _DetailRow(
+            label: 'IBAN',
+            value: iban,
+            onCopy: () => _copyToClipboard(context, iban, 'IBAN'),
+          ),
+          _DetailRow(
+            label: 'Amount to Transfer',
+            value: '$currency ${totalPrice.toStringAsFixed(0)}',
+            highlight: true,
+            onCopy: () => _copyToClipboard(
+              context,
+              totalPrice.toStringAsFixed(0),
+              'Amount',
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '⚠ Please use your booking ID as the payment reference so we can identify your transfer.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: AppColors.warning,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final VoidCallback? onCopy;
+  final bool highlight;
+
+  const _DetailRow({
+    required this.label,
+    required this.value,
+    this.onCopy,
+    this.highlight = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: highlight ? FontWeight.bold : FontWeight.w500,
+                color: highlight ? AppColors.primary : AppColors.onSurface,
+              ),
+            ),
+          ),
+          if (onCopy != null)
+            GestureDetector(
+              onTap: onCopy,
+              child: const Icon(
+                Icons.copy_outlined,
+                size: 16,
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}

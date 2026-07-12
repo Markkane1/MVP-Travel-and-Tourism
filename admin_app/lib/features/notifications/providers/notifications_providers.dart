@@ -2,17 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final notificationHistoryProvider = StreamProvider.autoDispose<
-  List<QueryDocumentSnapshot<Map<String, dynamic>>>
->((ref) {
-  return FirebaseFirestore.instance
-      .collection('admin_audit_logs')
-      .where('action', isEqualTo: 'adminSendNotification')
-      .orderBy('createdAt', descending: true)
-      .limit(20)
-      .snapshots()
-      .map((snapshot) => snapshot.docs);
-});
+final notificationHistoryProvider =
+    StreamProvider.autoDispose<
+      List<QueryDocumentSnapshot<Map<String, dynamic>>>
+    >((ref) {
+      return FirebaseFirestore.instance
+          .collection('admin_audit_logs')
+          .where('action', isEqualTo: 'adminSendNotification')
+          .orderBy('createdAt', descending: true)
+          .limit(20)
+          .snapshots()
+          .map((snapshot) => snapshot.docs);
+    });
 
 class NotificationsApi {
   final _functions = FirebaseFunctions.instance;

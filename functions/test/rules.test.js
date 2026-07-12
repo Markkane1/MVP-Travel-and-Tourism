@@ -21,6 +21,10 @@ function authedStorage(uid) {
   return testEnv.authenticatedContext(uid).storage(bucketUrl);
 }
 
+function anonStorage() {
+  return testEnv.unauthenticatedContext().storage(bucketUrl);
+}
+
 test.before(async () => {
   testEnv = await initializeTestEnvironment({
     projectId,
@@ -242,5 +246,63 @@ test('user-path images stay private to the owning user', async () => {
 
   await assertFails(
     bobStorage.ref('users/alice/profile.png').getDownloadURL(),
+  );
+});
+
+test('inactive staff cannot use admin Firestore access and clients cannot forge audit logs', async () => {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await context.firestore().collection('staff_profiles').doc('admin-1').set({
+      role: 'admin',
+      isActive: false,
+    });
+    await context.firestore().collection('users').doc('alice').set({
+      displayName: 'Alice',
+    });
+  });
+
+  const inactiveAdminDb = testEnv
+    .authenticatedContext('admin-1', { admin: true })
+    .firestore();
+
+  await assertFails(inactiveAdminDb.collection('users').doc('alice').get());
+  await assertFails(
+    inactiveAdminDb.collection('admin_audit_logs').doc('log-1').set({
+      actorUid: 'admin-1',
+      action: 'forged',
+    }),
+  );
+});
+
+test('public assets are world-readable but admin storage stays private', async () => {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await context.storage(bucketUrl)
+      .ref('public/tours/sample.png')
+      .putString('image-bytes', 'raw', {
+        contentType: 'image/png',
+      });
+    await context.storage(bucketUrl)
+      .ref('admin/reports/sample.png')
+      .putString('image-bytes', 'raw', {
+        contentType: 'image/png',
+      });
+    await context.firestore().collection('staff_profiles').doc('admin-1').set({
+      role: 'admin',
+      isActive: true,
+    });
+  });
+
+  await assertSucceeds(
+    anonStorage().ref('public/tours/sample.png').getDownloadURL(),
+  );
+
+  await assertFails(
+    anonStorage().ref('admin/reports/sample.png').getDownloadURL(),
+  );
+
+  await assertSucceeds(
+    testEnv.authenticatedContext('admin-1', { admin: true })
+      .storage(bucketUrl)
+      .ref('admin/reports/sample.png')
+      .getDownloadURL(),
   );
 });

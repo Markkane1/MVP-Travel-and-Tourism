@@ -262,6 +262,129 @@ Recommended fix:
 - Triage and upgrade the Functions dependency stack.
 - Re-run `npm audit` after upgrades and keep the report in CI.
 
+### 12. High - account deletion promises a full wipe but leaves user-linked data and storage objects behind
+
+Severity: High
+
+Evidence:
+- `functions/src/users/cleanupUserData.ts:13-47` deletes only:
+  - `notifications/{uid}/items`
+  - `users/{uid}/savedTours`
+  - `users/{uid}/paymentMethods`
+  - `concierge_threads/{uid}/messages`
+  - `concierge_threads/{uid}`
+  - `users/{uid}`
+- The same cleanup path does not touch user-linked records in:
+  - `bookings/{bookingId}` where `userId == uid`
+  - `tours/{tourId}/reviews/{reviewId}` where `userId == uid`
+  - Firebase Storage paths such as `users/{uid}/**` and `concierge_threads/{uid}/attachments/**`, even though those paths are actively used by the app in:
+    - `lib/features/profile/presentation/screens/edit_profile_screen.dart:103`
+    - `lib/features/concierge/presentation/screens/concierge_screen.dart:134-135`
+    - storage policy at `storage.rules:14-31`
+- `lib/core/services/auth_service.dart:352-365` explicitly says cleanup runs "to guarantee compliance with GDPR and avoid orphaned PII" but still deletes the Firebase Auth user even if cleanup throws.
+- The user-facing copy also promises a full wipe:
+  - `lib/core/constants/app_strings.dart:221-224`
+  - `functions/src/admin/adminDeleteUser.ts:6`
+  - `admin_app/lib/features/users/widgets/user_detail_dialog.dart:88`
+
+Impact:
+- Users and admins are told account deletion removes all data, but bookings, reviews, uploaded profile images, and uploaded concierge attachments can remain behind.
+- If cleanup partially fails, the auth identity is still deleted, making remediation harder while orphaned PII remains in Firestore or Storage.
+- This is a privacy and data-retention issue, not just a UX mismatch.
+
+Why this is exploitable:
+- The code path is the intended deletion workflow, not an edge case.
+- A normal account deletion can leave data behind by design.
+
+Recommended fix:
+- Redefine deletion semantics and implement them fully: either anonymize retained business records explicitly, or delete all user-linked records and storage objects consistently.
+- Do not delete the auth user until cleanup has succeeded or a deliberate anonymization plan has completed.
+- Add deletion regression tests covering bookings, reviews, notifications, profile assets, and concierge attachments.
+
+### 13. Medium - Firebase Storage makes the entire `/admin/**` namespace world-readable
+
+Severity: Medium
+
+Evidence:
+- `storage.rules:35-40` allows:
+  - `allow read: if true;`
+  - for every object under `admin/{allPaths=**}`
+- The comment says this is intended for tour/service images, but the rule is not limited to image subfolders or public-only asset classes.
+
+Impact:
+- Any file ever uploaded under `admin/**` becomes public immediately, whether or not it was meant to be public.
+- This is a namespace-design problem: the path name looks like a privileged area, but its ACL is public.
+- Future admin uploads such as exports, invoices, booking artifacts, or operational documents could be exposed accidentally.
+
+Why this is exploitable:
+- The rule is active now.
+- An admin only needs to upload a sensitive file into the wrong path once for it to become public.
+
+Recommended fix:
+- Split public marketing/media assets into a dedicated public prefix such as `public/tours/**` and `public/services/**`.
+- Lock `admin/**` to authenticated administrative access only.
+- Add storage rules tests proving non-public admin artifacts cannot be fetched anonymously.
+
+### 14. Medium - admin media uploads are wired through unsigned Cloudinary, bypassing Firebase auth, App Check, and Storage rules
+
+Severity: Medium
+
+Evidence:
+- `admin_app/lib/core/services/cloudinary_service.dart:5-66` implements direct client-side uploads to Cloudinary using an unsigned upload preset.
+- The same service is wired into admin content flows:
+  - `admin_app/lib/features/tours/widgets/add_tour_dialog.dart:71,118,148`
+  - `admin_app/lib/features/tours/widgets/edit_tour_dialog.dart:80,195,225`
+  - `admin_app/lib/features/services/widgets/add_service_dialog.dart:29,49,62`
+  - `admin_app/lib/features/services/widgets/edit_service_dialog.dart:31,74,87`
+- The design explicitly bypasses Firebase Storage and therefore also bypasses:
+  - `storage.rules`
+  - Firebase-auth-bound object ownership checks
+  - any future App Check enforcement on Firebase storage access
+
+Impact:
+- Once real Cloudinary credentials are configured, upload authorization lives entirely in the unsigned preset configuration, not in your Firebase security boundary.
+- A leaked preset name or an over-broad preset configuration can allow arbitrary third-party uploads outside repo-visible rules.
+- File size, type, and folder constraints are no longer centrally enforced by the audited Firebase policy.
+
+Why this is exploitable:
+- The code path is already live in the admin app.
+- The only reason it is not immediately exploitable from the repo alone is that the placeholder values have not been replaced yet.
+- This is a latent-but-production-relevant security architecture issue, not a dead code path.
+
+Recommended fix:
+- Route admin uploads through a trusted backend or Firebase Storage with signed/authorized upload flows.
+- If Cloudinary must remain, sign uploads server-side and keep preset scope minimal; do not use unsigned presets for admin-originated content.
+- Document and test the non-Firebase upload boundary explicitly.
+
+### 15. Medium - `createPaymentIntent` can be replayed indefinitely for the same pending booking, creating unbounded Stripe objects
+
+Severity: Medium
+
+Evidence:
+- `functions/src/stripe/createPaymentIntent.ts:13-117` accepts any authenticated owner of a pending booking.
+- The function creates a new Stripe customer on every call: `functions/src/stripe/createPaymentIntent.ts:81-85`
+- It creates a new ephemeral key on every call: `functions/src/stripe/createPaymentIntent.ts:88-91`
+- It creates a new PaymentIntent on every call: `functions/src/stripe/createPaymentIntent.ts:94-106`
+- The function does not:
+  - persist a canonical pending payment intent id
+  - reuse an existing Stripe customer
+  - apply an idempotency key
+  - rate-limit repeated calls for the same booking
+
+Impact:
+- Any authenticated user can script repeated calls and force the backend to create large numbers of Stripe objects for one booking.
+- This increases third-party abuse surface, operational noise, and potential cost.
+- Combined with missing App Check on callables, automated abuse becomes easier.
+
+Why this is exploitable:
+- Ownership of a single pending booking is enough.
+- There is no server-side replay suppression.
+
+Recommended fix:
+- Store and reuse a server-side payment state per booking.
+- Use Stripe idempotency keys tied to the booking and checkout attempt.
+- Reuse or lazily create a stable customer record instead of creating one per call.
+
 ## Additional Notes
 
 - `functions/test/rules.test.js` contains expectations for review ownership/completion checks that the live rules do not actually enforce. That is a security-process problem in addition to the underlying review vulnerability.
@@ -276,4 +399,3 @@ Recommended fix:
 4. Close the admin privilege-escalation path in `setAdminClaims`.
 5. Enforce App Check on sensitive callables and add web/admin client support.
 6. Remove the webhook fallback secret and fix refund transaction structure.
-

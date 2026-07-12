@@ -3,7 +3,15 @@ import * as admin from 'firebase-admin';
 
 /**
  * Cloud Function triggered on any new message created in a concierge thread.
- * Simulates a typing indicator delay and publishes a canned response.
+ *
+ * Handles two distinct flows:
+ *
+ * 1. USER message → Show typing indicator then send Elena's auto-reply.
+ *    (Simulates a quick acknowledgement while real staff reviews the thread.)
+ *
+ * 2. STAFF message → Write a Firestore notification doc for the customer so that
+ *    sendPushOnNotificationCreated dispatches a real FCM push to their device.
+ *    This is the key flow that was previously missing.
  */
 export const onConciergeMessageCreated = onDocumentCreated(
   'concierge_threads/{userId}/messages/{messageId}',
@@ -12,45 +20,70 @@ export const onConciergeMessageCreated = onDocumentCreated(
     if (!snapshot) return;
 
     const messageData = snapshot.data();
-    // Only trigger auto-replies for messages sent by the user
-    if (messageData.senderType !== 'user') return;
-
     const db = admin.firestore();
     const userId = event.params.userId;
 
-    try {
-      // 1. Set typing indicator to true on the thread root doc
-      await db.collection('concierge_threads').doc(userId).set(
-        {
-          isTyping: true,
-        },
-        { merge: true }
-      );
+    // ── Flow 1: User sent a message → auto-reply bot ─────────────────────────
+    if (messageData.senderType === 'user') {
+      try {
+        // Set typing indicator
+        await db.collection('concierge_threads').doc(userId).set(
+          { isTyping: true },
+          { merge: true }
+        );
 
-      // 2. Simulate Elena "typing" delay between 1.5 and 3 seconds
-      await new Promise((resolve) => setTimeout(resolve, 2200));
+        // Simulate typing delay
+        await new Promise((resolve) => setTimeout(resolve, 2200));
 
-      // 3. Look up assigned conciergeId from the user's profile
-      const userDoc = await db.collection('users').doc(userId).get();
-      let conciergeId = 'concierge-elena';
-      if (userDoc.exists) {
-        conciergeId = userDoc.data()?.conciergeId || 'concierge-elena';
+        // Look up assigned conciergeId from the user's profile
+        const userDoc = await db.collection('users').doc(userId).get();
+        let conciergeId = 'concierge-elena';
+        if (userDoc.exists) {
+          conciergeId = userDoc.data()?.conciergeId || 'concierge-elena';
+        }
+
+        // Post Elena's auto-reply
+        await db.collection('concierge_threads').doc(userId).collection('messages').add({
+          senderId: conciergeId,
+          senderType: 'concierge',
+          text: "Thanks for reaching out! I'll have a tailored option ready for you within 24 hours.",
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        // Clear typing indicator
+        await db.collection('concierge_threads').doc(userId).update({
+          isTyping: false,
+        });
+      } catch (e) {
+        console.error('Error simulating concierge auto-reply:', e);
       }
+      return;
+    }
 
-      // 4. Add Elena's auto-reply message
-      await db.collection('concierge_threads').doc(userId).collection('messages').add({
-        senderId: conciergeId,
-        senderType: 'concierge',
-        text: "Thanks for reaching out! I'll have a tailored option ready for you within 24 hours.",
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+    // ── Flow 2: Staff sent a message → notify the customer via FCM ───────────
+    if (messageData.senderType === 'staff' || messageData.senderType === 'concierge') {
+      try {
+        // Write a notification doc — sendPushOnNotificationCreated will pick this
+        // up and dispatch the FCM push to the customer's registered device.
+        const notificationRef = db
+          .collection('notifications')
+          .doc(userId)
+          .collection('items')
+          .doc();
 
-      // 5. Unset typing indicator on the thread root doc
-      await db.collection('concierge_threads').doc(userId).update({
-        isTyping: false,
-      });
-    } catch (e) {
-      console.error('Error simulating concierge typing indicator/auto-reply:', e);
+        await notificationRef.set({
+          title: 'New message from your concierge',
+          body: messageData.text?.substring(0, 100) || 'You have a new message from your travel concierge.',
+          type: 'concierge',
+          deepLink: '/concierge',
+          read: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        console.log(`Concierge push notification queued for user ${userId}`);
+      } catch (e) {
+        console.error('Error writing concierge notification doc:', e);
+      }
     }
   }
 );

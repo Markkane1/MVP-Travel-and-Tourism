@@ -1,5 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
+import { assertActiveAdmin } from './authz';
 
 export const adminCreateUserLogic = async (
   db: admin.firestore.Firestore,
@@ -11,12 +12,7 @@ export const adminCreateUserLogic = async (
     tier: string;
   }
 ) => {
-  if (callerAuth?.token?.admin !== true) {
-    throw new HttpsError(
-      'permission-denied',
-      'You must be an admin to perform this action.'
-    );
-  }
+  await assertActiveAdmin(db, callerAuth);
 
   const { email, password, displayName, tier } = payload;
   if (!email || !password || !displayName || !tier) {
@@ -51,7 +47,7 @@ export const adminCreateUserLogic = async (
   return { success: true, uid: userRecord.uid };
 };
 
-export const adminCreateUser = onCall(async (request) => {
+export const adminCreateUser = onCall({ enforceAppCheck: true }, async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'You must be logged in.');
   }

@@ -1,44 +1,39 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart' hide Result;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../../core/config/env.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/utils/result.dart';
 
 part 'checkout_repository.g.dart';
 
+/// Checkout repository — no Cloud Functions dependency.
+///
+/// Payments are handled via bank transfer or pay-on-arrival.
+/// Bookings remain in 'pending' status until an admin manually confirms them
+/// in the admin app. This works entirely on the Firebase Spark (free) plan.
 class CheckoutRepository {
-  final FirebaseFunctions _functions;
   final FirebaseFirestore _firestore;
 
-  CheckoutRepository(this._functions, this._firestore);
+  CheckoutRepository(this._firestore);
 
-  /// Triggers the cloud function to confirm the booking in Firestore.
-  Future<Result<Map<String, dynamic>?>> confirmBooking(String bookingId) async {
+  /// Marks a pending booking with the chosen payment method so admin
+  /// knows how the customer intends to pay. The booking status stays 'pending'.
+  Future<Result<void>> submitPaymentIntent({
+    required String bookingId,
+    required String paymentMethod, // 'bank_transfer' | 'pay_on_arrival'
+    String? transferNote,
+  }) async {
     try {
-      final response = await _functions.httpsCallable('confirmBooking').call({
-        'bookingId': bookingId,
+      await _firestore.collection('bookings').doc(bookingId).update({
+        'paymentMethod': paymentMethod,
+        'paymentSubmittedAt': FieldValue.serverTimestamp(),
       });
-      final data = response.data as Map?;
-      return Result.success(data?.cast<String, dynamic>());
-    } on FirebaseFunctionsException catch (e) {
-      if (Env.isDev && (e.code == 'not-found' || e.code == 'unavailable')) {
-        final shortId = bookingId.length >= 5
-            ? bookingId.substring(0, 5).toUpperCase()
-            : bookingId.toUpperCase();
-        return Result.success({
-          'bookingReferenceCode': 'LT-DEMO-$shortId',
-          'usedCallableFallback': true,
-        });
-      }
-
-      return Result.failure(
-        AppException.unknown('Booking confirmation failed: ${e.toString()}'),
-      );
+      return const Result.success(null);
     } catch (e) {
       return Result.failure(
-        AppException.unknown('Booking confirmation failed: ${e.toString()}'),
+        AppException.unknown(
+          'Failed to record payment intent: ${e.toString()}',
+        ),
       );
     }
   }
@@ -62,33 +57,9 @@ class CheckoutRepository {
       );
     }
   }
-
-  Future<Result<String>> waitForBookingConfirmation(String bookingId) async {
-    try {
-      final docSnap = await _firestore
-          .collection('bookings')
-          .doc(bookingId)
-          .snapshots()
-          .firstWhere((snap) {
-            final data = snap.data();
-            return data != null && data['status'] == 'confirmed';
-          })
-          .timeout(const Duration(seconds: 15));
-
-      final referenceCode = docSnap.data()?['bookingReferenceCode'] as String?;
-      return Result.success(referenceCode ?? 'PENDING');
-    } catch (e) {
-      return Result.failure(
-        AppException.unknown('Booking confirmation polling failed: $e'),
-      );
-    }
-  }
 }
 
 @riverpod
 CheckoutRepository checkoutRepository(Ref ref) {
-  return CheckoutRepository(
-    FirebaseFunctions.instance,
-    FirebaseFirestore.instance,
-  );
+  return CheckoutRepository(FirebaseFirestore.instance);
 }

@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { cleanupUserDataLogic } from '../users/cleanupUserData';
+import { assertActiveSuperAdmin } from './authz';
 
 /**
  * Callable Cloud Function to delete a user account and all their data.
@@ -12,13 +13,7 @@ export const adminDeleteUserLogic = async (
   targetUid: string,
   reason: string
 ) => {
-  // 1. Verify caller is super_admin
-  if (callerAuth?.token?.super_admin !== true) {
-    throw new HttpsError(
-      'permission-denied',
-      'You must be a super_admin to perform this destructive action.'
-    );
-  }
+  await assertActiveSuperAdmin(db, callerAuth);
 
   // 2. Fetch user to verify they exist and get info for audit log
   let targetEmail = 'unknown';
@@ -32,15 +27,16 @@ export const adminDeleteUserLogic = async (
     throw new HttpsError('internal', `Error fetching user: ${error.message}`);
   }
 
-  // 3. Delete from Firebase Auth
+  // 3. Delete Firestore/storage data first. If cleanup fails, the auth
+  // identity stays intact so the system does not strand orphaned PII.
+  await cleanupUserDataLogic(db, targetUid);
+
+  // 4. Delete from Firebase Auth only after cleanup succeeded.
   try {
     await admin.auth().deleteUser(targetUid);
   } catch (error: any) {
     throw new HttpsError('internal', `Failed to delete auth user: ${error.message}`);
   }
-
-  // 4. Delete Firestore Data
-  await cleanupUserDataLogic(db, targetUid);
 
   // 5. Write audit log
   await db.collection('admin_audit_logs').add({
@@ -58,7 +54,7 @@ export const adminDeleteUserLogic = async (
   return { success: true, message: `User ${targetUid} deleted successfully.` };
 };
 
-export const adminDeleteUser = onCall(async (request) => {
+export const adminDeleteUser = onCall({ enforceAppCheck: true }, async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'You must be logged in.');
   }

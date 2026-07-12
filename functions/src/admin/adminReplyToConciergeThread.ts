@@ -1,5 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
+import { assertActiveAdmin } from './authz';
 
 /**
  * Callable Cloud Function to allow admins to reply to a user's concierge thread.
@@ -10,13 +11,7 @@ export const adminReplyToConciergeThreadLogic = async (
   targetUserId: string,
   text: string
 ) => {
-  // 1. Verify caller is authorized
-  if (callerAuth?.token?.admin !== true) {
-    throw new HttpsError(
-      'permission-denied',
-      'You must be an admin to perform this action.'
-    );
-  }
+  await assertActiveAdmin(db, callerAuth);
 
   const threadRef = db.collection('concierge_threads').doc(targetUserId);
   const messagesRef = threadRef.collection('messages');
@@ -61,7 +56,7 @@ export const adminReplyToConciergeThreadLogic = async (
   });
 };
 
-export const adminReplyToConciergeThread = onCall(async (request) => {
+export const adminReplyToConciergeThread = onCall({ enforceAppCheck: true }, async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'You must be logged in.');
   }

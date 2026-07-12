@@ -41,14 +41,22 @@ Map<String, dynamic> normalizeProfileData(Map<String, dynamic>? data) {
   notificationPrefs['bookingUpdates'] =
       notificationPrefs['bookingUpdates'] is bool
       ? notificationPrefs['bookingUpdates'] as bool
-      : (notificationPrefs['bookingUpdates']?.toString().toLowerCase() == 'false' ? false : true);
+      : (notificationPrefs['bookingUpdates']?.toString().toLowerCase() ==
+                'false'
+            ? false
+            : true);
   notificationPrefs['promotions'] = notificationPrefs['promotions'] is bool
       ? notificationPrefs['promotions'] as bool
-      : (notificationPrefs['promotions']?.toString().toLowerCase() == 'false' ? false : true);
+      : (notificationPrefs['promotions']?.toString().toLowerCase() == 'false'
+            ? false
+            : true);
   notificationPrefs['conciergeMessages'] =
       notificationPrefs['conciergeMessages'] is bool
       ? notificationPrefs['conciergeMessages'] as bool
-      : (notificationPrefs['conciergeMessages']?.toString().toLowerCase() == 'false' ? false : true);
+      : (notificationPrefs['conciergeMessages']?.toString().toLowerCase() ==
+                'false'
+            ? false
+            : true);
   profile['notificationPrefs'] = notificationPrefs;
 
   final preferences = profile['preferences'] is Map

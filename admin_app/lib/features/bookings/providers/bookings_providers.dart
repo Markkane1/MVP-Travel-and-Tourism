@@ -33,10 +33,7 @@ class BookingsApi {
 
   Future<void> requestRefund(String bookingId, String reason) async {
     final callable = _functions.httpsCallable('adminIssueRefund');
-    await callable.call({
-      'bookingId': bookingId,
-      'reason': reason,
-    });
+    await callable.call({'bookingId': bookingId, 'reason': reason});
   }
 }
 

@@ -13,11 +13,8 @@ final usersStreamProvider = StreamProvider.autoDispose<List<UserModel>>((ref) {
   });
 });
 
-final userBookingsSummaryProvider =
-    StreamProvider.autoDispose.family<(int total, int confirmed), String>((
-      ref,
-      userId,
-    ) {
+final userBookingsSummaryProvider = StreamProvider.autoDispose
+    .family<(int total, int confirmed), String>((ref, userId) {
       return FirebaseFirestore.instance
           .collection('bookings')
           .where('userId', isEqualTo: userId)

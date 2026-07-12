@@ -349,16 +349,9 @@ class AuthService {
         );
       }
 
-      // 1. Explicitly trigger Firestore cleanup before deleting the auth identity
-      //    to guarantee compliance with GDPR and avoid orphaned PII.
-      try {
-        await FirebaseFunctions.instance
-            .httpsCallable('cleanupUserData')
-            .call();
-      } catch (e) {
-        // We log but proceed so the user is not permanently trapped if cleanup partially fails.
-        debugPrint('Warning: cleanupUserData cloud function failed: $e');
-      }
+      // Cleanup must succeed before auth deletion so we do not strand
+      // orphaned PII behind a deleted identity.
+      await FirebaseFunctions.instance.httpsCallable('cleanupUserData').call();
 
       // 2. Delete the actual Auth profile
       await user.delete();

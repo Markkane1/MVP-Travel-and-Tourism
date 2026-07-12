@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,16 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
 
         // Initialize Firebase for Web
         await Firebase.initializeApp(options: Env.firebaseOptions);
+
+        if (Env.appCheckWebSiteKey.isEmpty) {
+          throw StateError(
+            'FIREBASE_APP_CHECK_WEB_KEY is required for admin app web builds.',
+          );
+        }
+
+        await FirebaseAppCheck.instance.activate(
+          webProvider: ReCaptchaV3Provider(Env.appCheckWebSiteKey),
+        );
 
         if (Env.isProd) {
           PlatformDispatcher.instance.onError = (error, stack) {

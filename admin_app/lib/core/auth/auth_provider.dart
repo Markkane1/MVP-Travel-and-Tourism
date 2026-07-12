@@ -29,29 +29,23 @@ class AuthNotifier extends Notifier<AuthState> {
           isSuperAdmin: false,
         );
       } else {
-        // Fetch staff profile from Firestore instead of using custom claims
         try {
-          if (user.email == 'admin@mvptravel.com' &&
-              user.emailVerified == true) {
-            state = AuthState(
-              isLoading: false,
-              user: user,
-              isAdmin: true,
-              isSuperAdmin: true,
-            );
-            return;
-          }
+          final tokenResult = await user.getIdTokenResult(true);
+          final claims = tokenResult.claims ?? const <String, dynamic>{};
           final doc = await FirebaseFirestore.instance
               .collection('staff_profiles')
               .doc(user.uid)
               .get();
-          if (doc.exists && doc.data()?['isActive'] == true) {
+          if (doc.exists &&
+              doc.data()?['isActive'] == true &&
+              claims['admin'] == true) {
             final role = doc.data()?['role'] as String?;
             state = AuthState(
               isLoading: false,
               user: user,
               isAdmin: true,
-              isSuperAdmin: role == 'super_admin',
+              isSuperAdmin:
+                  claims['super_admin'] == true && role == 'super_admin',
             );
           } else {
             state = AuthState(

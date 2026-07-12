@@ -1,5 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
+import { assertActiveAdmin } from './authz';
 
 /**
  * Callable Cloud Function to update user properties by an admin.
@@ -15,13 +16,7 @@ export const adminUpdateUserLogic = async (
     conciergeId?: string;
   }
 ) => {
-  // 1. Verify caller is authorized
-  if (callerAuth?.token?.admin !== true) {
-    throw new HttpsError(
-      'permission-denied',
-      'You must be an admin to perform this action.'
-    );
-  }
+  await assertActiveAdmin(db, callerAuth);
 
   return db.runTransaction(async (transaction) => {
     const userRef = db.collection('users').doc(targetUserId);
@@ -73,7 +68,7 @@ export const adminUpdateUserLogic = async (
   });
 };
 
-export const adminUpdateUser = onCall(async (request) => {
+export const adminUpdateUser = onCall({ enforceAppCheck: true }, async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'You must be logged in.');
   }

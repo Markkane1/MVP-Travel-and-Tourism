@@ -1,44 +1,47 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
+import { assertActiveSuperAdmin } from './authz';
 
 /**
  * Callable Cloud Function to set the 'admin' custom claim on a user.
+ *
+ * SECURITY FIX #5: This function is now restricted to super_admin only.
+ * Ordinary admins can no longer grant admin privileges — this was an
+ * escalation path that allowed any compromised admin to expand access.
+ *
+ * Bootstrap use: the very first super_admin must be set via the Firebase
+ * console / admin SDK directly. Once the first super_admin exists, all
+ * further provisioning should go through adminManageStaff.
  */
 export const setAdminClaimsLogic = async (
+  db: admin.firestore.Firestore,
   callerAuth: any,
   targetEmail: string,
 ) => {
-  // 1. Verify caller is authorized to make others admin.
-  // We allow it if the caller is already an admin, OR if this is the bootstrap user with a verified email.
-  const isCallerAdmin = callerAuth?.token?.admin === true;
-  
-  // Super admin bootstrap mechanism
-  const isBootstrap = targetEmail === 'admin@mvptravel.com' && callerAuth?.token?.email === 'admin@mvptravel.com' && callerAuth?.token?.email_verified === true;
-
-  if (!isCallerAdmin && !isBootstrap) {
-    throw new HttpsError(
-      'permission-denied',
-      'You must be an admin to grant administrative privileges, or verify your email as the bootstrap admin.'
-    );
-  }
+  await assertActiveSuperAdmin(db, callerAuth);
 
   try {
-    // 2. Look up the target user by email
     const userRecord = await admin.auth().getUserByEmail(targetEmail);
 
-    // 3. Set the custom claim
-    // If it's the bootstrap user, give them super_admin too.
-    const claims = isBootstrap ? { admin: true, super_admin: true } : { admin: true };
-    await admin.auth().setCustomUserClaims(userRecord.uid, claims);
-
-    // 4. Create/Update a staff profile document
-    const db = admin.firestore();
+    await admin.auth().setCustomUserClaims(userRecord.uid, { admin: true });
     await db.collection('staff_profiles').doc(userRecord.uid).set({
       email: targetEmail,
-      role: isBootstrap ? 'super_admin' : 'admin',
+      role: 'admin',
       isActive: true,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
+
+    // Write audit log from backend (SECURITY FIX #10: backend-only audit writes)
+    await db.collection('admin_audit_logs').add({
+      actorUid: callerAuth.uid,
+      actorEmail: callerAuth.token.email || 'unknown',
+      actorRole: 'super_admin',
+      action: 'setAdminClaims',
+      targetType: 'user',
+      targetId: userRecord.uid,
+      summary: `Granted admin rights to ${targetEmail}`,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
     return { success: true, message: `Successfully granted admin rights to ${targetEmail}.` };
   } catch (error: any) {
@@ -49,7 +52,7 @@ export const setAdminClaimsLogic = async (
   }
 };
 
-export const setAdminClaims = onCall(async (request) => {
+export const setAdminClaims = onCall({ enforceAppCheck: true }, async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'You must be logged in.');
   }
@@ -59,5 +62,5 @@ export const setAdminClaims = onCall(async (request) => {
     throw new HttpsError('invalid-argument', 'A valid targetEmail must be provided.');
   }
 
-  return await setAdminClaimsLogic(request.auth, targetEmail);
+  return await setAdminClaimsLogic(admin.firestore(), request.auth, targetEmail);
 });
