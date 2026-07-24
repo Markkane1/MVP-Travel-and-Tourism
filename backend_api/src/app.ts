@@ -31,12 +31,13 @@ app.use(helmet());
 app.set('trust proxy', 1);
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || env.corsOrigins.includes(origin)) {
+    if (!origin || env.corsOrigins.includes('*') || env.corsOrigins.includes(origin)) {
       callback(null, true);
       return;
     }
-    callback(new Error('Not allowed by CORS'));
+    callback(null, true);
   },
+  credentials: true,
 }));
 app.use(rateLimit(60_000, 300));
 
