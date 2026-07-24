@@ -46,6 +46,7 @@ app.use(express.json());
 
 app.use('/health', healthRouter);
 app.use('/auth', rateLimit(60_000, 20), authRouter);
+app.use('/firebase', rateLimit(60_000, 20), authRouter);
 app.use('/users', usersRouter);
 app.use('/admin/users', adminUsersRouter);
 app.use('/admin/staff', adminStaffRouter);
