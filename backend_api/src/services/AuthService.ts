@@ -8,11 +8,40 @@ import admin from 'firebase-admin';
 import { env } from '../config/env';
 import { AuthResponse, AuthTokens, toAuthUser } from '../types/auth';
 
+import fs from 'fs';
+
 const userRepository = new UserRepository();
 const sessionService = new SessionService();
 
 if (!admin.apps.length) {
-  admin.initializeApp();
+  const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  const serviceAccountJson =
+    process.env.FIREBASE_SERVICE_ACCOUNT_JSON ||
+    process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+
+  if (serviceAccountJson) {
+    try {
+      const decoded = serviceAccountJson.trim().startsWith('{')
+          ? JSON.parse(serviceAccountJson)
+          : JSON.parse(Buffer.from(serviceAccountJson.trim(), 'base64').toString('utf8'));
+      admin.initializeApp({
+        credential: admin.credential.cert(decoded),
+      });
+    } catch (e) {
+      admin.initializeApp();
+    }
+  } else if (serviceAccountPath && fs.existsSync(serviceAccountPath)) {
+    try {
+      const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+    } catch (e) {
+      admin.initializeApp();
+    }
+  } else {
+    admin.initializeApp();
+  }
 }
 
 type RegisterInput = {
