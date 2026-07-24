@@ -18,4 +18,5 @@ export const env = {
   cloudinaryApiSecret: getEnv('CLOUDINARY_API_SECRET', '7B_aq0bCddFKm96x5wxuLWZD3lg'),
   stripeSecretKey: getEnv('STRIPE_SECRET_KEY', 'sk_test_placeholder'),
   stripeWebhookSecret: getEnv('STRIPE_WEBHOOK_SECRET', 'whsec_test_placeholder'),
+  firebaseProjectId: getEnv('FIREBASE_PROJECT_ID', 'mvp-travel-prod'),
 };

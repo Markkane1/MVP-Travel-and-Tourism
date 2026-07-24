@@ -20,27 +20,28 @@ if (!admin.apps.length) {
     process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
 
   if (serviceAccountJson) {
+    // Option A: JSON string or base64-encoded service account in env var
     try {
       const decoded = serviceAccountJson.trim().startsWith('{')
-          ? JSON.parse(serviceAccountJson)
-          : JSON.parse(Buffer.from(serviceAccountJson.trim(), 'base64').toString('utf8'));
-      admin.initializeApp({
-        credential: admin.credential.cert(decoded),
-      });
-    } catch (e) {
-      admin.initializeApp();
+        ? JSON.parse(serviceAccountJson)
+        : JSON.parse(Buffer.from(serviceAccountJson.trim(), 'base64').toString('utf8'));
+      admin.initializeApp({ credential: admin.credential.cert(decoded) });
+    } catch {
+      admin.initializeApp({ projectId: env.firebaseProjectId });
     }
   } else if (serviceAccountPath && fs.existsSync(serviceAccountPath)) {
+    // Option B: service account JSON file path in GOOGLE_APPLICATION_CREDENTIALS
     try {
       const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      });
-    } catch (e) {
-      admin.initializeApp();
+      admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+    } catch {
+      admin.initializeApp({ projectId: env.firebaseProjectId });
     }
   } else {
-    admin.initializeApp();
+    // Option C: No service account — use projectId only.
+    // Firebase Admin verifies ID tokens via Google's public JWKS endpoint.
+    // This works for token verification without any service account file.
+    admin.initializeApp({ projectId: env.firebaseProjectId });
   }
 }
 
