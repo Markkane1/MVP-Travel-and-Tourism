@@ -300,7 +300,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                             return ListView.builder(
                               itemCount: docs.length,
                               itemBuilder: (context, index) {
-                                final data = docs[index].data();
+                                final data = docs[index];
                                 final payload =
                                     data['payload'] as Map<String, dynamic>? ??
                                     {};
@@ -330,7 +330,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                         Text("Sent by: ${data['actorEmail']}"),
                                         if (ts != null)
                                           Text(
-                                            ts.toDate().toString(),
+                                            DateTime.tryParse(ts.toString())
+                                                    ?.toString() ??
+                                                ts.toString(),
                                             style: const TextStyle(
                                               fontSize: 12,
                                               color: Colors.grey,

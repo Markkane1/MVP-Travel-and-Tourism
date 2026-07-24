@@ -55,7 +55,7 @@ final class ConciergeRepositoryProvider
 }
 
 String _$conciergeRepositoryHash() =>
-    r'0e46e8fc594515287cfe430ce6e292bf54f472bc';
+    r'262de6c5f1b048c1502f584957a7aaba9e57ac53';
 
 @ProviderFor(conciergeProfile)
 final conciergeProfileProvider = ConciergeProfileFamily._();

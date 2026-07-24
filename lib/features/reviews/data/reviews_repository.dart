@@ -1,28 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../../core/services/api_client.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/utils/result.dart';
-import '../../../../core/utils/safe_stream.dart';
 
 import '../../../../core/services/auth_service.dart';
 
 part 'reviews_repository.g.dart';
 
 class ReviewsRepository {
-  final FirebaseFirestore _firestore;
+  final ApiClient _api;
 
-  ReviewsRepository(this._firestore);
+  ReviewsRepository(this._api);
 
   /// Streams a boolean indicating whether the given user has reviewed the given tour.
   Stream<bool> watchIsTourReviewed(String tourId, String uid) {
-    return _firestore
-        .collection('tours')
-        .doc(tourId)
-        .collection('reviews')
-        .where('userId', isEqualTo: uid)
-        .snapshots()
-        .map((snap) => snap.docs.isNotEmpty)
-        .mapAppException('Failed to load review status');
+    return Stream.fromFuture(_isTourReviewed(tourId, uid));
   }
 
   Future<Result<void>> submitReview({
@@ -51,26 +43,11 @@ class ReviewsRepository {
     }
 
     try {
-      await _firestore
-          .collection('tours')
-          .doc(tourId)
-          .collection('reviews')
-          .add({
-            'userId': userId,
-            'userName': userName,
-            'userPhotoUrl': userPhotoUrl,
-            'bookingId': bookingId,
-            'overallRating': overallRating,
-            'aspectRatings': {
-              'service': aspectRatings['Service'] ?? 0.0,
-              'accommodation': aspectRatings['Accommodation'] ?? 0.0,
-              'activities': aspectRatings['Activities'] ?? 0.0,
-              'value': aspectRatings['Value'] ?? 0.0,
-            },
-            'comment': comment,
-            'photoUrls': photoUrls,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
+      await _api.postJson('/reviews', {
+        'bookingId': bookingId,
+        'rating': overallRating.round(),
+        'comment': comment,
+      });
       return const Result.success(null);
     } catch (e) {
       return Result.failure(
@@ -79,31 +56,19 @@ class ReviewsRepository {
     }
   }
 
-  Future<Result<void>> waitForReviewProcessing(String bookingId) async {
-    try {
-      await _firestore
-          .collection('bookings')
-          .doc(bookingId)
-          .snapshots()
-          .firstWhere((snap) {
-            final data = snap.data();
-            return data != null && (data['reviewed'] ?? false) == true;
-          })
-          .timeout(const Duration(seconds: 10));
-      return const Result.success(null);
-    } catch (e) {
-      return Result.failure(
-        AppException.unknown(
-          'Failed to verify review processing: ${e.toString()}',
-        ),
-      );
-    }
+  Future<bool> _isTourReviewed(String tourId, String uid) async {
+    final data = await _api.getJson(
+      '/reviews/tour/${Uri.encodeComponent(tourId)}',
+    );
+    return (data as List).whereType<Map>().any((review) {
+      return review['userId'] == uid;
+    });
   }
 }
 
 @riverpod
 ReviewsRepository reviewsRepository(Ref ref) {
-  return ReviewsRepository(FirebaseFirestore.instance);
+  return ReviewsRepository(ref.watch(apiClientProvider));
 }
 
 @riverpod

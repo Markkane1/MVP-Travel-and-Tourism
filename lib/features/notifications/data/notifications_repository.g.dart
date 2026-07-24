@@ -55,7 +55,7 @@ final class NotificationsRepositoryProvider
 }
 
 String _$notificationsRepositoryHash() =>
-    r'447b8ae0cb4fd0c15bcfdf1c7c1e043159baf526';
+    r'fc08c1d5f1874a343f45220c762068d5e6c68259';
 
 @ProviderFor(notificationsStream)
 final notificationsStreamProvider = NotificationsStreamFamily._();

@@ -202,9 +202,17 @@ class _ServiceDataSource extends DataTableSource {
                 IconButton(
                   icon: const Icon(Icons.archive, size: 20),
                   onPressed: () async {
-                    await ref
-                        .read(servicesApiProvider)
-                        .archiveService(service.id, 'admin_user');
+                    try {
+                      await ref
+                          .read(servicesApiProvider)
+                          .archiveService(service.id, 'admin_user');
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Archive failed: $e')),
+                        );
+                      }
+                    }
                   },
                   color: Colors.orange,
                 ),

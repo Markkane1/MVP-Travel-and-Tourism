@@ -26,15 +26,25 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
         // Initialize Firebase for Web
         await Firebase.initializeApp(options: Env.firebaseOptions);
 
-        if (Env.appCheckWebSiteKey.isEmpty) {
-          throw StateError(
-            'FIREBASE_APP_CHECK_WEB_KEY is required for admin app web builds.',
+        if (Env.isProd) {
+          if (!Env.hasProductionAppCheckWebSiteKey) {
+            runApp(
+              const _FatalConfigApp(
+                message:
+                    'A real FIREBASE_APP_CHECK_WEB_KEY is required for production admin web builds.',
+              ),
+            );
+            return;
+          }
+
+          await FirebaseAppCheck.instance.activate(
+            providerWeb: ReCaptchaV3Provider(Env.appCheckWebSiteKey),
+          );
+        } else if (kDebugMode) {
+          debugPrint(
+            'Local debug mode: AppCheck bypassed to allow local testing with live db.',
           );
         }
-
-        await FirebaseAppCheck.instance.activate(
-          webProvider: ReCaptchaV3Provider(Env.appCheckWebSiteKey),
-        );
 
         if (Env.isProd) {
           PlatformDispatcher.instance.onError = (error, stack) {
@@ -67,4 +77,24 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       },
     ),
   );
+}
+
+class _FatalConfigApp extends StatelessWidget {
+  final String message;
+
+  const _FatalConfigApp({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(message, textAlign: TextAlign.center),
+          ),
+        ),
+      ),
+    );
+  }
 }

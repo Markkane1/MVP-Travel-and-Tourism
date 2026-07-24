@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 /// Representation model of a concierge agent.
 class ConciergeProfile {
   final String id;
@@ -20,16 +18,16 @@ class ConciergeProfile {
     required this.isOnline,
   });
 
-  factory ConciergeProfile.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  factory ConciergeProfile.fallback([String id = 'concierge-elena']) {
     return ConciergeProfile(
-      id: doc.id,
-      name: data['name'] ?? 'Elena',
-      role: data['role'] ?? 'Senior Travel Specialist',
-      specialty: data['specialty'] ?? 'Luxury Safaris & Lodges',
-      languages: data['languages'] ?? 'English, Spanish, French',
-      photoUrl: data['photoUrl'] ?? '',
-      isOnline: data['isOnline'] ?? true,
+      id: id,
+      name: 'Elena',
+      role: 'Senior Travel Specialist',
+      specialty: 'Luxury Safaris & Lodges',
+      languages: 'English, Spanish, French',
+      photoUrl:
+          'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400',
+      isOnline: true,
     );
   }
 }

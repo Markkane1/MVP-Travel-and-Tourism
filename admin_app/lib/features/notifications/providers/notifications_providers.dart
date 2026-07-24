@@ -1,22 +1,23 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/services/api_client.dart';
 
 final notificationHistoryProvider =
-    StreamProvider.autoDispose<
-      List<QueryDocumentSnapshot<Map<String, dynamic>>>
-    >((ref) {
-      return FirebaseFirestore.instance
-          .collection('admin_audit_logs')
-          .where('action', isEqualTo: 'adminSendNotification')
-          .orderBy('createdAt', descending: true)
-          .limit(20)
-          .snapshots()
-          .map((snapshot) => snapshot.docs);
+    StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
+      final api = ref.watch(apiClientProvider);
+      return Stream.fromFuture(
+        api.getJson('/admin/audit?action=SEND_NOTIFICATION').then((data) {
+          return (data as List)
+              .map((json) => Map<String, dynamic>.from(json as Map))
+              .take(20)
+              .toList();
+        }),
+      );
     });
 
 class NotificationsApi {
-  final _functions = FirebaseFunctions.instance;
+  final ApiClient _api;
+
+  NotificationsApi(this._api);
 
   Future<int> sendNotification({
     required String targetType,
@@ -27,20 +28,19 @@ class NotificationsApi {
     String? targetUserId,
     String? cohortTier,
   }) async {
-    final callable = _functions.httpsCallable('adminSendNotification');
-    final response = await callable.call({
+    final response = await _api.postJson('/admin/notifications/send', {
       'targetType': targetType,
       'title': title,
-      'body': body,
+      'message': body,
       'type': type,
       'deepLink': deepLink,
       'targetUserId': targetUserId,
       'cohortTier': cohortTier,
     });
-    return (response.data['count'] as num?)?.toInt() ?? 0;
+    return (response['count'] as num?)?.toInt() ?? 0;
   }
 }
 
 final notificationsApiProvider = Provider<NotificationsApi>(
-  (ref) => NotificationsApi(),
+  (ref) => NotificationsApi(ref.watch(apiClientProvider)),
 );

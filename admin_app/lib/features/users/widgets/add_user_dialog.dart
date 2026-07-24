@@ -64,7 +64,7 @@ class _AddUserDialogState extends ConsumerState<AddUserDialog> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  'Manually register a user account from the admin dashboard. In a production environment, this will trigger a cloud function to securely register the account via Firebase Auth.',
+                  'Manually register a user account from the admin dashboard.',
                 ),
                 const SizedBox(height: 16),
                 TextFormField(

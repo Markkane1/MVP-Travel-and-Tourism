@@ -1,7 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../../core/services/api_client.dart';
 import '../../../../core/utils/result.dart';
-import '../../../../core/utils/safe_stream.dart';
 import '../../../../core/errors/app_exception.dart';
 
 import '../domain/notification_item.dart';
@@ -9,35 +8,19 @@ import '../domain/notification_item.dart';
 part 'notifications_repository.g.dart';
 
 class NotificationsRepository {
-  final FirebaseFirestore _firestore;
+  final ApiClient _api;
 
-  NotificationsRepository(this._firestore);
+  NotificationsRepository(this._api);
 
   /// Streams the user's notification list.
   Stream<List<NotificationItem>> watchNotifications(String uid) {
-    return _firestore
-        .collection('notifications')
-        .doc(uid)
-        .collection('items')
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map(
-          (snap) => snap.docs
-              .map((doc) => NotificationItem.fromFirestore(doc))
-              .toList(),
-        )
-        .mapAppException('Failed to load notifications');
+    return Stream.fromFuture(_fetchNotifications());
   }
 
   /// Marks a specific notification item as read.
   Future<Result<void>> markAsRead(String uid, String notificationId) async {
     try {
-      await _firestore
-          .collection('notifications')
-          .doc(uid)
-          .collection('items')
-          .doc(notificationId)
-          .update({'read': true});
+      await _api.postJson('/notifications/$notificationId/read', {});
       return const Result.success(null);
     } catch (e) {
       return Result.failure(
@@ -51,18 +34,7 @@ class NotificationsRepository {
   /// Marks all unread user notifications as read.
   Future<Result<void>> markAllAsRead(String uid) async {
     try {
-      final snap = await _firestore
-          .collection('notifications')
-          .doc(uid)
-          .collection('items')
-          .where('read', isEqualTo: false)
-          .get();
-
-      final batch = _firestore.batch();
-      for (var doc in snap.docs) {
-        batch.update(doc.reference, {'read': true});
-      }
-      await batch.commit();
+      await _api.postJson('/notifications/read-all', {});
       return const Result.success(null);
     } catch (e) {
       return Result.failure(
@@ -72,11 +44,21 @@ class NotificationsRepository {
       );
     }
   }
+
+  Future<List<NotificationItem>> _fetchNotifications() async {
+    final data = await _api.getJson('/notifications/me', authenticated: true);
+    return (data as List)
+        .whereType<Map>()
+        .map(
+          (item) => NotificationItem.fromJson(Map<String, dynamic>.from(item)),
+        )
+        .toList();
+  }
 }
 
 @riverpod
 NotificationsRepository notificationsRepository(Ref ref) {
-  return NotificationsRepository(FirebaseFirestore.instance);
+  return NotificationsRepository(ref.watch(apiClientProvider));
 }
 
 @riverpod

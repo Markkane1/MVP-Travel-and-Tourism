@@ -27,4 +27,15 @@ export class NotificationController {
       res.status(404).json({ error: error.message });
     }
   };
+
+  markAllAsRead = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const result = await this.notificationService.markAllNotificationsAsRead(
+        req.user!.id,
+      );
+      res.status(200).json(result);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  };
 }

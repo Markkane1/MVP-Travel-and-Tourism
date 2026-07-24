@@ -47,30 +47,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyANVVjoT2hWlbTrPXsXunthN7BAmUUJsxw',
-    appId: '1:296884534205:web:864d0a8dd8ae709b9ab0d4',
-    messagingSenderId: '296884534205',
-    projectId: 'mvp-travels',
-    authDomain: 'mvp-travels.firebaseapp.com',
-    storageBucket: 'mvp-travels.firebasestorage.app',
-    measurementId: 'G-YW2MX2HPJK',
+    apiKey: 'AIzaSyDM7XFcpCcJ8Hqu006Dvg3Gb2f0j98fHc0',
+    appId: '1:976469473142:web:ae9744f6b3dc3c34dbac57',
+    messagingSenderId: '976469473142',
+    projectId: 'mvp-travel-prod',
+    authDomain: 'mvp-travel-prod.firebaseapp.com',
+    storageBucket: 'mvp-travel-prod.firebasestorage.app',
+    measurementId: 'G-MKZTEXL0LB',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCAVGVgVlSujIbrgGmj5R4_6PP8BJP97Ok',
-    appId: '1:296884534205:android:7744c95be4faec6c9ab0d4',
-    messagingSenderId: '296884534205',
-    projectId: 'mvp-travels',
-    storageBucket: 'mvp-travels.firebasestorage.app',
+    apiKey: 'AIzaSyB1jBbRG66aWaLFakXKSZ-Vy5v-4JH6Zsg',
+    appId: '1:976469473142:android:e5f8337952e42d82dbac57',
+    messagingSenderId: '976469473142',
+    projectId: 'mvp-travel-prod',
+    storageBucket: 'mvp-travel-prod.firebasestorage.app',
   );
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCTh7ZOwaMGOXCvhhYvBwGpfalHQdk6vHE',
-    appId: '1:296884534205:ios:382182a38a1996599ab0d4',
-    messagingSenderId: '296884534205',
-    projectId: 'mvp-travels',
-    storageBucket: 'mvp-travels.firebasestorage.app',
-    iosClientId:
-        '296884534205-u12g1jphm2e7ffbdq2gg74mbcsh9qv9j.apps.googleusercontent.com',
+    apiKey: 'AIzaSyDklDTBhV40f9DnHK9QFjEKRW_UPzF-Auk',
+    appId: '1:976469473142:ios:a818ab878c83188cdbac57',
+    messagingSenderId: '976469473142',
+    projectId: 'mvp-travel-prod',
+    storageBucket: 'mvp-travel-prod.firebasestorage.app',
+    iosClientId: '976469473142-cdlod1j9deamq99s8dtiit68fj0r8k73.apps.googleusercontent.com',
     iosBundleId: 'com.mvptravelandtourism.app',
   );
 }

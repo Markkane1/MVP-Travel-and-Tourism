@@ -42,6 +42,19 @@ export class StaffService {
     });
   }
 
+  async listStaffProfiles() {
+    const profiles = await this.staffRepository.findAll();
+    return profiles.map((profile) => ({
+      id: profile.id,
+      userId: profile.userId,
+      email: profile.user.email,
+      role: profile.user.role,
+      isActive: profile.isActive,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+    }));
+  }
+
   async updateStaffProfile(profileId: string, data: Prisma.StaffProfileUpdateInput) {
     return this.staffRepository.update(profileId, data);
   }

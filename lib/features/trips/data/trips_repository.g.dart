@@ -49,4 +49,4 @@ final class TripsRepositoryProvider
   }
 }
 
-String _$tripsRepositoryHash() => r'9af7589a3fdf1f5ff6670b37f3bc9d297ac65dd4';
+String _$tripsRepositoryHash() => r'96fdb51f78f6e622583cc7ebf860f92d6c1edde5';

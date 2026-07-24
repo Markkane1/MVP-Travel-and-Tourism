@@ -1,37 +1,37 @@
 {
   "project_info": {
-    "project_number": "296884534205",
-    "project_id": "mvp-travels",
-    "storage_bucket": "mvp-travels.firebasestorage.app"
+    "project_number": "976469473142",
+    "project_id": "mvp-travel-prod",
+    "storage_bucket": "mvp-travel-prod.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:296884534205:android:7744c95be4faec6c9ab0d4",
+        "mobilesdk_app_id": "1:976469473142:android:e5f8337952e42d82dbac57",
         "android_client_info": {
           "package_name": "com.mvptravelandtourism.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "296884534205-3jatgt2ivvhhvjpn5uveqpnmh6bmo3h5.apps.googleusercontent.com",
+          "client_id": "976469473142-n9hlppifv0h67sk1mvvqa9hinggh9cta.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCAVGVgVlSujIbrgGmj5R4_6PP8BJP97Ok"
+          "current_key": "AIzaSyB1jBbRG66aWaLFakXKSZ-Vy5v-4JH6Zsg"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "296884534205-3jatgt2ivvhhvjpn5uveqpnmh6bmo3h5.apps.googleusercontent.com",
+              "client_id": "976469473142-n9hlppifv0h67sk1mvvqa9hinggh9cta.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "296884534205-u12g1jphm2e7ffbdq2gg74mbcsh9qv9j.apps.googleusercontent.com",
+              "client_id": "976469473142-cdlod1j9deamq99s8dtiit68fj0r8k73.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.mvptravelandtourism.app"

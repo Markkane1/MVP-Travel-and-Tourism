@@ -55,7 +55,7 @@ final class SavedToursRepositoryProvider
 }
 
 String _$savedToursRepositoryHash() =>
-    r'2cbcf28082285258c9207612edba08c299851d11';
+    r'65b6f261f80763a4671f9dbb73a19e1a28238f98';
 
 @ProviderFor(savedTourIds)
 final savedTourIdsProvider = SavedTourIdsProvider._();
@@ -121,7 +121,7 @@ final class OptimisticSavedToursProvider
 }
 
 String _$optimisticSavedToursHash() =>
-    r'd91c0db206184784d11350886d3c63e7a3d4e228';
+    r'80921d7906b38d04450fd5a5664162f96548f9db';
 
 abstract class _$OptimisticSavedTours extends $AsyncNotifier<Set<String>> {
   FutureOr<Set<String>> build();

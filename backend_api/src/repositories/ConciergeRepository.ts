@@ -6,6 +6,10 @@ export class ConciergeRepository {
     return prisma.conciergeThread.findUnique({ where: { userId } });
   }
 
+  async findAllThreads(): Promise<ConciergeThread[]> {
+    return prisma.conciergeThread.findMany({ orderBy: { updatedAt: 'desc' } });
+  }
+
   async createThread(data: Prisma.ConciergeThreadUncheckedCreateInput): Promise<ConciergeThread> {
     return prisma.conciergeThread.create({ data });
   }

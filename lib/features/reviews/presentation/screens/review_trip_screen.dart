@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,9 +20,10 @@ import '../../data/reviews_repository.dart';
 import '../../domain/usecases/submit_review_use_case.dart';
 
 class PendingImage {
-  final File file;
+  final XFile file;
   final String tempId;
-  PendingImage({required this.file, required this.tempId});
+  final Uint8List bytes;
+  PendingImage({required this.file, required this.tempId, required this.bytes});
 }
 
 class ReviewTripScreen extends ConsumerStatefulWidget {
@@ -68,12 +69,18 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
 
     final XFile? pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
+      maxWidth: 1600,
+      maxHeight: 1600,
+      imageQuality: 85,
     );
     if (pickedFile == null) return;
 
-    final file = File(pickedFile.path);
     final tempId = DateTime.now().millisecondsSinceEpoch.toString();
-    final pending = PendingImage(file: file, tempId: tempId);
+    final pending = PendingImage(
+      file: pickedFile,
+      tempId: tempId,
+      bytes: await pickedFile.readAsBytes(),
+    );
 
     setState(() {
       _pendingImages.add(pending);
@@ -94,7 +101,7 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
 
       final user = ref.read(authServiceProvider).currentUser;
       final String path = 'reviews/${user?.uid ?? 'guest'}/$tempId.png';
-      final String url = await storage.uploadImage(file, path);
+      final String url = await storage.uploadImage(pickedFile, path);
 
       if (mounted) {
         setState(() {
@@ -593,8 +600,8 @@ class _ReviewTripScreenState extends ConsumerState<ReviewTripScreen> {
                         borderRadius: BorderRadius.circular(AppRadii.md),
                         child: Opacity(
                           opacity: 0.5,
-                          child: Image.file(
-                            pending.file,
+                          child: Image.memory(
+                            pending.bytes,
                             width: 80.0,
                             height: 80.0,
                             fit: BoxFit.cover,

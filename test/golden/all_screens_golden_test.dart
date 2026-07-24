@@ -236,8 +236,8 @@ class _FakeBookingRepository implements BookingRepository {
   @override
   String generateNewBookingId() => "fake-booking-id";
   @override
-  Future<Result<void>> createPendingBooking(Booking booking) async =>
-      const Result.success(null);
+  Future<Result<String>> createPendingBooking(Booking booking) async =>
+      const Result.success('fake-booking-id');
   @override
   Stream<Booking?> watchBooking(String bookingId) => Stream.value(null);
   @override
@@ -282,13 +282,6 @@ class _FakeProfileRepository implements ProfileRepository {
     required String methodId,
   }) async => const Result.success(null);
   @override
-  Future<Result<void>> savePaymentMethod({
-    required String uid,
-    required String brand,
-    required String last4,
-    required bool isDefault,
-  }) async => const Result.success(null);
-  @override
   Future<Result<void>> cleanupUserData() async => const Result.success(null);
 }
 
@@ -296,9 +289,9 @@ class _FakeConciergeRepository implements ConciergeRepository {
   static const _profile = ConciergeProfile(
     id: "concierge-elena",
     name: "Elena",
-    role: "Specialist",
-    specialty: "Safaris",
-    languages: "English",
+    role: "Senior Travel Specialist",
+    specialty: "Luxury Safaris & Lodges",
+    languages: "English, Spanish, French",
     photoUrl: "",
     isOnline: true,
   );
@@ -421,7 +414,7 @@ void main() {
     },
     config: GoldenToolkitConfiguration(
       enableRealShadows: false,
-      fileNameFactory: (name) => "test/golden/goldens/$name.png",
+      fileNameFactory: (name) => "goldens/$name.png",
     ),
   );
 }

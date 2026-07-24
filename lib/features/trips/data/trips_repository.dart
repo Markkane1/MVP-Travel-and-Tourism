@@ -1,22 +1,20 @@
-import 'package:cloud_functions/cloud_functions.dart' hide Result;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/errors/app_exception.dart';
+import '../../../../core/services/api_client.dart';
 import '../../../../core/utils/result.dart';
 
 part 'trips_repository.g.dart';
 
 class TripsRepository {
-  final FirebaseFunctions _functions;
+  final ApiClient _api;
 
-  TripsRepository(this._functions);
+  TripsRepository(this._api);
 
-  /// Triggers the cloud function to cancel the booking.
+  /// Cancels the booking through the backend API.
   Future<Result<void>> cancelBooking(String bookingId) async {
     try {
-      await _functions.httpsCallable('cancelBooking').call({
-        'bookingId': bookingId,
-      });
+      await _api.postJson('/bookings/$bookingId/cancel', {});
       return const Result.success(null);
     } catch (e) {
       return Result.failure(
@@ -28,5 +26,5 @@ class TripsRepository {
 
 @riverpod
 TripsRepository tripsRepository(Ref ref) {
-  return TripsRepository(FirebaseFunctions.instance);
+  return TripsRepository(ref.watch(apiClientProvider));
 }

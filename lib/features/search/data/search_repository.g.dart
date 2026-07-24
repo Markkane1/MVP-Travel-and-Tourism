@@ -53,7 +53,7 @@ final class SearchRepositoryProvider
   }
 }
 
-String _$searchRepositoryHash() => r'284947607c9bba26a74fa24cfa23f619d0c5fd5c';
+String _$searchRepositoryHash() => r'01ef552c5328762f0b0b115f4e631c862f2e1a44';
 
 @ProviderFor(searchResults)
 final searchResultsProvider = SearchResultsFamily._();

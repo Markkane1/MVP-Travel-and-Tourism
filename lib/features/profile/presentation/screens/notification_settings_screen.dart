@@ -26,8 +26,8 @@ class _NotificationSettingsScreenState
   @override
   void initState() {
     super.initState();
-    // Load initial values from Firestore user document
-    final profile = ref.read(userFirestoreDataProvider).value;
+    // Load initial values from the user profile.
+    final profile = ref.read(userProfileDataProvider).value;
     if (profile != null && profile['notificationPrefs'] is Map) {
       final prefs = profile['notificationPrefs'] as Map;
       _bookingUpdates = prefs['bookingUpdates'] ?? true;
@@ -59,7 +59,7 @@ class _NotificationSettingsScreenState
             if (key == 'conciergeMessages') _conciergeMessages = value;
           });
 
-          ref.invalidate(userFirestoreDataProvider);
+          ref.invalidate(userProfileDataProvider);
         },
         onFailure: (exception) {
           if (mounted) {

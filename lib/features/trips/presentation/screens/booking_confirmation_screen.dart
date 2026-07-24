@@ -571,7 +571,10 @@ class _BookingConfirmationScreenState
 
   Widget _buildLogisticsSection(Booking booking) {
     final theme = Theme.of(context);
-    final hasMapsApiKey = Env.googleMapsApiKey.isNotEmpty;
+    final canRenderEmbeddedMap =
+        !kIsWeb &&
+        defaultTargetPlatform != TargetPlatform.iOS &&
+        Env.googleMapsApiKey.isNotEmpty;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -622,7 +625,7 @@ class _BookingConfirmationScreenState
                 borderRadius: BorderRadius.circular(AppRadii.md),
                 child: _mapCenter == null
                     ? const Center(child: LoadingIndicator())
-                    : hasMapsApiKey
+                    : canRenderEmbeddedMap
                     ? GoogleMap(
                         initialCameraPosition: CameraPosition(
                           target: _mapCenter!,

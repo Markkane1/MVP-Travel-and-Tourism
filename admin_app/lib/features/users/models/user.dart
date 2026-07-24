@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 part 'user.freezed.dart';
 part 'user.g.dart';
@@ -24,22 +23,14 @@ abstract class UserModel with _$UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
 
-  factory UserModel.fromFirestore(
-    Map<String, dynamic> data,
-    String documentId,
-  ) {
-    return UserModel.fromJson({...data, 'id': documentId});
-  }
 }
 
 DateTime? _timestampFromJson(dynamic value) {
-  if (value is Timestamp) {
-    return value.toDate();
-  }
+  if (value is String) return DateTime.tryParse(value);
+  if (value is DateTime) return value;
   return null;
 }
 
 dynamic _timestampToJson(DateTime? value) {
-  if (value == null) return null;
-  return Timestamp.fromDate(value);
+  return value?.toIso8601String();
 }

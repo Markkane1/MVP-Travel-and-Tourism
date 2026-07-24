@@ -92,10 +92,10 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
       return r'Under $1,000';
     }
     if (filters.minPrice == 1000.0 && filters.maxPrice == 2500.0) {
-      return r'$1,000-$2,500';
+      return r'$1,000–$2,500';
     }
     if (filters.minPrice == 2500.0 && filters.maxPrice == 5000.0) {
-      return r'$2,500-$5,000';
+      return r'$2,500–$5,000';
     }
     if (filters.minPrice == 5000.0) {
       return r'$5,000+';

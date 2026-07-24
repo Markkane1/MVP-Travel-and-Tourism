@@ -1,6 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-/// Representation model for a display-only payment method card item.
+/// Legacy saved payment metadata shown for account cleanup only.
 class PaymentMethodItem {
   final String id;
   final String brand;
@@ -13,14 +11,4 @@ class PaymentMethodItem {
     required this.last4,
     required this.isDefault,
   });
-
-  factory PaymentMethodItem.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return PaymentMethodItem(
-      id: doc.id,
-      brand: data['brand'] ?? 'Visa',
-      last4: data['last4'] ?? '0000',
-      isDefault: data['isDefault'] ?? false,
-    );
-  }
 }

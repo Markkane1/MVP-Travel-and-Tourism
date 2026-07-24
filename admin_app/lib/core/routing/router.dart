@@ -30,6 +30,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isAdmin = authState.isAdmin;
       final isGoingToLogin = state.uri.path == '/login';
       final isGoingToUnauthorized = state.uri.path == '/unauthorized';
+      final isGoingToStaff = state.uri.path == '/staff';
 
       if (!isLoggedIn) {
         if (!isGoingToLogin) {
@@ -45,8 +46,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      // If logged in and admin, prevent going to login/unauthorized
-      if (isGoingToLogin || isGoingToUnauthorized) {
+      if (isGoingToStaff && !authState.isSuperAdmin) {
+        return '/unauthorized';
+      }
+
+      if (isGoingToLogin) {
         return '/dashboard';
       }
 

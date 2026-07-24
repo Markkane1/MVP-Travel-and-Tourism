@@ -54,7 +54,7 @@ final class ExploreRepositoryProvider
   }
 }
 
-String _$exploreRepositoryHash() => r'fdd29d80b87b82b178759b47e2a7e22683139df1';
+String _$exploreRepositoryHash() => r'5dbdbdc88f7d7070776029c97caf33e4c6ea33b9';
 
 @ProviderFor(heroPromotions)
 final heroPromotionsProvider = HeroPromotionsProvider._();

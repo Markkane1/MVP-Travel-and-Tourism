@@ -21,6 +21,9 @@ app.*.map.json
 
 # Firebase / secrets / local config
 .env
+**/.env
+**/.env.*
+**/serviceAccountKey.json
 # **/google-services.json
 # **/GoogleService-Info.plist
 # **/firebase_options*.dart
@@ -49,14 +52,15 @@ ios/Flutter/App.framework
 ios/Flutter/Flutter.framework
 ios/Flutter/Flutter.podspec
 
-# Firebase Functions dependencies/build output
+# Package dependencies/build output
 **/node_modules/
-functions/node_modules/
-functions/lib/
 
-# Local rules/emulator scratch workspace
-test/rules_tests/
+# Local test scratch workspace
 test/golden/failures/
 
 # Local documents generated during audits/planning
 /Documents/
+
+# Binaries and archives
+*.zip
+

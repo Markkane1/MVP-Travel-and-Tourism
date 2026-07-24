@@ -5,6 +5,24 @@ import { AuthenticatedRequest } from '../types';
 export class ReviewController {
   constructor(private readonly reviewService = new ReviewService()) {}
 
+  recentReviews = async (_req: Request, res: Response) => {
+    try {
+      const reviews = await this.reviewService.getRecentReviews();
+      res.status(200).json(reviews);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+  tourReviews = async (req: Request, res: Response) => {
+    try {
+      const reviews = await this.reviewService.getTourReviews(req.params.tourId as string);
+      res.status(200).json(reviews);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
   submitReview = async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { bookingId, rating, comment } = req.body;

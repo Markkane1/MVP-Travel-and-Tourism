@@ -1,6 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../../core/utils/safe_stream.dart';
+import '../../../../core/services/api_client.dart';
 import '../../explore/domain/tour.dart';
 
 part 'search_repository.g.dart';
@@ -64,83 +63,65 @@ class SearchFilters {
 }
 
 class SearchRepository {
-  final FirebaseFirestore _firestore;
+  final ApiClient _api;
 
-  SearchRepository(this._firestore);
+  SearchRepository(this._api);
 
-  /// Performs compound tour lookups.
-  /// Note on Firestore Limitations:
-  /// Firestore does not support native full-text searches or multi-field inequalities.
-  /// We fetch by category (to limit database load) and filter by price/search keywords client-side.
   Stream<List<Tour>> searchTours(SearchFilters filters) {
-    Query firestoreQuery = _firestore.collection('tours');
+    return Stream.fromFuture(_fetchTours(filters));
+  }
 
-    if (filters.category != null && filters.category != 'All') {
-      firestoreQuery = firestoreQuery.where(
-        'category',
-        isEqualTo: filters.category,
-      );
-    }
+  Future<List<Tour>> _fetchTours(SearchFilters filters) async {
+    final data = await _api.getJson('/tours');
+    final tours = (data as List)
+        .whereType<Map>()
+        .map(
+          (tour) =>
+              Tour.fromJson(_mapTourData(Map<String, dynamic>.from(tour))),
+        )
+        .toList();
 
-    return firestoreQuery
-        .snapshots()
-        .map((snapshot) {
-          final tours = snapshot.docs.map((doc) {
-            final data = Map<String, dynamic>.from(doc.data() as Map? ?? {});
-            data['id'] = doc.id;
-            return Tour.fromJson(_mapTourData(data));
-          }).toList();
+    return tours.where((tour) {
+      if (filters.category != null && filters.category != 'All') {
+        if (tour.category != filters.category) return false;
+      }
 
-          return tours.where((tour) {
-            // Destination check
-            if (filters.destination != null &&
-                filters.destination != 'All Destinations' &&
-                filters.destination != 'All') {
-              final dest = filters.destination!.toLowerCase();
-              if (!tour.destination.toLowerCase().contains(dest)) {
-                return false;
-              }
-            }
+      if (filters.destination != null &&
+          filters.destination != 'All Destinations' &&
+          filters.destination != 'All') {
+        final dest = filters.destination!.toLowerCase();
+        if (!tour.destination.toLowerCase().contains(dest)) return false;
+      }
 
-            // Min price check
-            if (filters.minPrice != null &&
-                tour.pricePerPerson < filters.minPrice!) {
-              return false;
-            }
+      if (filters.minPrice != null && tour.pricePerPerson < filters.minPrice!) {
+        return false;
+      }
 
-            // Max price check
-            if (filters.maxPrice != null &&
-                tour.pricePerPerson > filters.maxPrice!) {
-              return false;
-            }
+      if (filters.maxPrice != null && tour.pricePerPerson > filters.maxPrice!) {
+        return false;
+      }
 
-            // Duration check
-            if (filters.durationDays != null &&
-                tour.durationDays != filters.durationDays) {
-              return false;
-            }
+      if (filters.durationDays != null &&
+          tour.durationDays != filters.durationDays) {
+        return false;
+      }
 
-            // Substring keywords text check
-            if (filters.query != null && filters.query!.isNotEmpty) {
-              final q = filters.query!.toLowerCase();
-              final titleMatch = tour.title.toLowerCase().contains(q);
-              final descMatch = tour.destination.toLowerCase().contains(q);
-              final overviewMatch = tour.overview.toLowerCase().contains(q);
-              if (!titleMatch && !descMatch && !overviewMatch) {
-                return false;
-              }
-            }
+      if (filters.query != null && filters.query!.isNotEmpty) {
+        final q = filters.query!.toLowerCase();
+        final titleMatch = tour.title.toLowerCase().contains(q);
+        final descMatch = tour.destination.toLowerCase().contains(q);
+        final overviewMatch = tour.overview.toLowerCase().contains(q);
+        if (!titleMatch && !descMatch && !overviewMatch) return false;
+      }
 
-            return true;
-          }).toList();
-        })
-        .mapAppException('Failed to search tours');
+      return true;
+    }).toList();
   }
 }
 
 @riverpod
 SearchRepository searchRepository(Ref ref) {
-  return SearchRepository(FirebaseFirestore.instance);
+  return SearchRepository(ref.watch(apiClientProvider));
 }
 
 @riverpod
@@ -150,8 +131,8 @@ Stream<List<Tour>> searchResults(Ref ref, SearchFilters filters) {
 
 Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
   data['title'] = data['title'] as String? ?? '';
-  data['destination'] = data['destination'] as String? ?? '';
-  data['category'] = data['category'] as String? ?? '';
+  data['destination'] = data['destination'] as String? ?? data['title'];
+  data['category'] = data['category'] as String? ?? data['type'] ?? 'Tour';
   data['badges'] =
       (data['badges'] as List?)?.cast<String>() ?? const <String>[];
   data['heroImageUrl'] = data['heroImageUrl'] as String? ?? '';
@@ -162,9 +143,9 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
   data['ratingCount'] = (data['ratingCount'] as num?)?.toInt() ?? 0;
   data['durationDays'] = (data['durationDays'] as num?)?.toInt() ?? 0;
   data['maxParticipants'] = (data['maxParticipants'] as num?)?.toInt() ?? 0;
-  data['overview'] = data['overview'] as String? ?? '';
+  data['overview'] = data['overview'] as String? ?? data['description'] ?? '';
   data['itinerary'] =
-      (data['itinerary'] as List?)
+      ((data['itinerary'] ?? data['itineraries']) as List?)
           ?.whereType<Map>()
           .map((step) => Map<String, dynamic>.from(step))
           .toList() ??
@@ -173,17 +154,19 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
       (data['inclusions'] as List?)?.cast<String>() ?? const <String>[];
   data['latitude'] = (data['latitude'] as num?)?.toDouble() ?? 0.0;
   data['longitude'] = (data['longitude'] as num?)?.toDouble() ?? 0.0;
-  if (data['availableDates'] is List) {
-    data['availableDates'] = (data['availableDates'] as List).map((timestamp) {
-      if (timestamp is Timestamp) {
-        return timestamp.toDate().toIso8601String();
-      }
-      return timestamp;
+  final dates = data['availableDates'] ?? data['dates'];
+  if (dates is List) {
+    data['availableDates'] = dates.map((date) {
+      if (date is Map && date['startDate'] != null) return date['startDate'];
+      return date;
     }).toList();
   } else {
     data['availableDates'] = const <String>[];
   }
-  data['pricePerPerson'] = (data['pricePerPerson'] as num?)?.toDouble() ?? 0.0;
+  data['pricePerPerson'] =
+      (data['pricePerPerson'] as num?)?.toDouble() ??
+      (data['basePrice'] as num?)?.toDouble() ??
+      0.0;
   data['privateVehicleSurcharge'] =
       (data['privateVehicleSurcharge'] as num?)?.toDouble() ?? 0.0;
   if (data['groupSizeOptions'] is List) {

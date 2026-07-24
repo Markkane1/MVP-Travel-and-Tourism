@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,7 +33,6 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
   final _picker = ImagePicker();
-  String? _seededUserId;
 
   bool _isUploadingAttachment = false;
 
@@ -59,25 +57,6 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
     }
   }
 
-  /// Automatic concierge seeding and user profile matching logic.
-  Future<void> _checkAndSeedConcierges(String uid) async {
-    final result = await ref
-        .read(conciergeRepositoryProvider)
-        .checkAndSeedConcierges(uid);
-    result.when(
-      onSuccess: (updated) {
-        if (updated && mounted) {
-          ref.invalidate(userFirestoreDataProvider);
-        }
-      },
-      onFailure: (exception) {
-        if (kDebugMode) {
-          print('Concierge seeding error: ${exception.message}');
-        }
-      },
-    );
-  }
-
   Future<void> _sendMessage(
     String uid,
     String conciergeId, {
@@ -90,7 +69,7 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
 
     // OPTIMISTIC LOCAL ECHO EXCEPTION SANCTION:
     // We intentionally perform this write asynchronously without awaiting it in UI path
-    // so the message is added to Firestore and immediately echoed back via stream snapshot
+    // so the message is added and immediately echoed back via the API stream
     // without blocking textfield entry states.
     unawaited(
       ref
@@ -121,6 +100,9 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
   Future<void> _pickAttachment(String uid, String conciergeId) async {
     final XFile? pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
+      maxWidth: 1600,
+      maxHeight: 1600,
+      imageQuality: 85,
     );
     if (pickedFile == null) return;
 
@@ -132,7 +114,7 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
       final storage = ref.read(storageServiceProvider);
       final String path =
           'concierge_threads/$uid/attachments/${DateTime.now().millisecondsSinceEpoch}.png';
-      final String url = await storage.uploadImage(File(pickedFile.path), path);
+      final String url = await storage.uploadImage(pickedFile, path);
 
       await _sendMessage(uid, conciergeId, attachmentUrl: url);
     } catch (e) {
@@ -168,16 +150,7 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
       return const Scaffold(body: Center(child: Text('Please log in.')));
     }
 
-    if (_seededUserId != user.uid) {
-      _seededUserId = user.uid;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _checkAndSeedConcierges(user.uid);
-        }
-      });
-    }
-
-    final firestoreState = ref.watch(userFirestoreDataProvider);
+    final profileState = ref.watch(userProfileDataProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -195,12 +168,12 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
         elevation: 0,
         actions: const [NotificationBellButton()],
       ),
-      body: firestoreState.when(
+      body: profileState.when(
         loading: () => const Center(child: LoadingIndicator()),
         error: (err, stack) => Center(
           child: ErrorStateView(
             message: err.toString(),
-            onRetry: () => ref.refresh(userFirestoreDataProvider),
+            onRetry: () => ref.refresh(userProfileDataProvider),
           ),
         ),
         data: (profileDoc) {

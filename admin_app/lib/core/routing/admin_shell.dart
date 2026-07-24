@@ -153,6 +153,7 @@ class AdminShell extends ConsumerWidget {
               _onItemTapped(targetIndex, context);
             },
             labelType: NavigationRailLabelType.all,
+            scrollable: true,
             destinations: destinations,
           ),
           const VerticalDivider(thickness: 1, width: 1),

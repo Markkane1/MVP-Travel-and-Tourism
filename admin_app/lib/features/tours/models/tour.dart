@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 part 'tour.freezed.dart';
 part 'tour.g.dart';
@@ -11,7 +10,7 @@ abstract class Tour with _$Tour {
   const factory Tour({
     @JsonKey(includeToJson: false)
     @Default('')
-    String id, // Provided by Firestore doc ID, not written back
+    String id,
     @Default('') String title,
     @Default('') String destination,
     @Default('') String category,
@@ -39,16 +38,15 @@ abstract class Tour with _$Tour {
 
   factory Tour.fromJson(Map<String, dynamic> json) => _$TourFromJson(json);
 
-  factory Tour.fromFirestore(Map<String, dynamic> data, String documentId) {
-    return Tour.fromJson({...data, 'id': documentId});
-  }
 }
 
 List<DateTime> _timestampListFromJson(dynamic value) {
   if (value is List) {
     return value.map((e) {
-      if (e is Timestamp) return e.toDate();
       if (e is String) return DateTime.tryParse(e) ?? DateTime.now();
+      if (e is Map && e['startDate'] is String) {
+        return DateTime.tryParse(e['startDate'] as String) ?? DateTime.now();
+      }
       return DateTime.now();
     }).toList();
   }
@@ -56,5 +54,5 @@ List<DateTime> _timestampListFromJson(dynamic value) {
 }
 
 dynamic _timestampListToJson(List<DateTime> value) {
-  return value.map((e) => Timestamp.fromDate(e)).toList();
+  return value.map((e) => e.toIso8601String()).toList();
 }

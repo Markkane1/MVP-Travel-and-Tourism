@@ -151,12 +151,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     });
 
     try {
-      final docId = ref.read(bookingRepositoryProvider).generateNewBookingId();
-
       final total = _calculateTotal(tour);
 
       final booking = Booking(
-        id: docId,
+        id: ref.read(bookingRepositoryProvider).generateNewBookingId(),
         userId: currentUser.uid,
         tourId: tour.id,
         tourSnapshot: TourSnapshot(
@@ -184,9 +182,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           .createPendingBooking(booking);
 
       await result.when(
-        onSuccess: (_) {
+        onSuccess: (bookingId) {
           if (mounted) {
-            unawaited(context.push('/booking/${booking.id}/checkout'));
+            unawaited(context.push('/booking/$bookingId/checkout'));
           }
         },
         onFailure: (exception) {

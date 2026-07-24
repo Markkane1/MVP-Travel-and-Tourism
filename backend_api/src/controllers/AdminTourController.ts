@@ -4,6 +4,15 @@ import { TourService } from '../services/TourService';
 export class AdminTourController {
   constructor(private readonly tourService = new TourService()) {}
 
+  listTours = async (_req: Request, res: Response) => {
+    try {
+      const tours = await this.tourService.getAllTours();
+      res.status(200).json(tours);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
   createTour = async (req: Request, res: Response) => {
     try {
       const tour = await this.tourService.createTour(req.body);

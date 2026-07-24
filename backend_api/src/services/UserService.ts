@@ -19,6 +19,11 @@ export class UserService {
     return toAuthUser(user);
   }
 
+  async listUsers() {
+    const users = await this.userRepository.findAll();
+    return users.map(toAuthUser);
+  }
+
   async updateProfile(userId: string, data: Partial<Prisma.UserUpdateInput>) {
     const updateData: any = { ...data };
     delete updateData.role;

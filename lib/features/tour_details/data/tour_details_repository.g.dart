@@ -55,7 +55,7 @@ final class TourDetailsRepositoryProvider
 }
 
 String _$tourDetailsRepositoryHash() =>
-    r'82300688f5b38fad37ee884c7308ad969b655a42';
+    r'271f1cb1308bb0ad5aa969fbcd6fb649c9b78c60';
 
 @ProviderFor(tourDetails)
 final tourDetailsProvider = TourDetailsFamily._();

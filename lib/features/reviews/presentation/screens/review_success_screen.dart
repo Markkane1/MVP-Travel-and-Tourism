@@ -18,7 +18,7 @@ class ReviewSuccessScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authServiceProvider).currentUser;
-    final firestoreState = ref.watch(userFirestoreDataProvider);
+    final profileState = ref.watch(userProfileDataProvider);
     final theme = Theme.of(context);
 
     final String tourTitle = extraData['tourTitle'] ?? 'the tour';
@@ -144,7 +144,7 @@ class ReviewSuccessScreen extends ConsumerWidget {
                     ),
 
                     // Reactive balance line with loading state
-                    firestoreState.when(
+                    profileState.when(
                       loading: () => const Text(
                         'Updating balance...',
                         style: TextStyle(

@@ -55,4 +55,4 @@ final class CheckoutRepositoryProvider
 }
 
 String _$checkoutRepositoryHash() =>
-    r'046d4edd3bc568e1d7c2df531238d3eaa41ebc33';
+    r'a8ecac3e76311f2d8c68aae415875a15ed0c1926';

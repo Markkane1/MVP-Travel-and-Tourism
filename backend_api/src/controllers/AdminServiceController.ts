@@ -4,6 +4,15 @@ import { CatalogService } from '../services/CatalogService';
 export class AdminServiceController {
   constructor(private readonly catalogService = new CatalogService()) {}
 
+  listServices = async (_req: Request, res: Response) => {
+    try {
+      const services = await this.catalogService.getAllServices();
+      res.status(200).json(services);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
   createService = async (req: Request, res: Response) => {
     try {
       const service = await this.catalogService.createService(req.body);

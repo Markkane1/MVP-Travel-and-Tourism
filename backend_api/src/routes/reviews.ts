@@ -5,6 +5,9 @@ import { requireAuth } from '../middleware/auth';
 const router = Router();
 const reviewController = new ReviewController();
 
+router.get('/recent', reviewController.recentReviews as any);
+router.get('/tour/:tourId', reviewController.tourReviews as any);
+
 router.use(requireAuth);
 
 router.post('/', reviewController.submitReview as any);

@@ -11,6 +11,15 @@ const refundService = new RefundService();
 const auditLogService = new AuditLogService();
 
 export class AdminBookingController {
+  async listBookings(req: AuthenticatedRequest, res: Response) {
+    try {
+      const bookings = await bookingService.listBookings();
+      res.status(200).json(bookings);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   async updateStatus(req: AuthenticatedRequest, res: Response) {
     try {
       const { status, notes } = req.body;

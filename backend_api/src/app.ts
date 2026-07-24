@@ -22,23 +22,35 @@ import adminNotificationsRouter from './routes/admin/notifications';
 import mediaRouter from './routes/media';
 import notificationsRouter from './routes/notifications';
 import adminAuditRouter from './routes/admin/audit';
+import { env } from './config/env';
+import { rateLimit } from './middleware/rateLimit';
 
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.set('trust proxy', 1);
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || env.corsOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
+}));
+app.use(rateLimit(60_000, 300));
 
 app.use('/webhooks', webhooksRouter);
 
 app.use(express.json());
 
 app.use('/health', healthRouter);
-app.use('/auth', authRouter);
+app.use('/auth', rateLimit(60_000, 20), authRouter);
 app.use('/users', usersRouter);
 app.use('/admin/users', adminUsersRouter);
 app.use('/admin/staff', adminStaffRouter);
 app.use('/bookings', bookingsRouter);
-app.use('/payments', paymentsRouter);
+app.use('/payments', rateLimit(60_000, 60), paymentsRouter);
 app.use('/admin/bookings', adminBookingsRouter);
 app.use('/admin/payments', adminPaymentsRouter);
 app.use('/tours', toursRouter);
@@ -50,7 +62,7 @@ app.use('/concierge', conciergeRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/admin/concierge', adminConciergeRouter);
 app.use('/admin/notifications', adminNotificationsRouter);
-app.use('/media', mediaRouter);
+app.use('/media', rateLimit(60_000, 60), mediaRouter);
 app.use('/admin/audit', adminAuditRouter);
 
 export default app;

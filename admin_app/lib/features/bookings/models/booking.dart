@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 part 'booking.freezed.dart';
 part 'booking.g.dart';
@@ -42,19 +41,14 @@ abstract class Booking with _$Booking {
   factory Booking.fromJson(Map<String, dynamic> json) =>
       _$BookingFromJson(json);
 
-  factory Booking.fromFirestore(Map<String, dynamic> data, String documentId) {
-    return Booking.fromJson({...data, 'id': documentId});
-  }
 }
 
 DateTime? _timestampFromJson(dynamic value) {
-  if (value is Timestamp) {
-    return value.toDate();
-  }
+  if (value is String) return DateTime.tryParse(value);
+  if (value is DateTime) return value;
   return null;
 }
 
 dynamic _timestampToJson(DateTime? value) {
-  if (value == null) return null;
-  return Timestamp.fromDate(value);
+  return value?.toIso8601String();
 }

@@ -1,16 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/services/api_client.dart';
 import '../models/audit_model.dart';
 
 final auditLogsProvider = StreamProvider.autoDispose<List<AuditModel>>((ref) {
-  return FirebaseFirestore.instance
-      .collection('admin_audit_logs')
-      .orderBy('createdAt', descending: true)
-      .limit(100)
-      .snapshots()
-      .map((snapshot) {
-        return snapshot.docs
-            .map((doc) => AuditModel.fromFirestore(doc.data(), doc.id))
-            .toList();
-      });
+  return Stream.fromFuture(_fetchAuditLogs(ref.watch(apiClientProvider)));
 });
+
+Future<List<AuditModel>> _fetchAuditLogs(ApiClient api) async {
+  final data = await api.getJson('/admin/audit');
+  return (data as List).whereType<Map>().map((log) {
+    final json = Map<String, dynamic>.from(log);
+    json['actorUid'] = json['actorUid'] ?? json['actorId'] ?? '';
+    return AuditModel.fromJson(json);
+  }).toList();
+}

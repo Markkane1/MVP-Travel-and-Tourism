@@ -222,7 +222,7 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Edit Service',
                   style: TextStyle(
                     fontSize: 24,
@@ -416,12 +416,12 @@ class _EditServiceDialogState extends ConsumerState<EditServiceDialog> {
                                 children: [
                                   Icon(Icons.sort, color: colors.outline),
                                   const SizedBox(width: 12),
-                                  const Expanded(
+                                  Expanded(
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
+                                        const Text(
                                           'Display Priority',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,

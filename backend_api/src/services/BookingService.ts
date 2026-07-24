@@ -67,6 +67,10 @@ export class BookingService {
     return this.bookingRepository.findByUserId(userId);
   }
 
+  async listBookings() {
+    return this.bookingRepository.findAll();
+  }
+
   async cancelBooking(id: string) {
     const booking = await this.bookingRepository.findById(id);
     if (!booking) {

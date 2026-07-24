@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../core/theme/app_radii.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/env.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../explore/domain/tour.dart';
@@ -124,6 +126,17 @@ class _SearchMapScreenState extends State<SearchMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final canRenderNativeMap =
+        !kIsWeb &&
+        defaultTargetPlatform != TargetPlatform.iOS &&
+        Env.googleMapsApiKey.isNotEmpty;
+
+    if (!canRenderNativeMap) {
+      return const Center(
+        child: Text('Map view is unavailable for this build.'),
+      );
+    }
+
     LatLng initialCenter = const LatLng(20.0, 0.0);
     if (widget.tours.isNotEmpty) {
       initialCenter = LatLng(

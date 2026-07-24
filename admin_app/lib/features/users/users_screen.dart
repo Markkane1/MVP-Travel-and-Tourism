@@ -73,7 +73,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
             const SizedBox(height: 24),
             usersAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error: \$err')),
+              error: (err, stack) => Center(child: Text('Error: $err')),
               data: (users) {
                 final filteredUsers = users.where((u) {
                   if (_searchQuery.isEmpty) return true;

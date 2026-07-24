@@ -101,7 +101,7 @@ class AuditScreen extends ConsumerWidget {
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
                   error: (err, stack) =>
-                      Center(child: Text('Error loading logs: \$err')),
+                      Center(child: Text('Error loading logs: $err')),
                   data: (logs) {
                     if (logs.isEmpty) {
                       return const Center(

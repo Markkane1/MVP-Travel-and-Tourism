@@ -10,6 +10,10 @@ export class BookingRepository {
     return prisma.booking.findMany({ where: { userId } });
   }
 
+  async findAll(): Promise<Booking[]> {
+    return prisma.booking.findMany({ orderBy: { createdAt: 'desc' } });
+  }
+
   async create(data: Prisma.BookingUncheckedCreateInput): Promise<Booking> {
     return prisma.$transaction(async (tx) => {
       const booking = await tx.booking.create({ data });

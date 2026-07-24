@@ -1,4 +1,6 @@
 @Tags(['integration'])
+library;
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -119,7 +121,7 @@ void main() {
       await _openAndBack(
         tester,
         find.text('Payment Methods'),
-        find.text('Add Payment Method'),
+        find.text('Payment Methods').last,
         label: 'payment methods',
       );
       await _openAndBack(

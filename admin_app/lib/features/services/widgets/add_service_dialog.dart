@@ -199,7 +199,7 @@ class _AddServiceDialogState extends ConsumerState<AddServiceDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Add New Service',
                   style: TextStyle(
                     fontSize: 24,
@@ -393,12 +393,12 @@ class _AddServiceDialogState extends ConsumerState<AddServiceDialog> {
                                 children: [
                                   Icon(Icons.sort, color: colors.outline),
                                   const SizedBox(width: 12),
-                                  const Expanded(
+                                  Expanded(
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
+                                        const Text(
                                           'Display Priority',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,

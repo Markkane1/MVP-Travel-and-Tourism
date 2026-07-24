@@ -19,7 +19,7 @@ void main() {
 
   group('SubmitReviewUseCase', () {
     test(
-      'success - review written and booking reviewed=true resolves',
+      'success - API review submission resolves',
       () async {
         when(
           () => mockRepository.submitReview(
@@ -33,9 +33,6 @@ void main() {
             comment: any(named: 'comment'),
             photoUrls: any(named: 'photoUrls'),
           ),
-        ).thenAnswer((_) async => const Result.success(null));
-        when(
-          () => mockRepository.waitForReviewProcessing(any()),
         ).thenAnswer((_) async => const Result.success(null));
 
         final useCase = SubmitReviewUseCase(mockRepository);
@@ -66,46 +63,8 @@ void main() {
             photoUrls: const [],
           ),
         ).called(1);
-        verify(
-          () => mockRepository.waitForReviewProcessing('booking-1'),
-        ).called(1);
       },
     );
-
-    test('processing timeout/failure -> Result is Failure', () async {
-      when(
-        () => mockRepository.submitReview(
-          userId: any(named: 'userId'),
-          userName: any(named: 'userName'),
-          userPhotoUrl: any(named: 'userPhotoUrl'),
-          bookingId: any(named: 'bookingId'),
-          tourId: any(named: 'tourId'),
-          overallRating: any(named: 'overallRating'),
-          aspectRatings: any(named: 'aspectRatings'),
-          comment: any(named: 'comment'),
-          photoUrls: any(named: 'photoUrls'),
-        ),
-      ).thenAnswer((_) async => const Result.success(null));
-      when(() => mockRepository.waitForReviewProcessing(any())).thenAnswer(
-        (_) async => const Result.failure(AppException.unknown('timeout')),
-      );
-
-      final useCase = SubmitReviewUseCase(mockRepository);
-
-      final result = await useCase.execute(
-        userId: 'user-1',
-        userName: 'Alice',
-        userPhotoUrl: 'https://example.com/alice.png',
-        bookingId: 'booking-1',
-        tourId: 'tour-1',
-        overallRating: 5.0,
-        aspectRatings: {'Service': 5.0},
-        comment: 'Fantastic!',
-        photoUrls: const [],
-      );
-
-      expect(result, isA<Failure<void>>());
-    });
 
     test('submit failure -> Result is Failure', () async {
       when(
@@ -139,7 +98,6 @@ void main() {
       );
 
       expect(result, isA<Failure<void>>());
-      verifyNever(() => mockRepository.waitForReviewProcessing(any()));
     });
   });
 }

@@ -7,6 +7,15 @@ const staffService = new StaffService();
 const auditLogService = new AuditLogService();
 
 export class AdminStaffController {
+  async listStaff(req: AuthenticatedRequest, res: Response) {
+    try {
+      const staff = await staffService.listStaffProfiles();
+      res.status(200).json(staff);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   async createStaff(req: AuthenticatedRequest, res: Response) {
     try {
       const { userId, ...data } = req.body;

@@ -6,6 +6,7 @@
   "background_color": "#F6FAFF",
   "theme_color": "#1D8FE3",
   "description": "MVP Travel and Tourism booking app.",
+  "gcm_sender_id": "103953800507",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
   "icons": [

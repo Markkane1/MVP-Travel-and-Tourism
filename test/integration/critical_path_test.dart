@@ -1,9 +1,11 @@
 @Tags(['integration'])
+library;
+
 // Critical path integration test.
 //
-// This test runs against the dev Firebase project with MockPaymentService.
+// This test runs against Firebase Auth and the backend API.
 // It exercises the bookable traveler journey from registration through
-// successful checkout and verifies the booking appears in Trips.
+// successful manual checkout and verifies the booking appears in Trips.
 //
 // Run on an Android emulator/device:
 //   flutter test integration_test/critical_path_test.dart \
@@ -11,8 +13,8 @@
 //     --dart-define=FLAVOR=dev
 //
 // Prerequisites:
-//   - Dev Firebase project seeded with at least one tour in Bora Bora.
-//   - MockPaymentService is the active PaymentService implementation.
+//   - Backend API seeded with at least one tour in Bora Bora.
+//   - Manual checkout is enabled with pay-on-arrival or configured bank transfer.
 //   - App data cleared before the run so the test starts signed out.
 //
 // Note:
@@ -32,7 +34,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Critical Path - register -> book -> trips', () {
-    testWidgets('traveler can register, book, pay, and see trip', (
+    testWidgets('traveler can register, book, submit checkout, and see trip', (
       tester,
     ) async {
       app.main();
@@ -126,7 +128,7 @@ void main() {
 
       expect(find.byKey(const Key('checkout_screen')), findsOneWidget);
 
-      await tester.tap(find.byKey(const Key('checkout_pay_button')));
+      await tester.tap(find.byKey(const Key('checkout_submit_button')));
       await _settle(tester, timeout: const Duration(seconds: 8));
 
       expect(

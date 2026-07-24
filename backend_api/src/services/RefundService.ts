@@ -1,11 +1,16 @@
 import { RefundRepository } from '../repositories/RefundRepository';
 import { PaymentService } from './PaymentService';
 import { RefundStatus } from '@prisma/client';
+import Stripe from 'stripe';
+import { env } from '../config/env';
+
+const stripe = new Stripe(env.stripeSecretKey);
 
 export class RefundService {
   constructor(
     private readonly refundRepository = new RefundRepository(),
     private readonly paymentService = new PaymentService(),
+    private readonly stripeClient = stripe,
   ) {}
 
   async initiateRefund(paymentId: string, amount: number, reason?: string) {
@@ -29,11 +34,17 @@ export class RefundService {
       throw new Error('Refund amount exceeds payment amount');
     }
 
-    const stripeRefundId = `re_mock_${Date.now()}`;
+    const stripeRefund = await this.stripeClient.refunds.create({
+      payment_intent: payment.stripeIntentId,
+      amount,
+      metadata: reason ? { reason } : undefined,
+    }, {
+      idempotencyKey: `refund-${paymentId}-${reservedAmount}-${amount}`,
+    });
 
     const refund = await this.refundRepository.create({
       paymentId,
-      stripeRefundId,
+      stripeRefundId: stripeRefund.id,
       amount,
       reason,
       status: 'PENDING',

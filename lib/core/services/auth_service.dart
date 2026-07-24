@@ -1,24 +1,21 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart' show FieldValue;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_functions/cloud_functions.dart' hide Result;
 
 import '../../features/auth/domain/user_entity.dart';
 import '../utils/result.dart';
 import '../errors/app_exception.dart';
 import '../constants/app_strings.dart';
-import 'firestore_service.dart';
+import 'api_client.dart';
 
 /// A service that handles all Firebase Authentication operations.
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final FirestoreService _firestoreService;
+  final ApiClient _api;
 
-  AuthService(this._firestoreService);
+  AuthService(this._api);
 
   /// Stream of user sign-in status changes, mapped to UserEntity.
   Stream<UserEntity?> get authStateChanges {
@@ -93,30 +90,22 @@ class AuthService {
     return result.when(
       onSuccess: (user) async {
         try {
-          await _firestoreService
-              .set<Map<String, dynamic>>(
-                path: 'users/${user.uid}',
-                data: {
-                  'displayName': name,
-                  'email': email,
-                  'tier': 'Standard',
-                  'loyaltyPoints': 0,
-                  'milesTraveled': 0,
-                  'notificationPrefs': {
-                    'bookingUpdates': true,
-                    'promotions': true,
-                    'conciergeMessages': true,
-                  },
-                },
-                toJson: (value) => {
-                  ...value,
-                  'createdAt': FieldValue.serverTimestamp(),
-                },
-              )
-              .timeout(const Duration(seconds: 8));
+          await _api.postJson('/auth/firebase', {
+            'idToken': await _firebaseAuth.currentUser!.getIdToken(),
+          }, authenticated: false);
+          await _firebaseAuth.currentUser?.updateDisplayName(name);
           return Result.success(user.copyWith(displayName: name));
         } catch (_) {
-          return Result.success(user.copyWith(displayName: name));
+          try {
+            await _firebaseAuth.currentUser?.delete();
+          } catch (_) {
+            await _firebaseAuth.signOut();
+          }
+          return const Result.failure(
+            AppException.unknown(
+              'Account setup failed. Please try registering again.',
+            ),
+          );
         }
       },
       onFailure: Result.failure,
@@ -278,37 +267,16 @@ class AuthService {
     required String fallbackDisplayName,
   }) async {
     try {
-      final exists = await _firestoreService.get(
-        path: 'users/${user.uid}',
-        fromJson: (json) => json,
-        toJson: (json) => json,
-      );
-      if (exists == null) {
-        await _firestoreService
-            .set<Map<String, dynamic>>(
-              path: 'users/${user.uid}',
-              data: {
-                'displayName': user.displayName ?? fallbackDisplayName,
-                'email': user.email,
-                'tier': 'Standard',
-                'loyaltyPoints': 0,
-                'milesTraveled': 0,
-                'notificationPrefs': {
-                  'bookingUpdates': true,
-                  'promotions': true,
-                  'conciergeMessages': true,
-                },
-              },
-              toJson: (value) => {
-                ...value,
-                'createdAt': FieldValue.serverTimestamp(),
-              },
-            )
-            .timeout(const Duration(seconds: 8));
-      }
+      await _api.postJson('/auth/firebase', {
+        'idToken': await _firebaseAuth.currentUser!.getIdToken(),
+      }, authenticated: false);
       return Result.success(user);
     } catch (_) {
-      return Result.success(user);
+      return const Result.failure(
+        AppException.unknown(
+          'Sign-in succeeded, but profile setup failed. Please try again.',
+        ),
+      );
     }
   }
 
@@ -351,7 +319,7 @@ class AuthService {
 
       // Cleanup must succeed before auth deletion so we do not strand
       // orphaned PII behind a deleted identity.
-      await FirebaseFunctions.instance.httpsCallable('cleanupUserData').call();
+      await _api.delete('/users/me');
 
       // 2. Delete the actual Auth profile
       await user.delete();
@@ -366,5 +334,5 @@ class AuthService {
 
 /// Provider for the AuthService instance.
 final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService(ref.watch(firestoreServiceProvider));
+  return AuthService(ref.watch(apiClientProvider));
 });

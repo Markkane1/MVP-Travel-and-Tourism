@@ -9,6 +9,7 @@ const paymentController = new PaymentController();
 router.use(requireAuth);
 
 router.post('/create-intent', paymentController.createIntent);
+router.post('/manual-intent', paymentController.submitManualIntent);
 router.get('/:id', paymentController.getPayment);
 
 const refundController = new RefundController();

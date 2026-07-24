@@ -8,6 +8,7 @@ const adminStaffController = new AdminStaffController();
 
 router.use(requireAuth, requireAdmin);
 
+router.get('/', adminStaffController.listStaff);
 router.post('/', adminStaffController.createStaff);
 router.patch('/:id', adminStaffController.updateStaff);
 router.post('/:id/deactivate', adminStaffController.deactivateStaff);

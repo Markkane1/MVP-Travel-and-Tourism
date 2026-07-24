@@ -54,7 +54,7 @@ final class ReviewsRepositoryProvider
   }
 }
 
-String _$reviewsRepositoryHash() => r'3fb24588000e73703376cd09115a47596b121903';
+String _$reviewsRepositoryHash() => r'cc8c7c4dc5cb1ec73541d3e4d9ff2794c36910df';
 
 @ProviderFor(tourReviewed)
 final tourReviewedProvider = TourReviewedFamily._();

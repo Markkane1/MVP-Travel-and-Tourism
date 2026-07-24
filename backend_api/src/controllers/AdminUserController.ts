@@ -9,6 +9,15 @@ const accountLifecycleService = new AccountLifecycleService();
 const auditLogService = new AuditLogService();
 
 export class AdminUserController {
+  async listUsers(req: AuthenticatedRequest, res: Response) {
+    try {
+      const users = await userService.listUsers();
+      res.status(200).json(users);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   async createUser(req: AuthenticatedRequest, res: Response) {
     try {
       const user = await userService.adminCreateUser(req.user!.role, req.body);

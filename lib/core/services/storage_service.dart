@@ -1,94 +1,69 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:ui' as ui;
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
-/// A service to upload files to Firebase Storage, with built-in native image compression.
+import 'api_client.dart';
+
+/// Uploads picked images through the API's signed Cloudinary flow.
 class StorageService {
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final ApiClient _api;
 
-  StorageService();
+  StorageService(this._api);
 
-  /// Compresses (if exceeds 1600px) and uploads an image to Firebase Storage, returning its URL.
-  Future<String> uploadImage(File file, String path) async {
-    File uploadFile = file;
+  Future<String> uploadImage(XFile file, String path) async {
+    final folder = _folderFor(path);
+    final uploadToken = await _api.postJson(
+      '/media/upload-token',
+      {'folder': folder},
+    );
 
-    try {
-      uploadFile = await _compressImage(file);
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error compressing image, uploading original instead: $e');
-      }
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse(
+        'https://api.cloudinary.com/v1_1/${uploadToken['cloudName']}/image/upload',
+      ),
+    )
+      ..fields['api_key'] = uploadToken['apiKey'].toString()
+      ..fields['timestamp'] = uploadToken['timestamp'].toString()
+      ..fields['signature'] = uploadToken['signature'].toString()
+      ..fields['folder'] = uploadToken['folder'].toString()
+      ..files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          await file.readAsBytes(),
+          filename: file.name,
+        ),
+      );
+
+    final streamed = await request.send();
+    final body = await streamed.stream.bytesToString();
+    if (streamed.statusCode < 200 || streamed.statusCode >= 300) {
+      throw Exception('Cloudinary upload failed: $body');
     }
 
-    final ref = _storage.ref().child(path);
-    final uploadTask = ref.putFile(uploadFile);
-
-    final snapshot = await uploadTask;
-    final downloadUrl = await snapshot.ref.getDownloadURL();
-    return downloadUrl;
+    final uploaded = jsonDecode(body) as Map<String, dynamic>;
+    final secureUrl = uploaded['secure_url'] as String;
+    await _api.postJson('/media/complete', {
+      'publicId': uploaded['public_id'],
+      'url': secureUrl,
+      'resourceType': uploaded['resource_type'] ?? 'image',
+      'format': uploaded['format'],
+      'bytes': uploaded['bytes'],
+      'folder': folder,
+    });
+    return secureUrl;
   }
 
-  /// Compress and resize the image so that the longest edge does not exceed [maxEdge].
-  Future<File> _compressImage(File file, {int maxEdge = 1600}) async {
-    final bytes = await file.readAsBytes();
-
-    // Instantiate a codec to check dimensions
-    final codec = await ui.instantiateImageCodec(bytes);
-    final frameInfo = await codec.getNextFrame();
-    final image = frameInfo.image;
-
-    final int width = image.width;
-    final int height = image.height;
-
-    // Skip resizing if original is already within boundaries
-    if (width <= maxEdge && height <= maxEdge) {
-      return file;
-    }
-
-    int newWidth = width;
-    int newHeight = height;
-
-    if (width > height) {
-      newHeight = (height * maxEdge / width).round();
-      newWidth = maxEdge;
-    } else {
-      newWidth = (width * maxEdge / height).round();
-      newHeight = maxEdge;
-    }
-
-    // Re-decode with targetWidth and targetHeight for native scaling
-    final resizedCodec = await ui.instantiateImageCodec(
-      bytes,
-      targetWidth: newWidth,
-      targetHeight: newHeight,
-    );
-    final resizedFrameInfo = await resizedCodec.getNextFrame();
-    final resizedImage = resizedFrameInfo.image;
-
-    final byteData = await resizedImage.toByteData(
-      format: ui.ImageByteFormat.png,
-    );
-    if (byteData == null) {
-      return file;
-    }
-
-    final compressedBytes = byteData.buffer.asUint8List();
-
-    // Write back to a temp file
-    final tempDir = Directory.systemTemp;
-    final tempFile = File(
-      '${tempDir.path}/img_compressed_${DateTime.now().millisecondsSinceEpoch}.png',
-    );
-    await tempFile.writeAsBytes(compressedBytes);
-
-    return tempFile;
+  String _folderFor(String path) {
+    if (path.startsWith('users/')) return 'profile-media';
+    if (path.startsWith('reviews/')) return 'review-media';
+    if (path.startsWith('concierge_threads/')) return 'concierge-attachments';
+    throw ArgumentError('Unsupported upload path: $path');
   }
 }
 
 /// Provider for the StorageService instance.
 final storageServiceProvider = Provider<StorageService>((ref) {
-  return StorageService();
+  return StorageService(ref.watch(apiClientProvider));
 });

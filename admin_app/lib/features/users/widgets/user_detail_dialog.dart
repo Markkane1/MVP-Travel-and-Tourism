@@ -169,9 +169,9 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
                   .watch(userBookingsSummaryProvider(u.id))
                   .when(
                     data: (summary) => Text(
-                      summary.total == 0
+                      summary.$1 == 0
                           ? 'No bookings found.'
-                          : '${summary.total} total booking(s), ${summary.confirmed} active/confirmed',
+                          : '${summary.$1} total booking(s), ${summary.$2} active/confirmed',
                     ),
                     loading: () => const Padding(
                       padding: EdgeInsets.all(8.0),
@@ -181,7 +181,7 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                     ),
-                    error: (_, __) => Text(
+                    error: (_, _) => Text(
                       'Error loading bookings',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.error,

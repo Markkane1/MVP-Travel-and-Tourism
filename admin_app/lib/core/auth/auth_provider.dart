@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+
+import '../config/env.dart';
 
 class AuthState {
   final bool isLoading;
@@ -30,22 +34,22 @@ class AuthNotifier extends Notifier<AuthState> {
         );
       } else {
         try {
-          final tokenResult = await user.getIdTokenResult(true);
-          final claims = tokenResult.claims ?? const <String, dynamic>{};
-          final doc = await FirebaseFirestore.instance
-              .collection('staff_profiles')
-              .doc(user.uid)
-              .get();
-          if (doc.exists &&
-              doc.data()?['isActive'] == true &&
-              claims['admin'] == true) {
-            final role = doc.data()?['role'] as String?;
+          final idToken = await user.getIdToken(true);
+          final response = await http.post(
+            Uri.parse('${Env.apiBaseUrl}/auth/firebase'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'idToken': idToken}),
+          );
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            final data = jsonDecode(response.body) as Map<String, dynamic>;
+            final apiUser = data['user'] as Map<String, dynamic>? ?? {};
+            final role = apiUser['role']?.toString();
+            final isAdmin = role == 'ADMIN' || role == 'SUPER_ADMIN';
             state = AuthState(
               isLoading: false,
               user: user,
-              isAdmin: true,
-              isSuperAdmin:
-                  claims['super_admin'] == true && role == 'super_admin',
+              isAdmin: isAdmin,
+              isSuperAdmin: role == 'SUPER_ADMIN',
             );
           } else {
             state = AuthState(

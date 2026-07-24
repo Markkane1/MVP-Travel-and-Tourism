@@ -44,7 +44,7 @@ class ProfileScreen extends ConsumerWidget {
       return const Scaffold(body: Center(child: Text('Please sign in.')));
     }
 
-    final firestoreState = ref.watch(userFirestoreDataProvider);
+    final profileState = ref.watch(userProfileDataProvider);
     final bookingsState = ref.watch(userBookingsProvider(user.uid));
     final savedIdsState = ref.watch(savedTourIdsProvider);
     final theme = Theme.of(context);
@@ -64,12 +64,12 @@ class ProfileScreen extends ConsumerWidget {
         elevation: 0,
         actions: const [NotificationBellButton()],
       ),
-      body: firestoreState.when(
+      body: profileState.when(
         loading: () => const Center(child: LoadingIndicator()),
         error: (err, stack) => Center(
           child: ErrorStateView(
             message: err.toString(),
-            onRetry: () => ref.refresh(userFirestoreDataProvider),
+            onRetry: () => ref.refresh(userProfileDataProvider),
           ),
         ),
         data: (profileDoc) {

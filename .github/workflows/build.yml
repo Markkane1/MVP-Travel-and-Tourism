@@ -2,51 +2,224 @@ name: Build Flutter Apps
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build Android and iOS
-    runs-on: macos-latest
+  preproduction-checks:
+    name: Flutter Web and Backend API
+    runs-on: ubuntu-latest
+
+    env:
+      FIREBASE_APP_CHECK_WEB_KEY: ${{ secrets.FIREBASE_APP_CHECK_WEB_KEY }}
+      FIREBASE_MESSAGING_VAPID_KEY: ${{ secrets.FIREBASE_MESSAGING_VAPID_KEY || '' }}
+      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY || '' }}
+      BANK_NAME: ${{ secrets.BANK_NAME || '' }}
+      BANK_ACCOUNT_TITLE: ${{ secrets.BANK_ACCOUNT_TITLE || '' }}
+      BANK_ACCOUNT_NUMBER: ${{ secrets.BANK_ACCOUNT_NUMBER || '' }}
+      BANK_IBAN: ${{ secrets.BANK_IBAN || '' }}
 
     steps:
-      - name: Checkout Code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: backend_api/package-lock.json
+
+      - name: Customer Flutter dependencies
+        run: flutter pub get
+
+      - name: Validate required release config
+        shell: pwsh
+        run: ./scripts/validate_production.ps1 -Target Web
+
+      - name: Customer analyze
+        run: flutter analyze
+
+      - name: Customer tests
+        run: flutter test
+
+      - name: Customer web release build
+        run: >
+          flutter build web --release
+          --dart-define=FIREBASE_APP_CHECK_WEB_KEY=$FIREBASE_APP_CHECK_WEB_KEY
+          --dart-define=FIREBASE_MESSAGING_VAPID_KEY=$FIREBASE_MESSAGING_VAPID_KEY
+          --dart-define=GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY
+          --dart-define=BANK_NAME=$BANK_NAME
+          --dart-define=BANK_ACCOUNT_TITLE=$BANK_ACCOUNT_TITLE
+          --dart-define=BANK_ACCOUNT_NUMBER=$BANK_ACCOUNT_NUMBER
+          --dart-define=BANK_IBAN=$BANK_IBAN
+          --dart-define=FLAVOR=prod
+
+      - name: Admin Flutter dependencies
+        working-directory: admin_app
+        run: flutter pub get
+
+      - name: Admin analyze
+        working-directory: admin_app
+        run: flutter analyze
+
+      - name: Admin web release build
+        working-directory: admin_app
+        run: >
+          flutter build web --release
+          --dart-define=FIREBASE_APP_CHECK_WEB_KEY=$FIREBASE_APP_CHECK_WEB_KEY
+          --dart-define=FLAVOR=prod
+
+      - name: Backend API dependencies
+        working-directory: backend_api
+        run: npm ci
+
+      - name: Backend API build
+        working-directory: backend_api
+        run: npm run build
+
+  android:
+    name: Android APK/AAB
+    runs-on: ubuntu-latest
+
+    env:
+      FIREBASE_APP_CHECK_WEB_KEY: ${{ secrets.FIREBASE_APP_CHECK_WEB_KEY }}
+      FIREBASE_MESSAGING_VAPID_KEY: ${{ secrets.FIREBASE_MESSAGING_VAPID_KEY || '' }}
+      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY || '' }}
+      BANK_NAME: ${{ secrets.BANK_NAME || '' }}
+      BANK_ACCOUNT_TITLE: ${{ secrets.BANK_ACCOUNT_TITLE || '' }}
+      BANK_ACCOUNT_NUMBER: ${{ secrets.BANK_ACCOUNT_NUMBER || '' }}
+      BANK_IBAN: ${{ secrets.BANK_IBAN || '' }}
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+
+    steps:
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: zulu
+          java-version: "17"
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
+          cache: true
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Build Android APK
-        run: flutter build apk --release
+      - name: Validate required release config
+        shell: pwsh
+        run: ./scripts/validate_production.ps1 -Target Android
 
-      - name: Build iOS App (Unsigned)
-        run: flutter build ios --release --no-codesign
+      - name: Prepare Android signing
+        shell: pwsh
+        run: |
+          [IO.File]::WriteAllBytes('android/release-keystore.jks', [Convert]::FromBase64String($env:ANDROID_KEYSTORE_BASE64))
+          @(
+            'storeFile=../release-keystore.jks'
+            "storePassword=$env:ANDROID_STORE_PASSWORD"
+            "keyPassword=$env:ANDROID_KEY_PASSWORD"
+            "keyAlias=$env:ANDROID_KEY_ALIAS"
+          ) | Set-Content -Path 'android/key.properties' -Encoding ascii
+
+      - name: Remove test plugin from release registrant
+        run: |
+          perl -0pi -e 's/\s*try \{\s*flutterEngine\.getPlugins\(\)\.add\(new dev\.flutter\.plugins\.integration_test\.IntegrationTestPlugin\(\)\);\s*\} catch \(Exception e\) \{\s*Log\.e\(TAG, "Error registering plugin integration_test, dev\.flutter\.plugins\.integration_test\.IntegrationTestPlugin", e\);\s*\}//s' android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+
+      - name: Build prod APK
+        run: >
+          flutter build apk --release --flavor prod --no-pub
+          --dart-define=FIREBASE_APP_CHECK_WEB_KEY=$FIREBASE_APP_CHECK_WEB_KEY
+          --dart-define=FIREBASE_MESSAGING_VAPID_KEY=$FIREBASE_MESSAGING_VAPID_KEY
+          --dart-define=GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY
+          --dart-define=BANK_NAME=$BANK_NAME
+          --dart-define=BANK_ACCOUNT_TITLE=$BANK_ACCOUNT_TITLE
+          --dart-define=BANK_ACCOUNT_NUMBER=$BANK_ACCOUNT_NUMBER
+          --dart-define=BANK_IBAN=$BANK_IBAN
+          --dart-define=FLAVOR=prod
+
+      - name: Build prod AAB
+        run: >
+          flutter build appbundle --release --flavor prod --no-pub
+          --dart-define=FIREBASE_APP_CHECK_WEB_KEY=$FIREBASE_APP_CHECK_WEB_KEY
+          --dart-define=FIREBASE_MESSAGING_VAPID_KEY=$FIREBASE_MESSAGING_VAPID_KEY
+          --dart-define=GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY
+          --dart-define=BANK_NAME=$BANK_NAME
+          --dart-define=BANK_ACCOUNT_TITLE=$BANK_ACCOUNT_TITLE
+          --dart-define=BANK_ACCOUNT_NUMBER=$BANK_ACCOUNT_NUMBER
+          --dart-define=BANK_IBAN=$BANK_IBAN
+          --dart-define=FLAVOR=prod
 
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: android-prod-apk
+          path: build/app/outputs/flutter-apk/app-prod-release.apk
 
-      - name: Zip iOS App Bundle
-        run: zip -r ios-app.zip build/ios/iphoneos/Runner.app
-
-      - name: Upload iOS App
+      - name: Upload Android AAB
         uses: actions/upload-artifact@v4
         with:
-          name: ios-app
+          name: android-prod-aab
+          path: build/app/outputs/bundle/prodRelease/app-prod-release.aab
+
+  ios:
+    name: iOS App
+    runs-on: macos-latest
+
+    env:
+      FIREBASE_APP_CHECK_WEB_KEY: ${{ secrets.FIREBASE_APP_CHECK_WEB_KEY }}
+      IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Validate required release config
+        shell: pwsh
+        run: ./scripts/validate_production.ps1 -Target Ios
+
+      - name: Materialize iOS Firebase config
+        shell: pwsh
+        run: |
+          if (-not [string]::IsNullOrWhiteSpace($env:IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64)) {
+            [IO.File]::WriteAllBytes('ios/Runner/GoogleService-Info.plist', [Convert]::FromBase64String($env:IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64))
+          }
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build unsigned iOS app
+        run: >
+          flutter build ios --release --no-codesign
+          --dart-define=FIREBASE_APP_CHECK_WEB_KEY=$FIREBASE_APP_CHECK_WEB_KEY
+          --dart-define=FLAVOR=prod
+
+      - name: Zip iOS app bundle
+        run: ditto -c -k --sequesterRsrc --keepParent build/ios/iphoneos/Runner.app ios-app.zip
+
+      - name: Upload iOS app
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-unsigned-app
           path: ios-app.zip

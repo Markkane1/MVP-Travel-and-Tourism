@@ -10,6 +10,23 @@ export class ReviewRepository {
     return prisma.review.findUnique({ where: { bookingId } });
   }
 
+  async findRecent(limit = 5) {
+    return prisma.review.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: { user: true },
+    });
+  }
+
+  async findByTourId(tourId: string, limit = 5) {
+    return prisma.review.findMany({
+      where: { tourId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: { user: true },
+    });
+  }
+
   async create(data: Prisma.ReviewUncheckedCreateInput): Promise<Review> {
     return prisma.review.create({ data });
   }

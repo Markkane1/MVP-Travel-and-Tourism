@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/utils/result.dart';
-import '../../../../core/utils/safe_stream.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../auth/auth.dart';
 import '../../explore/explore.dart';
@@ -10,32 +8,20 @@ import 'search_repository.dart';
 
 part 'saved_tours_repository.g.dart';
 
-/// Repository responsible for bookmarking and saving tours to users/{uid}/savedTours.
+final Map<String, Set<String>> _savedTourIdsByUser = {};
+
+/// Repository responsible for bookmarking and saving tours.
 class SavedToursRepository {
-  final FirebaseFirestore _firestore;
-
-  SavedToursRepository(this._firestore);
-
   /// Streams the list of saved tour IDs for a user.
   Stream<List<String>> watchSavedTourIds(String uid) {
-    return _firestore
-        .collection('users')
-        .doc(uid)
-        .collection('savedTours')
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => doc.id).toList())
-        .mapAppException('Failed to load saved tours');
+    return Stream.value(_savedTourIdsByUser[uid]?.toList() ?? const []);
   }
 
   /// Saves a tour.
   Future<Result<void>> saveTour(String uid, String tourId) async {
     try {
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('savedTours')
-          .doc(tourId)
-          .set({'tourId': tourId, 'savedAt': FieldValue.serverTimestamp()});
+      // ponytail: session-local only; add SavedTour table when durable saves matter.
+      (_savedTourIdsByUser[uid] ??= <String>{}).add(tourId);
       return const Result.success(null);
     } catch (e) {
       return Result.failure(
@@ -47,12 +33,7 @@ class SavedToursRepository {
   /// Removes a saved tour.
   Future<Result<void>> unsaveTour(String uid, String tourId) async {
     try {
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('savedTours')
-          .doc(tourId)
-          .delete();
+      _savedTourIdsByUser[uid]?.remove(tourId);
       return const Result.success(null);
     } catch (e) {
       return Result.failure(
@@ -64,7 +45,7 @@ class SavedToursRepository {
 
 @riverpod
 SavedToursRepository savedToursRepository(Ref ref) {
-  return SavedToursRepository(FirebaseFirestore.instance);
+  return SavedToursRepository();
 }
 
 @riverpod
@@ -86,7 +67,7 @@ class OptimisticSavedTours extends _$OptimisticSavedTours {
     );
   }
 
-  /// Optimistically toggles a saved tour, rolling back the state automatically if Firestore errors out.
+  /// Optimistically toggles a saved tour, rolling back the state automatically if persistence errors out.
   Future<Result<void>> toggleSave(String tourId) async {
     final user = ref.read(authControllerProvider).value;
     if (user == null) {
@@ -108,7 +89,7 @@ class OptimisticSavedTours extends _$OptimisticSavedTours {
     }
     state = AsyncData(updated);
 
-    // 2. Dispatch Firestore write in background
+    // 2. Dispatch persistence in background
     try {
       Result<void> res;
       if (isSaved) {
@@ -118,7 +99,10 @@ class OptimisticSavedTours extends _$OptimisticSavedTours {
       }
 
       return res.when(
-        onSuccess: (_) => const Result.success(null),
+        onSuccess: (_) {
+          ref.invalidate(savedTourIdsProvider);
+          return const Result.success(null);
+        },
         onFailure: (err) {
           // Rollback local state on write failure
           state = AsyncData(previousState);

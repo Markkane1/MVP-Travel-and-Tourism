@@ -17,6 +17,10 @@ export class ConciergeService {
     return this.conciergeRepository.getMessagesByThreadId(thread.id);
   }
 
+  async listThreads() {
+    return this.conciergeRepository.findAllThreads();
+  }
+
   async sendMessage(userId: string, content: string) {
     if (!content?.trim()) {
       throw new Error('Message content is required');

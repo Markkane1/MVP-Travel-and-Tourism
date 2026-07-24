@@ -14,6 +14,20 @@ export class UserRepository {
     return prisma.user.findFirst({ where: { id, status: 'ACTIVE' } });
   }
 
+  async findActiveNotificationTargets(tier?: string): Promise<User[]> {
+    return prisma.user.findMany({
+      where: {
+        status: 'ACTIVE',
+        role: 'CUSTOMER',
+        ...(tier ? { tier: tier as any } : {}),
+      },
+    });
+  }
+
+  async findAll(): Promise<User[]> {
+    return prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
+  }
+
   async create(data: Prisma.UserCreateInput): Promise<User> {
     return prisma.user.create({ data });
   }

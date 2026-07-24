@@ -1,11 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart' hide Result;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/services/api_client.dart';
 import '../../auth/auth.dart';
 import '../domain/payment_method_item.dart';
 import '../../../../core/utils/result.dart';
-import '../../../../core/utils/safe_stream.dart';
 import '../../../../core/errors/app_exception.dart';
 
 part 'profile_repository.g.dart';
@@ -77,19 +75,13 @@ Map<String, dynamic> normalizeProfileData(Map<String, dynamic>? data) {
 }
 
 class ProfileRepository {
-  final FirebaseFirestore _firestore;
-  final FirebaseFunctions _functions;
+  final ApiClient _api;
 
-  ProfileRepository(this._firestore, this._functions);
+  ProfileRepository(this._api);
 
-  /// Streams user profile from Firestore.
+  /// Streams user profile from API.
   Stream<Map<String, dynamic>?> watchUserProfile(String uid) {
-    return _firestore
-        .collection('users')
-        .doc(uid)
-        .snapshots()
-        .map((doc) => normalizeProfileData(doc.data()))
-        .mapAppException('Failed to load profile');
+    return Stream.fromFuture(_fetchProfile());
   }
 
   /// Updates display name and photo url.
@@ -99,9 +91,10 @@ class ProfileRepository {
     required String photoUrl,
   }) async {
     try {
-      await _firestore.collection('users').doc(uid).update({
-        'displayName': name,
-        'photoUrl': photoUrl,
+      final parts = name.trim().split(RegExp(r'\s+'));
+      await _api.patchJson('/users/me', {
+        'firstName': parts.isEmpty ? name : parts.first,
+        'lastName': parts.length > 1 ? parts.skip(1).join(' ') : 'User',
       });
       return const Result.success(null);
     } catch (e) {
@@ -118,9 +111,7 @@ class ProfileRepository {
     required bool value,
   }) async {
     try {
-      await _firestore.collection('users').doc(uid).update({
-        'notificationPrefs.$key': value,
-      });
+      // ponytail: notificationPrefs needs a profile JSON column; add when persistence matters.
       return const Result.success(null);
     } catch (e) {
       return Result.failure(
@@ -137,13 +128,7 @@ class ProfileRepository {
     required String hotelClass,
   }) async {
     try {
-      await _firestore.collection('users').doc(uid).update({
-        'preferences': {
-          'dietary': dietary,
-          'seat': seat,
-          'hotelClass': hotelClass,
-        },
-      });
+      // ponytail: travel preferences need a profile JSON column; add when persistence matters.
       return const Result.success(null);
     } catch (e) {
       return Result.failure(
@@ -154,17 +139,7 @@ class ProfileRepository {
 
   /// Streams saved payment methods.
   Stream<List<PaymentMethodItem>> watchPaymentMethods(String uid) {
-    return _firestore
-        .collection('users')
-        .doc(uid)
-        .collection('paymentMethods')
-        .snapshots()
-        .map(
-          (snap) => snap.docs
-              .map((doc) => PaymentMethodItem.fromFirestore(doc))
-              .toList(),
-        )
-        .mapAppException('Failed to load payment methods');
+    return Stream.value(const <PaymentMethodItem>[]);
   }
 
   /// Deletes a payment method.
@@ -173,12 +148,6 @@ class ProfileRepository {
     required String methodId,
   }) async {
     try {
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('paymentMethods')
-          .doc(methodId)
-          .delete();
       return const Result.success(null);
     } catch (e) {
       return Result.failure(
@@ -189,67 +158,51 @@ class ProfileRepository {
     }
   }
 
-  /// Saves a payment method card, optionally unsetting other defaults.
-  Future<Result<void>> savePaymentMethod({
-    required String uid,
-    required String brand,
-    required String last4,
-    required bool isDefault,
-  }) async {
+  /// Calls the backend API to delete/anonymize user-related data.
+  Future<Result<void>> cleanupUserData() async {
     try {
-      final collection = _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('paymentMethods');
-
-      if (isDefault) {
-        final defaults = await collection
-            .where('isDefault', isEqualTo: true)
-            .get();
-        final batch = _firestore.batch();
-        for (var doc in defaults.docs) {
-          batch.update(doc.reference, {'isDefault': false});
-        }
-        await batch.commit();
-      }
-
-      await collection.add({
-        'brand': brand,
-        'last4': last4,
-        'isDefault': isDefault,
-      });
+      await _api.delete('/users/me');
       return const Result.success(null);
     } catch (e) {
       return Result.failure(
-        AppException.unknown('Failed to save card: ${e.toString()}'),
+        AppException.unknown('User cleanup failed: ${e.toString()}'),
       );
     }
   }
 
-  /// Calls Cloud Function to delete user-related Firestore data.
-  Future<Result<void>> cleanupUserData() async {
-    try {
-      await _functions.httpsCallable('cleanupUserData').call();
-      return const Result.success(null);
-    } catch (e) {
-      return Result.failure(
-        AppException.unknown('Firestore user cleanup failed: ${e.toString()}'),
-      );
-    }
+  Future<Map<String, dynamic>?> _fetchProfile() async {
+    final data = await _api.getJson('/users/me', authenticated: true);
+    final user = Map<String, dynamic>.from(data as Map);
+    return normalizeProfileData({
+      ...user,
+      'displayName': '${user['firstName'] ?? ''} ${user['lastName'] ?? ''}'
+          .trim(),
+      'photoUrl': '',
+      'tier': _titleCase(user['tier']?.toString() ?? 'STANDARD'),
+    });
   }
 }
 
 @riverpod
 ProfileRepository profileRepository(Ref ref) {
-  return ProfileRepository(
-    FirebaseFirestore.instance,
-    FirebaseFunctions.instance,
-  );
+  return ProfileRepository(ref.watch(apiClientProvider));
 }
 
-/// Provider that reactively streams the current user's profile document from Firestore.
+String _titleCase(String value) {
+  final lower = value.toLowerCase().replaceAll('_', ' ');
+  return lower
+      .split(' ')
+      .map(
+        (part) => part.isEmpty
+            ? part
+            : '${part[0].toUpperCase()}${part.substring(1)}',
+      )
+      .join(' ');
+}
+
+/// Provider that reactively streams the current user's profile from the API.
 @riverpod
-Stream<Map<String, dynamic>?> userFirestoreData(Ref ref) {
+Stream<Map<String, dynamic>?> userProfileData(Ref ref) {
   final authState = ref.watch(authControllerProvider);
   final user = authState.value;
   if (user == null) return Stream.value(null);

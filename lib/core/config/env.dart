@@ -28,20 +28,6 @@ class Env {
     return DefaultFirebaseOptions.currentPlatform;
   }
 
-  /// Stripe Publishable Key mapped per environment.
-  static String get stripePublishableKey {
-    if (isProd) {
-      return const String.fromEnvironment(
-        'STRIPE_PUB_KEY_PROD',
-        defaultValue: 'pk_live_placeholder',
-      );
-    }
-    return const String.fromEnvironment(
-      'STRIPE_PUB_KEY_DEV',
-      defaultValue: 'pk_test_placeholder',
-    );
-  }
-
   /// Google Maps SDK key for native map widgets.
   static const String googleMapsApiKey = String.fromEnvironment(
     'GOOGLE_MAPS_API_KEY',
@@ -52,4 +38,34 @@ class Env {
     'FIREBASE_APP_CHECK_WEB_KEY',
     defaultValue: '',
   );
+
+  static bool get hasProductionAppCheckWebSiteKey =>
+      appCheckWebSiteKey.isNotEmpty &&
+      !appCheckWebSiteKey.toLowerCase().contains('placeholder') &&
+      !appCheckWebSiteKey.toLowerCase().contains('test');
+
+  static const String firebaseMessagingVapidKey = String.fromEnvironment(
+    'FIREBASE_MESSAGING_VAPID_KEY',
+    defaultValue: '',
+  );
+
+  static const String apiBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://flutterapi.duckdns.org',
+  );
+
+  static const String bankName = String.fromEnvironment('BANK_NAME');
+  static const String bankAccountTitle = String.fromEnvironment(
+    'BANK_ACCOUNT_TITLE',
+  );
+  static const String bankAccountNumber = String.fromEnvironment(
+    'BANK_ACCOUNT_NUMBER',
+  );
+  static const String bankIban = String.fromEnvironment('BANK_IBAN');
+
+  static bool get hasBankTransferDetails =>
+      bankName.isNotEmpty &&
+      bankAccountTitle.isNotEmpty &&
+      bankAccountNumber.isNotEmpty &&
+      bankIban.isNotEmpty;
 }

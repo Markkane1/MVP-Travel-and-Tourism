@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -92,7 +93,12 @@ class _TravelMapScreenState extends ConsumerState<TravelMapScreen> {
                 }
               }
 
-              if (Env.skipNotificationSetup) {
+              final canRenderNativeMap =
+                  !kIsWeb &&
+                  defaultTargetPlatform != TargetPlatform.iOS &&
+                  Env.googleMapsApiKey.isNotEmpty;
+
+              if (Env.skipNotificationSetup || !canRenderNativeMap) {
                 return DecoratedBox(
                   decoration: const BoxDecoration(color: AppColors.surface),
                   child: Center(

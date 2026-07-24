@@ -1,32 +1,26 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/errors/app_exception.dart';
+import '../../../../core/services/api_client.dart';
 import '../../../../core/utils/result.dart';
 
 part 'checkout_repository.g.dart';
 
-/// Checkout repository — no Cloud Functions dependency.
-///
-/// Payments are handled via bank transfer or pay-on-arrival.
-/// Bookings remain in 'pending' status until an admin manually confirms them
-/// in the admin app. This works entirely on the Firebase Spark (free) plan.
+/// Checkout repository for API-backed manual payment intents.
 class CheckoutRepository {
-  final FirebaseFirestore _firestore;
+  final ApiClient _api;
 
-  CheckoutRepository(this._firestore);
+  CheckoutRepository(this._api);
 
-  /// Marks a pending booking with the chosen payment method so admin
-  /// knows how the customer intends to pay. The booking status stays 'pending'.
+  /// Submits the selected manual payment method through the trusted backend.
   Future<Result<void>> submitPaymentIntent({
     required String bookingId,
-    required String paymentMethod, // 'bank_transfer' | 'pay_on_arrival'
-    String? transferNote,
+    required String paymentMethod,
   }) async {
     try {
-      await _firestore.collection('bookings').doc(bookingId).update({
+      await _api.postJson('/payments/manual-intent', {
+        'bookingId': bookingId,
         'paymentMethod': paymentMethod,
-        'paymentSubmittedAt': FieldValue.serverTimestamp(),
       });
       return const Result.success(null);
     } catch (e) {
@@ -37,29 +31,9 @@ class CheckoutRepository {
       );
     }
   }
-
-  /// Adds a display-only payment method card under users/{uid}/paymentMethods.
-  Future<Result<void>> savePaymentMethod({
-    required String uid,
-    required String brand,
-    required String last4,
-  }) async {
-    try {
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('paymentMethods')
-          .add({'brand': brand, 'last4': last4, 'isDefault': false});
-      return const Result.success(null);
-    } catch (e) {
-      return Result.failure(
-        AppException.unknown('Failed to save payment method: ${e.toString()}'),
-      );
-    }
-  }
 }
 
 @riverpod
 CheckoutRepository checkoutRepository(Ref ref) {
-  return CheckoutRepository(FirebaseFirestore.instance);
+  return CheckoutRepository(ref.watch(apiClientProvider));
 }

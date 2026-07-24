@@ -8,6 +8,7 @@ const adminBookingController = new AdminBookingController();
 
 router.use(requireAuth, requireAdmin);
 
+router.get('/', adminBookingController.listBookings);
 router.post('/:id/status', adminBookingController.updateStatus);
 router.post('/:id/refund', adminBookingController.refundBooking);
 

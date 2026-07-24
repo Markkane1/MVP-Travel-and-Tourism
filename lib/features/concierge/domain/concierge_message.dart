@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 /// Representation model of a concierge message.
 class ConciergeMessage {
   final String id;
@@ -18,16 +16,21 @@ class ConciergeMessage {
     required this.createdAt,
   });
 
-  factory ConciergeMessage.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    final timestamp = data['createdAt'] as Timestamp?;
+  factory ConciergeMessage.fromJson(Map<String, dynamic> data) {
     return ConciergeMessage(
-      id: doc.id,
+      id: data['id'] as String? ?? '',
       senderId: data['senderId'] ?? '',
-      senderType: data['senderType'] ?? 'user',
-      text: data['text'] ?? '',
+      senderType: _senderType(data['senderType'] ?? data['senderRole']),
+      text: data['text'] ?? data['content'] ?? '',
       attachmentUrl: data['attachmentUrl'],
-      createdAt: timestamp?.toDate() ?? DateTime.now(),
+      createdAt: data['createdAt'] is String
+          ? DateTime.tryParse(data['createdAt'] as String) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
+}
+
+String _senderType(dynamic value) {
+  final role = value?.toString().toLowerCase() ?? '';
+  return role == 'customer' || role == 'user' ? 'user' : 'concierge';
 }

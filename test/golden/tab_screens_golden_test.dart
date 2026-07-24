@@ -247,8 +247,8 @@ class _FakeBookingRepository implements BookingRepository {
   String generateNewBookingId() => 'fake-booking-id';
 
   @override
-  Future<Result<void>> createPendingBooking(Booking booking) async =>
-      const Result.success(null);
+  Future<Result<String>> createPendingBooking(Booking booking) async =>
+      const Result.success('fake-booking-id');
 
   @override
   Stream<Booking?> watchBooking(String bookingId) => Stream.value(null);
@@ -298,14 +298,6 @@ class _FakeProfileRepository implements ProfileRepository {
   Future<Result<void>> deletePaymentMethod({
     required String uid,
     required String methodId,
-  }) async => const Result.success(null);
-
-  @override
-  Future<Result<void>> savePaymentMethod({
-    required String uid,
-    required String brand,
-    required String last4,
-    required bool isDefault,
   }) async => const Result.success(null);
 
   @override
@@ -448,7 +440,7 @@ void main() {
     },
     config: GoldenToolkitConfiguration(
       enableRealShadows: false,
-      fileNameFactory: (name) => 'test/golden/goldens/$name.png',
+      fileNameFactory: (name) => 'goldens/$name.png',
     ),
   );
 }

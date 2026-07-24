@@ -19,6 +19,10 @@ val keyProperties = Properties()
 if (keyPropertiesFile.exists()) {
     keyProperties.load(FileInputStream(keyPropertiesFile))
 }
+val googleMapsApiKey =
+    (project.findProperty("GOOGLE_MAPS_API_KEY") as? String)
+        ?: System.getenv("GOOGLE_MAPS_API_KEY")
+        ?: ""
 
 android {
     namespace = "com.mvptravelandtourism.app"
@@ -52,6 +56,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKey
     }
 
     // ---------------------------------------------------------------------------
@@ -81,8 +86,14 @@ android {
             signingConfig = if (keyPropertiesFile.exists()) {
                 signingConfigs.getByName("release")
             } else {
-                // Fallback: debug keys allow `flutter run --release` without keystore
-                // Replace this before submitting to Play Store
+                val isProdRelease = gradle.startParameter.taskNames.any {
+                    it.contains("ProdRelease", ignoreCase = true)
+                }
+                if (isProdRelease) {
+                    throw org.gradle.api.GradleException(
+                        "Prod release builds require android/key.properties and a release keystore."
+                    )
+                }
                 signingConfigs.getByName("debug")
             }
             isMinifyEnabled = true

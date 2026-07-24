@@ -1,8 +1,9 @@
 import Stripe from 'stripe';
 import { PaymentService } from './PaymentService';
 import { RefundService } from './RefundService';
+import { env } from '../config/env';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock');
+const stripe = new Stripe(env.stripeSecretKey);
 
 const paymentService = new PaymentService();
 const refundService = new RefundService();
@@ -12,11 +13,7 @@ export class StripeWebhookService {
     let event: Stripe.Event;
 
     try {
-      if (endpointSecret === 'mock_secret') {
-         event = JSON.parse(body.toString()) as Stripe.Event;
-      } else {
-         event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
-      }
+      event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
     } catch (err: any) {
       throw new Error(`Webhook Error: ${err.message}`);
     }

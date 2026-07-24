@@ -16,44 +16,53 @@ class ErrorStateView extends StatelessWidget {
     final theme = Theme.of(context);
     final errorMessage = message ?? AppStrings.common.genericError;
 
-    return Center(
-      child: Padding(
-        padding: AppSpacing.paddingLg,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.error_outline_outlined,
-              size: 64.0,
-              color: AppColors.error,
-            ),
-            AppSpacing.gapLg,
-            Text(
-              'Error Occurred',
-              style: theme.textTheme.headlineMedium?.copyWith(
-                color: AppColors.onSurface,
-                fontWeight: FontWeight.bold,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              child: Padding(
+                padding: AppSpacing.paddingLg,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.error_outline_outlined,
+                      size: 64.0,
+                      color: AppColors.error,
+                    ),
+                    AppSpacing.gapLg,
+                    Text(
+                      'Error Occurred',
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        color: AppColors.onSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    AppSpacing.gapBase,
+                    Text(
+                      errorMessage,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    AppSpacing.gapXl,
+                    SecondaryButton(
+                      label: AppStrings.common.retryButton,
+                      onPressed: onRetry,
+                      width: 160.0,
+                    ),
+                  ],
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-            AppSpacing.gapBase,
-            Text(
-              errorMessage,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            AppSpacing.gapXl,
-            SecondaryButton(
-              label: AppStrings.common.retryButton,
-              onPressed: onRetry,
-              width: 160.0,
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -14,11 +14,11 @@ import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_state_view.dart';
 import '../widgets/checkout_stateless_widgets.dart';
 import '../../../booking/booking.dart';
+import '../../../../core/config/env.dart';
 
 enum _PaymentOption { bankTransfer, payOnArrival }
 
-/// Checkout screen offering Bank Transfer and Pay on Arrival.
-/// Works entirely on the Firebase Spark (free) plan — no Stripe, no Cloud Functions.
+/// Checkout screen offering configured payment methods.
 class CheckoutScreen extends ConsumerStatefulWidget {
   final String bookingId;
   const CheckoutScreen({super.key, required this.bookingId});
@@ -28,7 +28,9 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 }
 
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
-  _PaymentOption _selectedOption = _PaymentOption.bankTransfer;
+  _PaymentOption _selectedOption = Env.hasBankTransferDetails
+      ? _PaymentOption.bankTransfer
+      : _PaymentOption.payOnArrival;
   bool _isProcessing = false;
   String? _errorMessage;
 
@@ -141,19 +143,20 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     ),
                     AppSpacing.gapMd,
 
-                    // Option 1: Bank Transfer
-                    _PaymentOptionCard(
-                      icon: Icons.account_balance_outlined,
-                      title: 'Bank Transfer',
-                      subtitle:
-                          'Transfer the amount to our account. We confirm your booking within 24 hours.',
-                      isSelected:
-                          _selectedOption == _PaymentOption.bankTransfer,
-                      onTap: () => setState(
-                        () => _selectedOption = _PaymentOption.bankTransfer,
+                    if (Env.hasBankTransferDetails) ...[
+                      _PaymentOptionCard(
+                        icon: Icons.account_balance_outlined,
+                        title: 'Bank Transfer',
+                        subtitle:
+                            'Transfer the amount to our account. We confirm your booking within 24 hours.',
+                        isSelected:
+                            _selectedOption == _PaymentOption.bankTransfer,
+                        onTap: () => setState(
+                          () => _selectedOption = _PaymentOption.bankTransfer,
+                        ),
                       ),
-                    ),
-                    AppSpacing.gapMd,
+                      AppSpacing.gapMd,
+                    ],
 
                     // Option 2: Pay on Arrival
                     _PaymentOptionCard(
@@ -214,8 +217,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           Expanded(
             child: Text(
               _selectedOption == _PaymentOption.bankTransfer
-                  ? 'After submitting, transfer the exact amount to our account. Your booking will be confirmed within 24 hours once we verify the transfer.'
-                  : 'Your booking will be reserved. Our team will confirm it and you\'ll pay on the day of your tour.',
+                  ? 'After submitting, our team will verify the booking and confirm the final payable amount before you transfer funds.'
+                  : 'Your booking will be reserved. Our team will confirm it and you\'ll pay the final confirmed amount on the day of your tour.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: AppColors.primary,
               ),
@@ -249,7 +252,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Total: ${booking.currency} ${total.toStringAsFixed(0)}',
+                'Estimated total: ${booking.currency} ${total.toStringAsFixed(0)}',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppColors.onSurface,
@@ -372,12 +375,6 @@ class _BankDetailsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // TODO: Replace with your real bank account details before going live.
-    const bankName = 'HBL — Habib Bank Limited';
-    const accountTitle = 'MVP Travel & Tourism';
-    const accountNumber = '0123-4567890-03';
-    const iban = 'PK00HABB0000000123456789';
-
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,26 +397,32 @@ class _BankDetailsCard extends StatelessWidget {
             ],
           ),
           const Divider(height: 24),
-          const _DetailRow(label: 'Bank', value: bankName, onCopy: null),
+          const _DetailRow(label: 'Bank', value: Env.bankName, onCopy: null),
           _DetailRow(
             label: 'Account Title',
-            value: accountTitle,
-            onCopy: () =>
-                _copyToClipboard(context, accountTitle, 'Account title'),
+            value: Env.bankAccountTitle,
+            onCopy: () => _copyToClipboard(
+              context,
+              Env.bankAccountTitle,
+              'Account title',
+            ),
           ),
           _DetailRow(
             label: 'Account Number',
-            value: accountNumber,
-            onCopy: () =>
-                _copyToClipboard(context, accountNumber, 'Account number'),
+            value: Env.bankAccountNumber,
+            onCopy: () => _copyToClipboard(
+              context,
+              Env.bankAccountNumber,
+              'Account number',
+            ),
           ),
           _DetailRow(
             label: 'IBAN',
-            value: iban,
-            onCopy: () => _copyToClipboard(context, iban, 'IBAN'),
+            value: Env.bankIban,
+            onCopy: () => _copyToClipboard(context, Env.bankIban, 'IBAN'),
           ),
           _DetailRow(
-            label: 'Amount to Transfer',
+            label: 'Estimated Amount',
             value: '$currency ${totalPrice.toStringAsFixed(0)}',
             highlight: true,
             onCopy: () => _copyToClipboard(
@@ -430,7 +433,7 @@ class _BankDetailsCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '⚠ Please use your booking ID as the payment reference so we can identify your transfer.',
+            'Use your booking ID as the payment reference only after our team confirms the final payable amount.',
             style: theme.textTheme.bodySmall?.copyWith(
               color: AppColors.warning,
               fontStyle: FontStyle.italic,

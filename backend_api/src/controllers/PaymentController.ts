@@ -15,6 +15,20 @@ export class PaymentController {
     }
   }
 
+  async submitManualIntent(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { bookingId, paymentMethod } = req.body;
+      const payment = await paymentService.submitManualPaymentIntent(
+        req.user!.id,
+        bookingId,
+        paymentMethod || '',
+      );
+      res.status(201).json(payment);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
   async getPayment(req: AuthenticatedRequest, res: Response) {
     try {
       const payment = await paymentService.getPaymentByIdForUser(

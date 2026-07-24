@@ -8,7 +8,7 @@ class Env {
   /// The active environment flavor ('dev' or 'prod').
   static const String flavor = String.fromEnvironment(
     'FLAVOR',
-    defaultValue: 'dev',
+    defaultValue: 'prod',
   );
 
   /// True if running in production flavor.
@@ -25,5 +25,15 @@ class Env {
   static const String appCheckWebSiteKey = String.fromEnvironment(
     'FIREBASE_APP_CHECK_WEB_KEY',
     defaultValue: '',
+  );
+
+  static bool get hasProductionAppCheckWebSiteKey =>
+      appCheckWebSiteKey.isNotEmpty &&
+      !appCheckWebSiteKey.toLowerCase().contains('placeholder') &&
+      !appCheckWebSiteKey.toLowerCase().contains('test');
+
+  static const String apiBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://flutterapi.duckdns.org',
   );
 }

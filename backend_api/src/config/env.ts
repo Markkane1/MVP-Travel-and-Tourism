@@ -11,9 +11,15 @@ export const env = {
   databaseUrl: requireEnv('DATABASE_URL'),
   jwtSecret: requireEnv('JWT_SECRET'),
   jwtRefreshSecret: requireEnv('JWT_REFRESH_SECRET'),
+  corsOrigins: requireEnv('CORS_ORIGINS')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
   accessTokenExpiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '15m',
   refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d',
-  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || 'mock_cloud',
-  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || 'mock_key',
-  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || 'mock_secret',
+  cloudinaryCloudName: requireEnv('CLOUDINARY_CLOUD_NAME'),
+  cloudinaryApiKey: requireEnv('CLOUDINARY_API_KEY'),
+  cloudinaryApiSecret: requireEnv('CLOUDINARY_API_SECRET'),
+  stripeSecretKey: requireEnv('STRIPE_SECRET_KEY'),
+  stripeWebhookSecret: requireEnv('STRIPE_WEBHOOK_SECRET'),
 };

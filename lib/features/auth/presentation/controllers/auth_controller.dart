@@ -46,7 +46,7 @@ class AuthController extends _$AuthController {
     return result;
   }
 
-  /// Registers a new user and creates their Firestore user profile document.
+  /// Registers a new user and creates their API-backed profile.
   Future<Result<UserEntity>> register(
     String name,
     String email,

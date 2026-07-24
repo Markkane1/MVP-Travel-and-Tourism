@@ -1,0 +1,16 @@
+{
+  "projects": {
+    "production": "mvp-travel-prod",
+    "default": "mvp-travel-prod"
+  },
+  "targets": {
+    "mvp-travel-prod": {
+      "hosting": {
+        "admin": [
+          "mvp-travel-prod"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

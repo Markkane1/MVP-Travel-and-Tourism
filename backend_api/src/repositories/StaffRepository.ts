@@ -16,6 +16,13 @@ export class StaffRepository {
     });
   }
 
+  async findAll() {
+    return prisma.staffProfile.findMany({
+      include: { user: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async create(data: Prisma.StaffProfileUncheckedCreateInput): Promise<StaffProfile> {
     return prisma.staffProfile.create({ data });
   }

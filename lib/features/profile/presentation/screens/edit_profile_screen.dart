@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -27,7 +27,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   bool _isSaving = false;
   String? _uploadedPhotoUrl;
-  File? _selectedLocalImage;
+  XFile? _selectedLocalImage;
+  Uint8List? _selectedLocalImageBytes;
 
   @override
   void initState() {
@@ -72,11 +73,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     if (source == null) return;
 
-    final XFile? pickedFile = await _picker.pickImage(source: source);
+    final XFile? pickedFile = await _picker.pickImage(
+      source: source,
+      maxWidth: 1600,
+      maxHeight: 1600,
+      imageQuality: 85,
+    );
     if (pickedFile == null) return;
 
+    final bytes = await pickedFile.readAsBytes();
     setState(() {
-      _selectedLocalImage = File(pickedFile.path);
+      _selectedLocalImage = pickedFile;
+      _selectedLocalImageBytes = bytes;
     });
   }
 
@@ -110,7 +118,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         photoUrl: photoUrl,
       );
 
-      // 3. Update Firestore /users/{uid} document
+      // 3. Update the API-backed user profile
       final result = await ref
           .read(profileRepositoryProvider)
           .updateProfile(
@@ -123,7 +131,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         onSuccess: (_) {
           if (mounted) {
             // Force refresh user profile document stream
-            ref.invalidate(userFirestoreDataProvider);
+            ref.invalidate(userProfileDataProvider);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Profile updated successfully.')),
             );
@@ -166,8 +174,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final String email = user.email;
 
     ImageProvider? avatarImage;
-    if (_selectedLocalImage != null) {
-      avatarImage = FileImage(_selectedLocalImage!);
+    if (_selectedLocalImageBytes != null) {
+      avatarImage = MemoryImage(_selectedLocalImageBytes!);
     } else if (_uploadedPhotoUrl != null) {
       avatarImage = NetworkImage(_uploadedPhotoUrl!);
     }

@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class NotificationItem {
   final String id;
   final String title;
@@ -19,17 +17,17 @@ class NotificationItem {
     required this.createdAt,
   });
 
-  factory NotificationItem.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    final timestamp = data['createdAt'] as Timestamp?;
+  factory NotificationItem.fromJson(Map<String, dynamic> data) {
     return NotificationItem(
-      id: doc.id,
+      id: data['id'] as String? ?? '',
       title: data['title'] ?? '',
-      body: data['body'] ?? '',
+      body: data['body'] ?? data['message'] ?? '',
       type: data['type'] ?? 'system',
       deepLink: data['deepLink'] ?? '',
-      read: data['read'] ?? false,
-      createdAt: timestamp?.toDate() ?? DateTime.now(),
+      read: data['read'] ?? data['isRead'] ?? false,
+      createdAt: data['createdAt'] is String
+          ? DateTime.tryParse(data['createdAt'] as String) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 }

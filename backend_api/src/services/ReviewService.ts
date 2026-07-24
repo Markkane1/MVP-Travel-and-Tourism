@@ -54,6 +54,14 @@ export class ReviewService {
     return this.reviewRepository.update(reviewId, { rewardIssued: true });
   }
 
+  async getRecentReviews(limit = 5) {
+    return this.reviewRepository.findRecent(limit);
+  }
+
+  async getTourReviews(tourId: string, limit = 5) {
+    return this.reviewRepository.findByTourId(tourId, limit);
+  }
+
   async updateReview(userId: string, reviewId: string, rating: number, comment?: string) {
     const review = await this.reviewRepository.findById(reviewId);
     if (!review || review.userId !== userId) {

@@ -54,7 +54,7 @@ final class BookingRepositoryProvider
   }
 }
 
-String _$bookingRepositoryHash() => r'175bf857dc34a1236c9915e1869d2d742662c307';
+String _$bookingRepositoryHash() => r'2604efcaad157b84eca3efc7e2341bb73284b0f1';
 
 @ProviderFor(bookingDetails)
 final bookingDetailsProvider = BookingDetailsFamily._();

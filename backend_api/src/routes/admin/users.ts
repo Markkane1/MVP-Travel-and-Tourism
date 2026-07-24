@@ -8,6 +8,7 @@ const adminUserController = new AdminUserController();
 
 router.use(requireAuth, requireAdmin);
 
+router.get('/', adminUserController.listUsers);
 router.post('/', adminUserController.createUser);
 router.patch('/:id', adminUserController.updateUser);
 router.delete('/:id', adminUserController.deleteUser);

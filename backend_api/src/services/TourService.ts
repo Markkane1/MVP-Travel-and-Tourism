@@ -17,7 +17,8 @@ export class TourService {
   }
 
   async createTour(data: Prisma.TourCreateInput) {
-    return this.tourRepository.create(data);
+    const slug = data.slug || this.slugify(data.title);
+    return this.tourRepository.create({ ...data, slug });
   }
 
   async updateTour(id: string, data: Prisma.TourUpdateInput) {
@@ -46,5 +47,13 @@ export class TourService {
       tourId,
       ...data,
     });
+  }
+
+  private slugify(title: string) {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
   }
 }

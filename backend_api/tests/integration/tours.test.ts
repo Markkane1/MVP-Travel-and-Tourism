@@ -14,6 +14,7 @@ integrationDescribe('Tours Flow (Phase 6)', () => {
 
   let adminToken: string;
   let createdTourId: string;
+  const tourTitle = `Integration Test Tour ${Date.now()}`;
 
   beforeAll(async () => {
     const registerRes = await request(app)
@@ -40,7 +41,7 @@ integrationDescribe('Tours Flow (Phase 6)', () => {
       .post('/admin/tours')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
-        title: 'Integration Test Tour',
+        title: tourTitle,
         description: 'Testing the backend',
         type: 'GROUP',
         durationDays: 5,
@@ -60,6 +61,6 @@ integrationDescribe('Tours Flow (Phase 6)', () => {
     
     const found = res.body.find((t: any) => t.id === createdTourId);
     expect(found).toBeDefined();
-    expect(found.title).toBe('Integration Test Tour');
+    expect(found.title).toBe(tourTitle);
   });
 });

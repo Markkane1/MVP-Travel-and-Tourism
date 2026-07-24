@@ -2,12 +2,18 @@ import { UserRepository } from '../repositories/UserRepository';
 import { SessionService } from './SessionService';
 import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
+import crypto from 'crypto';
 import { User } from '@prisma/client';
+import admin from 'firebase-admin';
 import { env } from '../config/env';
 import { AuthResponse, AuthTokens, toAuthUser } from '../types/auth';
 
 const userRepository = new UserRepository();
 const sessionService = new SessionService();
+
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
 type RegisterInput = {
   email: string;
@@ -87,6 +93,31 @@ export class AuthService {
     await sessionService.revokeAllSessions(userId);
   }
 
+  async loginWithFirebaseToken(idToken: string): Promise<AuthResponse> {
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    const email = decoded.email;
+    if (!email) {
+      throw new Error('Firebase account must have an email');
+    }
+
+    let user = await userRepository.findByEmail(email);
+    if (!user) {
+      const name = splitName(decoded.name || email.split('@')[0]);
+      user = await userRepository.create({
+        email,
+        password: await bcrypt.hash(crypto.randomUUID(), 10),
+        firstName: name.firstName,
+        lastName: name.lastName,
+      });
+    }
+
+    if (user.status !== 'ACTIVE') {
+      throw new Error('Account is inactive');
+    }
+
+    return this.generateAuthResponse(user);
+  }
+
   private async generateAuthResponse(user: User): Promise<AuthResponse> {
     const tokens = await this.generateTokens(user);
     return {
@@ -112,7 +143,7 @@ export class AuthService {
       accessTokenOptions,
     );
     const refreshToken = jwt.sign(
-      { userId: user.id },
+      { userId: user.id, jti: crypto.randomUUID() },
       env.jwtRefreshSecret,
       refreshTokenOptions,
     );
@@ -121,4 +152,12 @@ export class AuthService {
 
     return { accessToken, refreshToken };
   }
+}
+
+function splitName(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return {
+    firstName: parts[0] || 'Traveler',
+    lastName: parts.slice(1).join(' ') || 'User',
+  };
 }

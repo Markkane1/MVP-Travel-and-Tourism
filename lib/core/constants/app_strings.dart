@@ -101,29 +101,12 @@ class _CheckoutStrings {
 
   final String title = 'Checkout';
   final String orderSummary = 'Order Summary';
-  final String cardholderNameLabel = 'Cardholder Name';
-  final String cardholderNameHint = 'John Doe';
-  final String cardNumberLabel = 'Card Number';
-  final String cardNumberHint = '4111 2222 3333 4444';
-  final String expiryLabel = 'Expiry';
-  final String expiryHint = 'MM/YY';
-  final String cvvLabel = 'CVV';
-  final String cvvHint = '123';
-  final String saveCardLabel = 'Save card details for future bookings';
   final String bankTransferRow = 'Bank Transfer';
   final String bankTransferTitle = 'Bank Details';
   final String bankTransferInstructions =
       'Please transfer the total amount to the bank details below. Your booking will be processed once the transfer is cleared.';
-  final String bankName = 'MVP International Bank';
-  final String bankAccount = 'Account: 9876-5432-1098';
-  final String bankRouting = 'Routing/IBAN: MVPTAEAAXXX';
   final String footnote =
-      'Secure Checkout — this is a demo payment flow. No real charge will be made.';
-  final String applePayButton = 'Apple Pay';
-  final String googlePayButton = 'Google Pay';
-  final String demoBadge = 'DEMO';
-  final String payWithCard = 'OR PAY WITH CARD';
-  final String payButton = 'Pay';
+      'Secure Checkout - payments are reviewed before booking confirmation.';
   final String paymentFailed = 'Payment failed. Please try again.';
 
   // Success Screen
@@ -220,7 +203,7 @@ class _ProfileStrings {
   final String logoutBody = 'Are you sure you want to sign out?';
   final String deleteAccountTitle = 'Delete Account';
   final String deleteAccountBody =
-      'Warning: This action is permanent. This will delete your profile credentials and completely wipe all Firestore data records.';
+      'Warning: This action is permanent. This will delete your profile credentials and completely wipe all account data records.';
   final String deleteConfirmButton = 'Delete Permanently';
 }
 

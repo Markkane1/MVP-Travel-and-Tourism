@@ -8,6 +8,7 @@ const adminTourController = new AdminTourController();
 
 router.use(requireAuth, requireAdmin);
 
+router.get('/', adminTourController.listTours);
 router.post('/', adminTourController.createTour);
 router.patch('/:id', adminTourController.updateTour);
 router.delete('/:id', adminTourController.deleteTour);

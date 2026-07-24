@@ -10,7 +10,6 @@ import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../auth/auth.dart';
-import '../../data/profile_repository.dart';
 
 class SecurityPrivacyScreen extends ConsumerStatefulWidget {
   const SecurityPrivacyScreen({super.key});
@@ -108,38 +107,17 @@ class _SecurityPrivacyScreenState extends ConsumerState<SecurityPrivacyScreen> {
     });
 
     try {
-      // 1. Call Cloud Function to delete user-related Firestore data
-      final cleanupRes = await ref
-          .read(profileRepositoryProvider)
-          .cleanupUserData();
+      final auth = ref.read(authServiceProvider);
+      final deleteResult = await auth.deleteUserAccount();
 
-      await cleanupRes.when(
+      await deleteResult.when(
         onSuccess: (_) async {
-          // 2. Delete user account from Firebase Auth
-          final auth = ref.read(authServiceProvider);
-          final deleteResult = await auth.deleteUserAccount();
-
-          await deleteResult.when(
-            onSuccess: (_) async {
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Account permanently deleted.')),
-                );
-                context.go(RoutePaths.auth);
-              }
-            },
-            onFailure: (exception) {
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Auth account deletion failed: ${exception.message}',
-                    ),
-                  ),
-                );
-              }
-            },
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Account permanently deleted.')),
+            );
+            context.go(RoutePaths.auth);
+          }
         },
         onFailure: (exception) {
           if (mounted) {

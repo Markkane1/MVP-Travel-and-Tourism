@@ -1,21 +1,23 @@
-import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/env.dart';
+import 'api_client.dart';
 import 'auth_service.dart';
 
 class NotificationService {
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final ApiClient _api;
 
-  NotificationService();
+  NotificationService(this._api);
 
   /// Requests permissions and sets up FCM token updates for the user.
   Future<void> setupNotifications(String uid) async {
     if (Env.skipNotificationSetup) {
+      return;
+    }
+    if (kIsWeb && Env.firebaseMessagingVapidKey.isEmpty) {
       return;
     }
 
@@ -33,7 +35,9 @@ class NotificationService {
         }
 
         // 2. Fetch and save FCM token
-        final token = await _fcm.getToken();
+        final token = await _fcm.getToken(
+          vapidKey: kIsWeb ? Env.firebaseMessagingVapidKey : null,
+        );
         if (token != null) {
           await _saveToken(uid, token);
         }
@@ -45,7 +49,9 @@ class NotificationService {
 
         // 4. Handle foreground notifications
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-          _handleForegroundMessage(uid, message);
+          if (kDebugMode) {
+            print('Foreground push received: ${message.messageId}');
+          }
         });
       }
     } catch (e) {
@@ -56,69 +62,22 @@ class NotificationService {
   }
 
   Future<void> _saveToken(String uid, String token) async {
-    try {
-      await _firestore.collection('users').doc(uid).update({'fcmToken': token});
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error saving FCM token to user profile: $e');
-      }
-    }
-  }
-
-  /// Writes foreground messaging payloads into the in-app notifications subcollection.
-  Future<void> _handleForegroundMessage(
-    String uid,
-    RemoteMessage message,
-  ) async {
-    final notification = message.notification;
-    if (notification == null) return;
-
-    try {
-      await _firestore
-          .collection('notifications')
-          .doc(uid)
-          .collection('items')
-          .add({
-            'title': notification.title ?? '',
-            'body': notification.body ?? '',
-            'type': message.data['type'] ?? 'system',
-            'deepLink': message.data['deepLink'] ?? '',
-            'read': false,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error handling foreground notification write: $e');
-      }
+    // ponytail: token persistence needs a UserDeviceToken table; add it when API sends FCM.
+    if (kDebugMode) {
+      final preview = token.length < 8 ? token : token.substring(0, 8);
+      print('FCM token received for $uid: $preview...');
     }
   }
 
   /// Watch stream of unread notification counts.
   Stream<int> watchUnreadCount(String uid) {
-    return _firestore
-        .collection('notifications')
-        .doc(uid)
-        .collection('items')
-        .where('read', isEqualTo: false)
-        .snapshots()
-        .map((snap) => snap.docs.length);
+    return Stream.fromFuture(_unreadCount());
   }
 
   /// Marks all unread user notifications as read.
   Future<void> markAllAsRead(String uid) async {
     try {
-      final snap = await _firestore
-          .collection('notifications')
-          .doc(uid)
-          .collection('items')
-          .where('read', isEqualTo: false)
-          .get();
-
-      final batch = _firestore.batch();
-      for (var doc in snap.docs) {
-        batch.update(doc.reference, {'read': true});
-      }
-      await batch.commit();
+      await _api.postJson('/notifications/read-all', {});
     } catch (e) {
       if (kDebugMode) {
         print('Error marking all notifications read: $e');
@@ -129,23 +88,26 @@ class NotificationService {
   /// Marks a specific notification item as read.
   Future<void> markAsRead(String uid, String notificationId) async {
     try {
-      await _firestore
-          .collection('notifications')
-          .doc(uid)
-          .collection('items')
-          .doc(notificationId)
-          .update({'read': true});
+      await _api.postJson('/notifications/$notificationId/read', {});
     } catch (e) {
       if (kDebugMode) {
         print('Error marking notification item read: $e');
       }
     }
   }
+
+  Future<int> _unreadCount() async {
+    final data = await _api.getJson('/notifications/me', authenticated: true);
+    return (data as List).where((item) {
+      if (item is! Map) return false;
+      return item['isRead'] == false || item['read'] == false;
+    }).length;
+  }
 }
 
 /// Provider for the NotificationService instance.
 final notificationServiceProvider = Provider<NotificationService>((ref) {
-  return NotificationService();
+  return NotificationService(ref.watch(apiClientProvider));
 });
 
 /// Riverpod stream provider for unread count.

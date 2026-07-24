@@ -1,94 +1,60 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../../core/utils/safe_stream.dart';
+import '../../../../core/services/api_client.dart';
 
 import '../domain/tour.dart';
 import '../domain/review.dart';
 
 part 'explore_repository.g.dart';
 
-/// Repository responsible for streaming Explore dashboard sections from Firestore.
+/// Repository responsible for loading Explore dashboard sections from the API.
 class ExploreRepository {
-  final FirebaseFirestore _firestore;
+  final ApiClient _api;
 
-  ExploreRepository(this._firestore);
+  ExploreRepository(this._api);
 
-  /// Streams tours with the "Exclusive" badge for the Hero Promo Carousel.
   Stream<List<Tour>> watchHeroPromotions() {
-    return _firestore
-        .collection('tours')
-        .where('badges', arrayContains: 'Exclusive')
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = Map<String, dynamic>.from(doc.data());
-            data['id'] = doc.id;
-            return Tour.fromJson(_mapTourData(data));
-          }).toList();
-        })
-        .mapAppException('Failed to load hero promotions');
+    return Stream.fromFuture(_fetchTours());
   }
 
-  /// Streams tours with the "Featured" badge.
   Stream<List<Tour>> watchFeaturedTours() {
-    return _firestore
-        .collection('tours')
-        .where('badges', arrayContains: 'Featured')
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = Map<String, dynamic>.from(doc.data());
-            data['id'] = doc.id;
-            return Tour.fromJson(_mapTourData(data));
-          }).toList();
-        })
-        .mapAppException('Failed to load featured tours');
+    return Stream.fromFuture(_fetchTours());
   }
 
-  /// Streams tours with the "Top Rated" badge.
   Stream<List<Tour>> watchPopularDestinations() {
-    return _firestore
-        .collection('tours')
-        .where('badges', arrayContains: 'Top Rated')
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = Map<String, dynamic>.from(doc.data());
-            data['id'] = doc.id;
-            return Tour.fromJson(_mapTourData(data));
-          }).toList();
-        })
-        .mapAppException('Failed to load popular destinations');
+    return Stream.fromFuture(_fetchTours());
   }
 
-  /// Streams the 5 most recent reviews using a collectionGroup query.
   Stream<List<Review>> watchRecentReviews() {
-    return _firestore
-        .collectionGroup('reviews')
-        .orderBy('createdAt', descending: true)
-        .limit(5)
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = Map<String, dynamic>.from(doc.data());
-            data['id'] = doc.id;
+    return Stream.fromFuture(_fetchReviews('/reviews/recent'));
+  }
 
-            // Convert Firestore Timestamp to ISO-8601 String for json_serializable
-            if (data['createdAt'] is Timestamp) {
-              data['createdAt'] = (data['createdAt'] as Timestamp)
-                  .toDate()
-                  .toIso8601String();
-            }
-            return Review.fromJson(_mapReviewData(data));
-          }).toList();
-        })
-        .mapAppException('Failed to load recent reviews');
+  Future<List<Tour>> _fetchTours() async {
+    final data = await _api.getJson('/tours');
+    return (data as List)
+        .whereType<Map>()
+        .map(
+          (tour) =>
+              Tour.fromJson(_mapTourData(Map<String, dynamic>.from(tour))),
+        )
+        .toList();
+  }
+
+  Future<List<Review>> _fetchReviews(String path) async {
+    final data = await _api.getJson(path);
+    return (data as List)
+        .whereType<Map>()
+        .map(
+          (review) => Review.fromJson(
+            _mapReviewData(Map<String, dynamic>.from(review)),
+          ),
+        )
+        .toList();
   }
 }
 
 @riverpod
 ExploreRepository exploreRepository(Ref ref) {
-  return ExploreRepository(FirebaseFirestore.instance);
+  return ExploreRepository(ref.watch(apiClientProvider));
 }
 
 @riverpod
@@ -113,8 +79,8 @@ Stream<List<Review>> recentReviews(Ref ref) {
 
 Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
   data['title'] = data['title'] as String? ?? '';
-  data['destination'] = data['destination'] as String? ?? '';
-  data['category'] = data['category'] as String? ?? '';
+  data['destination'] = data['destination'] as String? ?? data['title'];
+  data['category'] = data['category'] as String? ?? data['type'] ?? 'Tour';
   data['badges'] =
       (data['badges'] as List?)?.cast<String>() ?? const <String>[];
   data['heroImageUrl'] = data['heroImageUrl'] as String? ?? '';
@@ -125,9 +91,9 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
   data['ratingCount'] = (data['ratingCount'] as num?)?.toInt() ?? 0;
   data['durationDays'] = (data['durationDays'] as num?)?.toInt() ?? 0;
   data['maxParticipants'] = (data['maxParticipants'] as num?)?.toInt() ?? 0;
-  data['overview'] = data['overview'] as String? ?? '';
+  data['overview'] = data['overview'] as String? ?? data['description'] ?? '';
   data['itinerary'] =
-      (data['itinerary'] as List?)
+      ((data['itinerary'] ?? data['itineraries']) as List?)
           ?.whereType<Map>()
           .map((step) => Map<String, dynamic>.from(step))
           .toList() ??
@@ -136,17 +102,19 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
       (data['inclusions'] as List?)?.cast<String>() ?? const <String>[];
   data['latitude'] = (data['latitude'] as num?)?.toDouble() ?? 0.0;
   data['longitude'] = (data['longitude'] as num?)?.toDouble() ?? 0.0;
-  if (data['availableDates'] is List) {
-    data['availableDates'] = (data['availableDates'] as List).map((timestamp) {
-      if (timestamp is Timestamp) {
-        return timestamp.toDate().toIso8601String();
-      }
-      return timestamp;
+  final dates = data['availableDates'] ?? data['dates'];
+  if (dates is List) {
+    data['availableDates'] = dates.map((date) {
+      if (date is Map && date['startDate'] != null) return date['startDate'];
+      return date;
     }).toList();
   } else {
     data['availableDates'] = const <String>[];
   }
-  data['pricePerPerson'] = (data['pricePerPerson'] as num?)?.toDouble() ?? 0.0;
+  data['pricePerPerson'] =
+      (data['pricePerPerson'] as num?)?.toDouble() ??
+      (data['basePrice'] as num?)?.toDouble() ??
+      0.0;
   data['privateVehicleSurcharge'] =
       (data['privateVehicleSurcharge'] as num?)?.toDouble() ?? 0.0;
   if (data['groupSizeOptions'] is List) {
@@ -168,16 +136,24 @@ Map<String, dynamic> _mapTourData(Map<String, dynamic> data) {
 
 Map<String, dynamic> _mapReviewData(Map<String, dynamic> data) {
   data['id'] = data['id'] as String? ?? '';
-  data['userName'] = data['userName'] as String? ?? 'Anonymous';
+  final user = data['user'] is Map
+      ? Map<String, dynamic>.from(data['user'] as Map)
+      : const <String, dynamic>{};
+  data['userName'] =
+      data['userName'] as String? ??
+      [
+        user['firstName'],
+        user['lastName'],
+      ].whereType<String>().join(' ').trim();
+  if ((data['userName'] as String).isEmpty) data['userName'] = 'Anonymous';
   data['userPhotoUrl'] = data['userPhotoUrl'] as String? ?? '';
-  data['overallRating'] = (data['overallRating'] as num?)?.toDouble() ?? 0.0;
+  data['overallRating'] =
+      (data['overallRating'] as num?)?.toDouble() ??
+      (data['rating'] as num?)?.toDouble() ??
+      0.0;
   data['comment'] = data['comment'] as String? ?? '';
   if (data['createdAt'] is String) {
     data['createdAt'] = data['createdAt'] as String;
-  } else if (data['createdAt'] is Timestamp) {
-    data['createdAt'] = (data['createdAt'] as Timestamp)
-        .toDate()
-        .toIso8601String();
   } else {
     data['createdAt'] = DateTime.now().toIso8601String();
   }

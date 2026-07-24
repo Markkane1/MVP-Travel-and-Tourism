@@ -74,14 +74,26 @@ test('payment intent uses booking amount and blocks cross-user access', async ()
     create: jest.fn().mockResolvedValue({
       id: 'payment-1',
       bookingId: 'booking-1',
-      stripeIntentId: 'pi_mock_fixed',
+      stripeIntentId: 'pi_real_fixed',
       amount: 18000,
       currency: 'USD',
       status: 'PENDING',
     }),
   };
+  const stripeClient = {
+    paymentIntents: {
+      create: jest.fn().mockResolvedValue({
+        id: 'pi_real_fixed',
+        client_secret: 'pi_real_fixed_secret',
+      }),
+    },
+  };
 
-  const service = new PaymentService(paymentRepository as any, bookingService as any);
+  const service = new PaymentService(
+    paymentRepository as any,
+    bookingService as any,
+    stripeClient as any,
+  );
   const result = await service.createPaymentIntent('user-1', 'booking-1');
 
   expect(paymentRepository.create).toHaveBeenCalledWith(

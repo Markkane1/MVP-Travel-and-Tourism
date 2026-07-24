@@ -8,6 +8,7 @@ const adminServiceController = new AdminServiceController();
 
 router.use(requireAuth, requireAdmin);
 
+router.get('/', adminServiceController.listServices);
 router.post('/', adminServiceController.createService);
 router.patch('/:id', adminServiceController.updateService);
 router.delete('/:id', adminServiceController.deleteService);

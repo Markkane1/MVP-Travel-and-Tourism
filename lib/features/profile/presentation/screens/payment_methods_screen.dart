@@ -1,5 +1,3 @@
-// Demo-only payment method manager. This screen stores display metadata only, never real card data.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_radii.dart';
-import '../../../../core/widgets/primary_button.dart';
-import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/services/auth_service.dart';
@@ -60,20 +56,6 @@ class PaymentMethodsScreen extends ConsumerWidget {
     }
   }
 
-  void _showAddPaymentMethodSheet(BuildContext context, String uid) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
-      ),
-      builder: (context) {
-        return _AddPaymentMethodForm(uid: uid);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authServiceProvider).currentUser;
@@ -100,7 +82,6 @@ class PaymentMethodsScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // List of saved payment methods
           Expanded(
             child: methodsState.when(
               loading: () => const Center(child: LoadingIndicator()),
@@ -112,7 +93,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
                     child: Padding(
                       padding: EdgeInsets.all(AppSpacing.containerMargin),
                       child: Text(
-                        'No payment methods saved yet.\nYou can save cards during checkout or add one here.',
+                        'No saved payment methods.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: AppColors.onSurfaceVariant),
                       ),
@@ -129,15 +110,6 @@ class PaymentMethodsScreen extends ConsumerWidget {
                   },
                 );
               },
-            ),
-          ),
-
-          // Sticky bottom Add Button
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.containerMargin),
-            child: PrimaryButton(
-              label: 'Add Payment Method',
-              onPressed: () => _showAddPaymentMethodSheet(context, user.uid),
             ),
           ),
         ],
@@ -217,164 +189,6 @@ class PaymentMethodsScreen extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _AddPaymentMethodForm extends ConsumerStatefulWidget {
-  final String uid;
-
-  const _AddPaymentMethodForm({required this.uid});
-
-  @override
-  ConsumerState<_AddPaymentMethodForm> createState() =>
-      _AddPaymentMethodFormState();
-}
-
-class _AddPaymentMethodFormState extends ConsumerState<_AddPaymentMethodForm> {
-  final _last4Controller = TextEditingController();
-  String _selectedBrand = 'Visa';
-  bool _isDefault = false;
-  bool _isSaving = false;
-
-  @override
-  void dispose() {
-    _last4Controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _saveMethod() async {
-    final cleanL4 = _last4Controller.text.trim();
-    if (cleanL4.length != 4 || int.tryParse(cleanL4) == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter exactly 4 digits.')),
-      );
-      return;
-    }
-
-    setState(() {
-      _isSaving = true;
-    });
-
-    try {
-      final result = await ref
-          .read(profileRepositoryProvider)
-          .savePaymentMethod(
-            uid: widget.uid,
-            brand: _selectedBrand,
-            last4: cleanL4,
-            isDefault: _isDefault,
-          );
-
-      await result.when(
-        onSuccess: (_) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Payment method added successfully.'),
-              ),
-            );
-            Navigator.pop(context);
-          }
-        },
-        onFailure: (exception) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Failed to save card: ${exception.message}'),
-              ),
-            );
-          }
-        },
-      );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save card: ${e.toString()}')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: AppSpacing.containerMargin,
-        right: AppSpacing.containerMargin,
-        top: 24.0,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24.0,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Add Payment Method',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
-          ),
-          const SizedBox(height: 16.0),
-
-          // Brand dropdown
-          DropdownButtonFormField<String>(
-            // ignore: deprecated_member_use
-            value: _selectedBrand,
-            decoration: const InputDecoration(
-              labelText: 'Card Brand',
-              border: OutlineInputBorder(),
-            ),
-            items: ['Visa', 'Mastercard', 'Amex', 'Other'].map((brand) {
-              return DropdownMenuItem<String>(value: brand, child: Text(brand));
-            }).toList(),
-            onChanged: (val) {
-              if (val != null) {
-                setState(() {
-                  _selectedBrand = val;
-                });
-              }
-            },
-          ),
-          AppSpacing.gapMd,
-
-          // Last 4 field
-          AppTextField(
-            controller: _last4Controller,
-            labelText: 'Last 4 Digits',
-            hintText: 'e.g. 4321',
-            keyboardType: TextInputType.number,
-          ),
-          AppSpacing.gapMd,
-
-          // Default checkbox
-          Row(
-            children: [
-              Checkbox(
-                value: _isDefault,
-                activeColor: AppColors.primary,
-                onChanged: (val) {
-                  setState(() {
-                    _isDefault = val ?? false;
-                  });
-                },
-              ),
-              const Text('Set as default payment method'),
-            ],
-          ),
-          AppSpacing.gapLg,
-
-          PrimaryButton(
-            label: 'Add Card',
-            isLoading: _isSaving,
-            onPressed: _saveMethod,
-          ),
-        ],
       ),
     );
   }

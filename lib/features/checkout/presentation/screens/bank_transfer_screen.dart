@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/config/env.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -74,52 +75,50 @@ class BankTransferScreen extends StatelessWidget {
             AppSpacing.gapLg,
 
             // Bank details Card
-            AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Wire Information',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.onSurface,
+            Env.hasBankTransferDetails
+                ? AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Wire Information',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 16.0),
+                        _buildDetailRow(context, 'Bank Name', Env.bankName),
+                        _buildDivider(),
+                        _buildDetailRow(
+                          context,
+                          'Account Title',
+                          Env.bankAccountTitle,
+                        ),
+                        _buildDivider(),
+                        _buildDetailRow(
+                          context,
+                          'Account Number',
+                          Env.bankAccountNumber,
+                        ),
+                        _buildDivider(),
+                        _buildDetailRow(context, 'IBAN', Env.bankIban),
+                        _buildDivider(),
+                        _buildDetailRow(
+                          context,
+                          'Total Amount',
+                          amountStr,
+                          valueColor: AppColors.primary,
+                          isBold: true,
+                        ),
+                      ],
+                    ),
+                  )
+                : const AppCard(
+                    child: Text(
+                      'Bank transfer details are not configured for this build.',
                     ),
                   ),
-                  const SizedBox(height: 16.0),
-                  _buildDetailRow(
-                    context,
-                    'Bank Name',
-                    AppStrings.checkout.bankName,
-                  ),
-                  _buildDivider(),
-                  _buildDetailRow(
-                    context,
-                    'Account Number',
-                    AppStrings.checkout.bankAccount.replaceFirst(
-                      'Account: ',
-                      '',
-                    ),
-                  ),
-                  _buildDivider(),
-                  _buildDetailRow(
-                    context,
-                    'Routing Code',
-                    AppStrings.checkout.bankRouting.replaceFirst(
-                      'Routing/IBAN: ',
-                      '',
-                    ),
-                  ),
-                  _buildDivider(),
-                  _buildDetailRow(
-                    context,
-                    'Total Amount',
-                    amountStr,
-                    valueColor: AppColors.primary,
-                    isBold: true,
-                  ),
-                ],
-              ),
-            ),
             AppSpacing.gapLg,
 
             // Support Note
@@ -157,11 +156,16 @@ class BankTransferScreen extends StatelessWidget {
               context,
             ).textTheme.bodyMedium?.copyWith(color: AppColors.onSurfaceVariant),
           ),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-              color: valueColor ?? AppColors.onSurface,
+          const SizedBox(width: 12.0),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              overflow: TextOverflow.visible,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
+                color: valueColor ?? AppColors.onSurface,
+              ),
             ),
           ),
         ],

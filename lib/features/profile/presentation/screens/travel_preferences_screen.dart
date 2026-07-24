@@ -29,8 +29,8 @@ class _TravelPreferencesScreenState
   @override
   void initState() {
     super.initState();
-    // Load initial values from Firestore
-    final profileState = ref.read(userFirestoreDataProvider).value;
+    // Load initial values from the user profile.
+    final profileState = ref.read(userProfileDataProvider).value;
     if (profileState != null && profileState['preferences'] is Map) {
       final prefs = profileState['preferences'] as Map;
       _dietaryController.text = prefs['dietary'] ?? '';
@@ -63,7 +63,7 @@ class _TravelPreferencesScreenState
       await result.when(
         onSuccess: (_) {
           if (mounted) {
-            ref.invalidate(userFirestoreDataProvider);
+            ref.invalidate(userProfileDataProvider);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Preferences saved successfully.')),
             );

@@ -43,7 +43,7 @@ class TermsOfUseScreen extends StatelessWidget {
             Text('2. User Obligations', style: textTheme.headlineSmall),
             AppSpacing.gapBase,
             Text(
-              'You agree to provide accurate and complete email, profile details, and payment authorization credentials. Impersonating other users or attempting to circumvent Firestore databases and Storage controls is strictly prohibited.',
+              'You agree to provide accurate and complete email, profile details, and payment authorization credentials. Impersonating other users or attempting to circumvent account data and media controls is strictly prohibited.',
               style: textTheme.bodyMedium,
             ),
             const SizedBox(height: 48.0),
@@ -99,7 +99,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             Text('2. Data Security', style: textTheme.headlineSmall),
             AppSpacing.gapBase,
             Text(
-              'Access to Firestore collections is protected by strict role-based security rules. Uploaded photos are compressed locally prior to upload and stored in secure user-isolated folders.',
+              'Access to account data is protected by strict role-based API authorization. Uploaded photos are compressed locally prior to upload and stored in secure user-isolated media folders.',
               style: textTheme.bodyMedium,
             ),
             const SizedBox(height: 48.0),

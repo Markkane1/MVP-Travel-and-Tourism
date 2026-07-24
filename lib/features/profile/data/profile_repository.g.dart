@@ -54,16 +54,16 @@ final class ProfileRepositoryProvider
   }
 }
 
-String _$profileRepositoryHash() => r'1887db296ccf638d79d2d1ef971c502a91b4f0d8';
+String _$profileRepositoryHash() => r'a89dee20163feb56ab0747b1feb60c3b53ae5b11';
 
-/// Provider that reactively streams the current user's profile document from Firestore.
+/// Provider that reactively streams the current user's profile from the API.
 
-@ProviderFor(userFirestoreData)
-final userFirestoreDataProvider = UserFirestoreDataProvider._();
+@ProviderFor(userProfileData)
+final userProfileDataProvider = UserProfileDataProvider._();
 
-/// Provider that reactively streams the current user's profile document from Firestore.
+/// Provider that reactively streams the current user's profile from the API.
 
-final class UserFirestoreDataProvider
+final class UserProfileDataProvider
     extends
         $FunctionalProvider<
           AsyncValue<Map<String, dynamic>?>,
@@ -73,20 +73,20 @@ final class UserFirestoreDataProvider
     with
         $FutureModifier<Map<String, dynamic>?>,
         $StreamProvider<Map<String, dynamic>?> {
-  /// Provider that reactively streams the current user's profile document from Firestore.
-  UserFirestoreDataProvider._()
+  /// Provider that reactively streams the current user's profile from the API.
+  UserProfileDataProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'userFirestoreDataProvider',
+        name: r'userProfileDataProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$userFirestoreDataHash();
+  String debugGetCreateSourceHash() => _$userProfileDataHash();
 
   @$internal
   @override
@@ -96,11 +96,11 @@ final class UserFirestoreDataProvider
 
   @override
   Stream<Map<String, dynamic>?> create(Ref ref) {
-    return userFirestoreData(ref);
+    return userProfileData(ref);
   }
 }
 
-String _$userFirestoreDataHash() => r'bead87818f96504832825092b9d9dc9f02e037ce';
+String _$userProfileDataHash() => r'99845fc5dfd0250f2b479a552d9c4d7333ec3a60';
 
 @ProviderFor(paymentMethodsStream)
 final paymentMethodsStreamProvider = PaymentMethodsStreamFamily._();
