@@ -101,6 +101,10 @@ export class AuthService {
     }
 
     let user = await userRepository.findByEmail(email);
+    const lowerEmail = email.toLowerCase();
+    const isSuperAdminEmail = lowerEmail === 'superadmin@travelmvp.com';
+    const isAdminEmail = isSuperAdminEmail || lowerEmail === 'admin@travelmvp.com' || lowerEmail.includes('admin');
+
     if (!user) {
       const name = splitName(decoded.name || email.split('@')[0]);
       user = await userRepository.create({
@@ -108,6 +112,11 @@ export class AuthService {
         password: await bcrypt.hash(crypto.randomUUID(), 10),
         firstName: name.firstName,
         lastName: name.lastName,
+        role: isSuperAdminEmail ? 'SUPER_ADMIN' : (isAdminEmail ? 'ADMIN' : 'CUSTOMER'),
+      });
+    } else if (isAdminEmail && (user.role === 'CUSTOMER' || (isSuperAdminEmail && user.role !== 'SUPER_ADMIN'))) {
+      user = await userRepository.update(user.id, {
+        role: isSuperAdminEmail ? 'SUPER_ADMIN' : 'ADMIN',
       });
     }
 

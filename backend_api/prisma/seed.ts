@@ -3,26 +3,44 @@ import prisma from '../src/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 async function main() {
-  const email = 'admin@travelmvp.com';
-  const password = await bcrypt.hash('admin123', 10);
-  
-  const user = await prisma.user.upsert({
-    where: { email },
+  const adminPassword = await bcrypt.hash('admin123', 10);
+  const superAdminPassword = await bcrypt.hash('SuperAdmin123!', 10);
+
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@travelmvp.com' },
     update: {
-      password,
-      role: 'ADMIN',
+      password: adminPassword,
+      role: 'SUPER_ADMIN',
+      status: 'ACTIVE',
     },
     create: {
-      email,
-      password,
-      firstName: 'Super',
-      lastName: 'Admin',
-      role: 'ADMIN',
+      email: 'admin@travelmvp.com',
+      password: adminPassword,
+      firstName: 'Admin',
+      lastName: 'User',
+      role: 'SUPER_ADMIN',
       status: 'ACTIVE',
     },
   });
 
-  console.log('Admin user seeded:', user);
+  const superAdmin = await prisma.user.upsert({
+    where: { email: 'superadmin@travelmvp.com' },
+    update: {
+      password: superAdminPassword,
+      role: 'SUPER_ADMIN',
+      status: 'ACTIVE',
+    },
+    create: {
+      email: 'superadmin@travelmvp.com',
+      password: superAdminPassword,
+      firstName: 'Super',
+      lastName: 'Admin',
+      role: 'SUPER_ADMIN',
+      status: 'ACTIVE',
+    },
+  });
+
+  console.log('Seeded users:', { admin, superAdmin });
 }
 
 main()

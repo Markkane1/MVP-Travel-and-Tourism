@@ -24,7 +24,7 @@ class Env {
 
   static const String appCheckWebSiteKey = String.fromEnvironment(
     'FIREBASE_APP_CHECK_WEB_KEY',
-    defaultValue: '',
+    defaultValue: '6LfBW2MtAAAAAGw29B4LzyvWEjaHV0BqVXCsw1mZ',
   );
 
   static bool get hasProductionAppCheckWebSiteKey =>
