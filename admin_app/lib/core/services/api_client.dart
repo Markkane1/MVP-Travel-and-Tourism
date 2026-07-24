@@ -68,11 +68,26 @@ class ApiClient {
         : jsonDecode(response.body) as Map<String, dynamic>;
   }
 
+  String? _cachedAccessToken;
+  DateTime? _tokenExpiry;
+  String? _cachedFirebaseUid;
+
   Future<String> _accessToken() async {
-    final idToken = await _auth.currentUser?.getIdToken();
-    if (idToken == null) {
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) {
       throw Exception('Sign in before calling the API.');
     }
+
+    final now = DateTime.now();
+    // Reuse cached token if still valid and for the same user
+    if (_cachedAccessToken != null &&
+        _tokenExpiry != null &&
+        now.isBefore(_tokenExpiry!) &&
+        _cachedFirebaseUid == firebaseUser.uid) {
+      return _cachedAccessToken!;
+    }
+
+    final idToken = await firebaseUser.getIdToken();
     final response = await _client.post(
       Uri.parse('${Env.apiBaseUrl}/auth/firebase'),
       headers: {'Content-Type': 'application/json'},
@@ -81,8 +96,18 @@ class ApiClient {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception(_errorMessage(response));
     }
-    return (jsonDecode(response.body) as Map<String, dynamic>)['accessToken']
-        as String;
+    final token = (jsonDecode(response.body) as Map<String, dynamic>)['accessToken'] as String;
+    _cachedAccessToken = token;
+    _cachedFirebaseUid = firebaseUser.uid;
+    // Cache for 14 minutes (backend JWT expires in 15 min)
+    _tokenExpiry = now.add(const Duration(minutes: 14));
+    return token;
+  }
+
+  void clearTokenCache() {
+    _cachedAccessToken = null;
+    _tokenExpiry = null;
+    _cachedFirebaseUid = null;
   }
 
   String _errorMessage(http.Response response) {

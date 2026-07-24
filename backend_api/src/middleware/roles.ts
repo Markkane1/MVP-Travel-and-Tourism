@@ -22,7 +22,8 @@ export const requireRole = (roles: Role[]) => {
       return;
     }
 
-    if (privilegedRoles.includes(req.user.role)) {
+    // SUPER_ADMIN bypasses staff profile requirement
+    if (req.user.role !== 'SUPER_ADMIN' && privilegedRoles.includes(req.user.role)) {
       const staffProfile = await staffRepository.findActiveByUserId(req.user.id);
       if (!staffProfile) {
         res.status(403).json({ error: 'Active staff profile required' });
