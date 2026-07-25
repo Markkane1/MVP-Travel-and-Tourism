@@ -10,7 +10,7 @@ async function main() {
     where: { email: 'admin@travelmvp.com' },
     update: {
       password: adminPassword,
-      role: 'SUPER_ADMIN',
+      role: 'ADMIN',
       status: 'ACTIVE',
     },
     create: {
@@ -18,7 +18,7 @@ async function main() {
       password: adminPassword,
       firstName: 'Admin',
       lastName: 'User',
-      role: 'SUPER_ADMIN',
+      role: 'ADMIN',
       status: 'ACTIVE',
     },
   });

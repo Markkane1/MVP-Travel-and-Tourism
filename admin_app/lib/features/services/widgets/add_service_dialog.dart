@@ -26,7 +26,6 @@ class _AddServiceDialogState extends ConsumerState<AddServiceDialog> {
   bool _isActive = true;
   bool _isSubmitting = false;
   bool _isUploadingImage = false;
-  final _cloudinaryService = CloudinaryService();
 
   final List<String> _unitTypes = [
     'per_booking',
@@ -59,11 +58,13 @@ class _AddServiceDialogState extends ConsumerState<AddServiceDialog> {
 
     setState(() => _isUploadingImage = true);
     try {
-      final url = await _cloudinaryService.uploadImage(
-        bytes: result.files.first.bytes!,
-        folder: 'services',
-        fileName: result.files.first.name,
-      );
+      final url = await ref
+          .read(cloudinaryServiceProvider)
+          .uploadImage(
+            bytes: result.files.first.bytes!,
+            folder: 'services',
+            fileName: result.files.first.name,
+          );
       setState(() {
         _imageUrlController.text = url;
       });

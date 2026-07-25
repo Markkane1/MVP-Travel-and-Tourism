@@ -31,7 +31,7 @@ class NotificationService {
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         if (kDebugMode) {
-          print('User granted notification permissions.');
+          debugPrint('User granted notification permissions.');
         }
 
         // 2. Fetch and save FCM token
@@ -50,13 +50,13 @@ class NotificationService {
         // 4. Handle foreground notifications
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
           if (kDebugMode) {
-            print('Foreground push received: ${message.messageId}');
+            debugPrint('Foreground push received: ${message.messageId}');
           }
         });
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error setting up notification services: $e');
+        debugPrint('Error setting up notification services: $e');
       }
     }
   }
@@ -65,7 +65,7 @@ class NotificationService {
     // ponytail: token persistence needs a UserDeviceToken table; add it when API sends FCM.
     if (kDebugMode) {
       final preview = token.length < 8 ? token : token.substring(0, 8);
-      print('FCM token received for $uid: $preview...');
+      debugPrint('FCM token received for $uid: $preview...');
     }
   }
 
@@ -80,7 +80,7 @@ class NotificationService {
       await _api.postJson('/notifications/read-all', {});
     } catch (e) {
       if (kDebugMode) {
-        print('Error marking all notifications read: $e');
+        debugPrint('Error marking all notifications read: $e');
       }
     }
   }
@@ -91,7 +91,7 @@ class NotificationService {
       await _api.postJson('/notifications/$notificationId/read', {});
     } catch (e) {
       if (kDebugMode) {
-        print('Error marking notification item read: $e');
+        debugPrint('Error marking notification item read: $e');
       }
     }
   }

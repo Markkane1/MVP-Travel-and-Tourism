@@ -56,8 +56,8 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
         } else {
           PlatformDispatcher.instance.onError = (error, stack) {
             if (kDebugMode) {
-              print('Uncaught async error in debug mode: $error');
-              print(stack);
+              debugPrint('Uncaught async error in debug mode: $error');
+              debugPrintStack(stackTrace: stack);
             }
             return true;
           };
@@ -72,31 +72,11 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
           // Log to crashlytics
         } else {
           if (kDebugMode) {
-            print('Caught unhandled error in zone: $error');
-            print(stackTrace);
+            debugPrint('Caught unhandled error in zone: $error');
+            debugPrintStack(stackTrace: stackTrace);
           }
         }
       },
     ),
   );
-}
-
-class _FatalConfigApp extends StatelessWidget {
-  final String message;
-
-  const _FatalConfigApp({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(message, textAlign: TextAlign.center),
-          ),
-        ),
-      ),
-    );
-  }
 }

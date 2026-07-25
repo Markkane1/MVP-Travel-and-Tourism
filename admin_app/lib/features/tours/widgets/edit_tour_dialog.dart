@@ -77,7 +77,6 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
 
   bool _isSubmitting = false;
   bool _isUploadingImage = false;
-  final _cloudinaryService = CloudinaryService();
 
   @override
   void initState() {
@@ -192,11 +191,13 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
 
     setState(() => _isUploadingImage = true);
     try {
-      final url = await _cloudinaryService.uploadImage(
-        bytes: result.files.first.bytes!,
-        folder: 'tours/heroes',
-        fileName: result.files.first.name,
-      );
+      final url = await ref
+          .read(cloudinaryServiceProvider)
+          .uploadImage(
+            bytes: result.files.first.bytes!,
+            folder: 'tours/heroes',
+            fileName: result.files.first.name,
+          );
       _heroUrlController.text = url;
     } catch (e) {
       if (mounted) {
@@ -222,11 +223,13 @@ class _EditTourDialogState extends ConsumerState<EditTourDialog> {
 
     setState(() => _isUploadingImage = true);
     try {
-      final url = await _cloudinaryService.uploadImage(
-        bytes: result.files.first.bytes!,
-        folder: 'tours/gallery',
-        fileName: result.files.first.name,
-      );
+      final url = await ref
+          .read(cloudinaryServiceProvider)
+          .uploadImage(
+            bytes: result.files.first.bytes!,
+            folder: 'tours/gallery',
+            fileName: result.files.first.name,
+          );
       _galleryControllers[index].text = url;
     } catch (e) {
       if (mounted) {

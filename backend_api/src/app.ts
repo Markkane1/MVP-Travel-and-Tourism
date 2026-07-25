@@ -35,7 +35,7 @@ app.use(cors({
       callback(null, true);
       return;
     }
-    callback(null, true);
+    callback(null, false);
   },
   credentials: true,
 }));

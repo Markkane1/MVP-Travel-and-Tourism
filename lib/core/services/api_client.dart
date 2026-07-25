@@ -12,6 +12,16 @@ class ApiClient {
 
   ApiClient(this._auth, this._client);
 
+  String? _cachedAccessToken;
+  DateTime? _tokenExpiry;
+  String? _cachedFirebaseUid;
+
+  void clearTokenCache() {
+    _cachedAccessToken = null;
+    _tokenExpiry = null;
+    _cachedFirebaseUid = null;
+  }
+
   Future<dynamic> getJson(String path, {bool authenticated = false}) async {
     final response = await _client.get(
       Uri.parse('${Env.apiBaseUrl}$path'),
@@ -81,17 +91,31 @@ class ApiClient {
   }
 
   Future<String> _accessToken() async {
-    final idToken = await _auth.currentUser?.getIdToken();
-    if (idToken == null) {
+    final user = _auth.currentUser;
+    if (user == null) {
       throw Exception('Sign in before calling the API.');
     }
+    final now = DateTime.now();
+    if (_cachedAccessToken != null &&
+        _tokenExpiry != null &&
+        now.isBefore(_tokenExpiry!) &&
+        _cachedFirebaseUid == user.uid) {
+      return _cachedAccessToken!;
+    }
+
+    final idToken = await user.getIdToken();
     final data = await postJson('/auth/firebase', {
       'idToken': idToken,
     }, authenticated: false);
-    return data['accessToken'] as String;
+    final token = data['accessToken'] as String;
+    _cachedAccessToken = token;
+    _cachedFirebaseUid = user.uid;
+    _tokenExpiry = now.add(const Duration(minutes: 14));
+    return token;
   }
 }
 
 final apiClientProvider = Provider<ApiClient>((ref) {
+  ref.keepAlive();
   return ApiClient(FirebaseAuth.instance, http.Client());
 });

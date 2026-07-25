@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/utils/text_formatters.dart';
 import 'providers/users_providers.dart';
 import 'widgets/user_detail_dialog.dart';
 import 'models/user.dart';
@@ -153,7 +154,7 @@ class _UserDataSource extends DataTableSource {
         );
       },
       cells: [
-        DataCell(Text(u.id.length > 8 ? u.id.substring(0, 8) : u.id)),
+        DataCell(Text(shortId(u.id))),
         DataCell(Text(u.email)),
         DataCell(Text(u.displayName ?? '-')),
         DataCell(

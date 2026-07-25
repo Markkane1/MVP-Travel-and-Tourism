@@ -5,9 +5,13 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
+    "db:push": "prisma db push",
+    "db:reset": "prisma db push --force-reset && npm run db:seed",
+    "db:seed": "ts-node prisma/seed.ts",
+    "dev": "cross-env NODE_ENV=development nodemon --watch src --ext ts --exec ts-node src/server.ts",
     "start": "node dist/server.js",
-    "test": "cross-env NODE_ENV=test RUN_INTEGRATION_TESTS=1 jest --runInBand --detectOpenHandles"
+    "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles",
+    "test:integration": "cross-env NODE_ENV=test RUN_INTEGRATION_TESTS=1 jest --runInBand --detectOpenHandles tests/integration"
   },
   "keywords": [],
   "author": "",

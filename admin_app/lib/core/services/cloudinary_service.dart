@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -9,8 +8,7 @@ import 'api_client.dart';
 class CloudinaryService {
   final ApiClient _api;
 
-  CloudinaryService([ApiClient? api])
-      : _api = api ?? ApiClient(FirebaseAuth.instance, http.Client());
+  CloudinaryService(this._api);
 
   Future<String> uploadImage({
     required List<int> bytes,
@@ -23,10 +21,9 @@ class CloudinaryService {
     final apiFolder = _apiFolderFor(safeFolder);
 
     try {
-      final data = await _api.postJson(
-        '/media/upload-token',
-        {'folder': apiFolder},
-      );
+      final data = await _api.postJson('/media/upload-token', {
+        'folder': apiFolder,
+      });
       final signature = data['signature'] as String;
       final timestamp = data['timestamp'] as int;
       final cloudName = data['cloudName'] as String;
@@ -42,11 +39,7 @@ class CloudinaryService {
         ..fields['signature'] = signature
         ..fields['folder'] = targetFolder
         ..files.add(
-          http.MultipartFile.fromBytes(
-            'file',
-            bytes,
-            filename: fileName,
-          ),
+          http.MultipartFile.fromBytes('file', bytes, filename: fileName),
         );
 
       final response = await request.send();

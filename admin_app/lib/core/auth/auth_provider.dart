@@ -14,6 +14,9 @@ class AuthState {
   final bool isAdmin;
   final bool isSuperAdmin;
   final String? accessToken;
+  final String? authError;
+  final String? apiEmail;
+  final String? apiRole;
 
   AuthState({
     required this.isLoading,
@@ -21,6 +24,9 @@ class AuthState {
     this.isAdmin = false,
     this.isSuperAdmin = false,
     this.accessToken,
+    this.authError,
+    this.apiEmail,
+    this.apiRole,
   });
 }
 
@@ -37,6 +43,7 @@ class AuthNotifier extends Notifier<AuthState> {
           isAdmin: false,
           isSuperAdmin: false,
           accessToken: null,
+          authError: null,
         );
       } else {
         try {
@@ -46,10 +53,14 @@ class AuthNotifier extends Notifier<AuthState> {
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'idToken': idToken}),
           );
+          final decoded = response.body.isEmpty
+              ? <String, dynamic>{}
+              : jsonDecode(response.body) as Map<String, dynamic>;
           if (response.statusCode >= 200 && response.statusCode < 300) {
-            final data = jsonDecode(response.body) as Map<String, dynamic>;
+            final data = decoded;
             final apiUser = data['user'] as Map<String, dynamic>? ?? {};
             final role = apiUser['role']?.toString();
+            final email = apiUser['email']?.toString();
             final isAdmin = role == 'ADMIN' || role == 'SUPER_ADMIN';
             final accessToken = data['accessToken'] as String?;
 
@@ -65,14 +76,21 @@ class AuthNotifier extends Notifier<AuthState> {
               isAdmin: isAdmin,
               isSuperAdmin: role == 'SUPER_ADMIN',
               accessToken: accessToken,
+              authError: isAdmin
+                  ? null
+                  : 'Backend returned role ${role ?? 'none'} for ${email ?? user.email ?? 'this account'}.',
+              apiEmail: email,
+              apiRole: role,
             );
           } else {
+            final error = decoded['error']?.toString() ?? 'Auth request failed';
             state = AuthState(
               isLoading: false,
               user: user,
               isAdmin: false,
               isSuperAdmin: false,
               accessToken: null,
+              authError: '${response.statusCode}: $error',
             );
           }
         } catch (e) {
@@ -83,6 +101,7 @@ class AuthNotifier extends Notifier<AuthState> {
             isAdmin: false,
             isSuperAdmin: false,
             accessToken: null,
+            authError: e.toString(),
           );
         }
       }

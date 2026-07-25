@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/utils/text_formatters.dart';
 import 'providers/bookings_providers.dart';
 import 'widgets/booking_detail_dialog.dart';
 import 'models/booking.dart';
@@ -175,9 +176,9 @@ class _BookingDataSource extends DataTableSource {
         );
       },
       cells: [
-        DataCell(Text(_shortId(b.id))),
-        DataCell(Text(_shortId(b.userId))),
-        DataCell(Text(b.tourId.isEmpty ? 'N/A' : _shortId(b.tourId))),
+        DataCell(Text(shortId(b.id))),
+        DataCell(Text(shortId(b.userId))),
+        DataCell(Text(b.tourId.isEmpty ? 'N/A' : shortId(b.tourId))),
         DataCell(Text('${b.currency} ${b.totalPrice.toInt()}')),
         DataCell(
           Chip(
@@ -215,11 +216,6 @@ class _BookingDataSource extends DataTableSource {
         ),
       ],
     );
-  }
-
-  String _shortId(String id) {
-    if (id.length <= 8) return id;
-    return id.substring(0, 8);
   }
 
   @override

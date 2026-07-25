@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/utils/text_formatters.dart';
 import '../models/booking.dart';
 import '../providers/bookings_providers.dart';
 
@@ -61,7 +62,7 @@ class _BookingDetailDialogState extends ConsumerState<BookingDetailDialog> {
     final b = widget.booking;
 
     return AlertDialog(
-      title: Text('Booking ${b.id.length > 8 ? b.id.substring(0, 8) : b.id}...'),
+      title: Text('Booking ${shortId(b.id)}...'),
       content: SizedBox(
         width: 500,
         child: SingleChildScrollView(

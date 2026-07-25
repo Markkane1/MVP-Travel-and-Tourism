@@ -54,7 +54,8 @@ type RegisterInput = {
 
 export class AuthService {
   async register(data: RegisterInput): Promise<AuthResponse> {
-    const existingUser = await userRepository.findByEmail(data.email);
+    const email = data.email.trim().toLowerCase();
+    const existingUser = await userRepository.findByEmail(email);
     if (existingUser) {
       throw new Error('Email already in use');
     }
@@ -66,6 +67,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const user = await userRepository.create({
       ...data,
+      email,
       password: hashedPassword,
     });
 
@@ -73,7 +75,7 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<AuthResponse> {
-    const user = await userRepository.findByEmail(email);
+    const user = await userRepository.findByEmail(email.trim().toLowerCase());
     if (!user) {
       throw new Error('Invalid credentials');
     }
@@ -125,15 +127,13 @@ export class AuthService {
 
   async loginWithFirebaseToken(idToken: string): Promise<AuthResponse> {
     const decoded = await admin.auth().verifyIdToken(idToken);
-    const email = decoded.email;
+    const email = decoded.email?.trim().toLowerCase();
     if (!email) {
       throw new Error('Firebase account must have an email');
     }
 
     let user = await userRepository.findByEmail(email);
-    const lowerEmail = email.toLowerCase();
-    const isSuperAdminEmail = lowerEmail === 'superadmin@travelmvp.com';
-    const isAdminEmail = isSuperAdminEmail || lowerEmail === 'admin@travelmvp.com' || lowerEmail.includes('admin');
+    const role = roleForFirebaseEmail(email);
 
     if (!user) {
       const name = splitName(decoded.name || email.split('@')[0]);
@@ -142,12 +142,10 @@ export class AuthService {
         password: await bcrypt.hash(crypto.randomUUID(), 10),
         firstName: name.firstName,
         lastName: name.lastName,
-        role: isSuperAdminEmail ? 'SUPER_ADMIN' : (isAdminEmail ? 'ADMIN' : 'CUSTOMER'),
+        role,
       });
-    } else if (isAdminEmail && (user.role === 'CUSTOMER' || (isSuperAdminEmail && user.role !== 'SUPER_ADMIN'))) {
-      user = await userRepository.update(user.id, {
-        role: isSuperAdminEmail ? 'SUPER_ADMIN' : 'ADMIN',
-      });
+    } else if ((role === 'ADMIN' || role === 'SUPER_ADMIN') && user.role !== role) {
+      user = await userRepository.update(user.id, { role });
     }
 
     if (user.status !== 'ACTIVE') {
@@ -191,6 +189,13 @@ export class AuthService {
 
     return { accessToken, refreshToken };
   }
+}
+
+export function roleForFirebaseEmail(email: string): 'CUSTOMER' | 'ADMIN' | 'SUPER_ADMIN' {
+  const normalized = email.trim().toLowerCase();
+  if (normalized === 'superadmin@travelmvp.com') return 'SUPER_ADMIN';
+  if (normalized === 'admin@travelmvp.com') return 'ADMIN';
+  return 'CUSTOMER';
 }
 
 function splitName(name: string) {

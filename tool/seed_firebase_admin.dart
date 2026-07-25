@@ -9,7 +9,7 @@ Future<void> main() async {
     {'email': 'admin@travelmvp.com', 'password': 'admin123'},
   ];
 
-  print('Seeding admin accounts into Firebase Auth...');
+  stdout.writeln('Seeding admin accounts into Firebase Auth...');
 
   for (final account in accounts) {
     final email = account['email']!;
@@ -27,7 +27,9 @@ Future<void> main() async {
 
     final signInRes = await _postRequest(signInUrl, payload);
     if (signInRes != null && signInRes['localId'] != null) {
-      print('✅ Account $email already exists in Firebase Auth (ID: ${signInRes['localId']}).');
+      stdout.writeln(
+        'Account $email already exists in Firebase Auth (ID: ${signInRes['localId']}).',
+      );
       continue;
     }
 
@@ -37,14 +39,19 @@ Future<void> main() async {
     );
     final signUpRes = await _postRequest(signUpUrl, payload);
     if (signUpRes != null && signUpRes['localId'] != null) {
-      print('🎉 Successfully created account $email in Firebase Auth (ID: ${signUpRes['localId']}).');
+      stdout.writeln(
+        'Successfully created account $email in Firebase Auth (ID: ${signUpRes['localId']}).',
+      );
     } else {
-      print('❌ Failed to create $email in Firebase Auth.');
+      stdout.writeln('Failed to create $email in Firebase Auth.');
     }
   }
 }
 
-Future<Map<String, dynamic>?> _postRequest(Uri uri, Map<String, dynamic> body) async {
+Future<Map<String, dynamic>?> _postRequest(
+  Uri uri,
+  Map<String, dynamic> body,
+) async {
   final client = HttpClient();
   try {
     final request = await client.postUrl(uri);
@@ -57,7 +64,7 @@ Future<Map<String, dynamic>?> _postRequest(Uri uri, Map<String, dynamic> body) a
     }
     return jsonDecode(responseBody) as Map<String, dynamic>;
   } catch (e) {
-    print('Error: $e');
+    stderr.writeln('Error: $e');
     return null;
   }
 }

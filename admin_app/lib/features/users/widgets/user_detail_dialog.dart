@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/utils/text_formatters.dart';
 import '../models/user.dart';
 import '../providers/users_providers.dart';
 
@@ -125,7 +126,7 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
     final u = widget.user;
 
     return AlertDialog(
-      title: Text('User ${u.id.length > 8 ? u.id.substring(0, 8) : u.id}...'),
+      title: Text('User ${shortId(u.id)}...'),
       content: SizedBox(
         width: 400,
         child: SingleChildScrollView(

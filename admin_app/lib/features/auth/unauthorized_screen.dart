@@ -7,6 +7,10 @@ class UnauthorizedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authProvider);
+    final detail = auth.authError ??
+        'Signed in as ${auth.user?.email ?? 'unknown'}, but no admin role was granted.';
+
     return Scaffold(
       body: Center(
         child: Padding(
@@ -25,10 +29,10 @@ class UnauthorizedScreen extends ConsumerWidget {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 16),
-              const Text(
-                'You do not have the administrative privileges required to access this portal.',
+              Text(
+                detail,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 32),
               FilledButton.icon(

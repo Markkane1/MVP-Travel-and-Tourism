@@ -201,6 +201,7 @@ class AuthService {
     try {
       await _firebaseAuth.signOut();
       await GoogleSignIn.instance.signOut();
+      _api.clearTokenCache();
       return const Result.success(null);
     } on FirebaseAuthException catch (e) {
       return Result.failure(_handleAuthException(e));
