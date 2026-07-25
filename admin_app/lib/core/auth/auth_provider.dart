@@ -6,18 +6,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 import '../config/env.dart';
+import '../services/api_client.dart';
 
 class AuthState {
   final bool isLoading;
   final User? user;
   final bool isAdmin;
   final bool isSuperAdmin;
+  final String? accessToken;
 
   AuthState({
     required this.isLoading,
     this.user,
     this.isAdmin = false,
     this.isSuperAdmin = false,
+    this.accessToken,
   });
 }
 
@@ -26,11 +29,14 @@ class AuthNotifier extends Notifier<AuthState> {
   AuthState build() {
     FirebaseAuth.instance.authStateChanges().listen((user) async {
       if (user == null) {
+        // Clear ApiClient token cache on sign-out
+        ref.read(apiClientProvider).clearTokenCache();
         state = AuthState(
           isLoading: false,
           user: null,
           isAdmin: false,
           isSuperAdmin: false,
+          accessToken: null,
         );
       } else {
         try {
@@ -45,11 +51,20 @@ class AuthNotifier extends Notifier<AuthState> {
             final apiUser = data['user'] as Map<String, dynamic>? ?? {};
             final role = apiUser['role']?.toString();
             final isAdmin = role == 'ADMIN' || role == 'SUPER_ADMIN';
+            final accessToken = data['accessToken'] as String?;
+
+            // Seed the token into ApiClient so subsequent API calls
+            // don't need to hit /auth/firebase again.
+            if (accessToken != null) {
+              ref.read(apiClientProvider).seedToken(accessToken);
+            }
+
             state = AuthState(
               isLoading: false,
               user: user,
               isAdmin: isAdmin,
               isSuperAdmin: role == 'SUPER_ADMIN',
+              accessToken: accessToken,
             );
           } else {
             state = AuthState(
@@ -57,15 +72,17 @@ class AuthNotifier extends Notifier<AuthState> {
               user: user,
               isAdmin: false,
               isSuperAdmin: false,
+              accessToken: null,
             );
           }
         } catch (e) {
-          debugPrint('Error fetching staff profile: $e');
+          debugPrint('Error fetching admin role: $e');
           state = AuthState(
             isLoading: false,
             user: user,
             isAdmin: false,
             isSuperAdmin: false,
+            accessToken: null,
           );
         }
       }
@@ -82,6 +99,7 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   Future<void> logout() async {
+    ref.read(apiClientProvider).clearTokenCache();
     await FirebaseAuth.instance.signOut();
   }
 }

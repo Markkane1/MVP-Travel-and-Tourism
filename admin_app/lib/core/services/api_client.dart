@@ -12,6 +12,29 @@ class ApiClient {
 
   ApiClient(this._auth, this._client);
 
+  // ── Cached backend JWT ────────────────────────────────────────────────────
+  String? _cachedAccessToken;
+  DateTime? _tokenExpiry;
+  String? _cachedFirebaseUid;
+
+  /// Seed an already-fetched token (e.g. from AuthNotifier after login)
+  /// so the first API call doesn't need to hit /auth/firebase again.
+  void seedToken(String token) {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    _cachedAccessToken = token;
+    _cachedFirebaseUid = user.uid;
+    _tokenExpiry = DateTime.now().add(const Duration(minutes: 14));
+  }
+
+  void clearTokenCache() {
+    _cachedAccessToken = null;
+    _tokenExpiry = null;
+    _cachedFirebaseUid = null;
+  }
+
+  // ── HTTP helpers ─────────────────────────────────────────────────────────
+
   Future<dynamic> getJson(String path) async {
     final response = await _client.get(
       Uri.parse('${Env.apiBaseUrl}$path'),
@@ -68,9 +91,7 @@ class ApiClient {
         : jsonDecode(response.body) as Map<String, dynamic>;
   }
 
-  String? _cachedAccessToken;
-  DateTime? _tokenExpiry;
-  String? _cachedFirebaseUid;
+  // ── Token management ──────────────────────────────────────────────────────
 
   Future<String> _accessToken() async {
     final firebaseUser = _auth.currentUser;
@@ -79,7 +100,7 @@ class ApiClient {
     }
 
     final now = DateTime.now();
-    // Reuse cached token if still valid and for the same user
+    // Reuse cached token if still valid and for the same Firebase user
     if (_cachedAccessToken != null &&
         _tokenExpiry != null &&
         now.isBefore(_tokenExpiry!) &&
@@ -87,6 +108,7 @@ class ApiClient {
       return _cachedAccessToken!;
     }
 
+    // Fetch a fresh backend JWT via /auth/firebase
     final idToken = await firebaseUser.getIdToken();
     final response = await _client.post(
       Uri.parse('${Env.apiBaseUrl}/auth/firebase'),
@@ -99,15 +121,9 @@ class ApiClient {
     final token = (jsonDecode(response.body) as Map<String, dynamic>)['accessToken'] as String;
     _cachedAccessToken = token;
     _cachedFirebaseUid = firebaseUser.uid;
-    // Cache for 14 minutes (backend JWT expires in 15 min)
+    // Cache for 14 minutes (backend JWT TTL is 15 min)
     _tokenExpiry = now.add(const Duration(minutes: 14));
     return token;
-  }
-
-  void clearTokenCache() {
-    _cachedAccessToken = null;
-    _tokenExpiry = null;
-    _cachedFirebaseUid = null;
   }
 
   String _errorMessage(http.Response response) {
@@ -121,6 +137,8 @@ class ApiClient {
   }
 }
 
+// keepAlive: true — Riverpod never disposes this provider, preserving the token cache.
 final apiClientProvider = Provider<ApiClient>((ref) {
+  ref.keepAlive();
   return ApiClient(FirebaseAuth.instance, http.Client());
 });
