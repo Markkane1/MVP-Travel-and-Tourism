@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -8,7 +9,8 @@ import 'api_client.dart';
 class CloudinaryService {
   final ApiClient _api;
 
-  CloudinaryService(this._api);
+  CloudinaryService([ApiClient? api])
+      : _api = api ?? ApiClient(FirebaseAuth.instance, http.Client());
 
   Future<String> uploadImage({
     required List<int> bytes,
