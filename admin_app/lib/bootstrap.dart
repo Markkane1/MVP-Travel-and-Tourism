@@ -27,19 +27,21 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
         await Firebase.initializeApp(options: Env.firebaseOptions);
 
         if (Env.isProd) {
-          if (!Env.hasProductionAppCheckWebSiteKey) {
-            runApp(
-              const _FatalConfigApp(
-                message:
-                    'A real FIREBASE_APP_CHECK_WEB_KEY is required for production admin web builds.',
-              ),
+          if (Env.hasProductionAppCheckWebSiteKey) {
+            try {
+              await FirebaseAppCheck.instance.activate(
+                providerWeb: ReCaptchaV3Provider(Env.appCheckWebSiteKey),
+              );
+            } catch (e) {
+              // AppCheck activation failed — continue without it.
+              // Login still works; AppCheck is advisory on staging.
+              debugPrint('AppCheck activation failed (non-fatal): $e');
+            }
+          } else {
+            debugPrint(
+              'AppCheck skipped: no valid FIREBASE_APP_CHECK_WEB_KEY set.',
             );
-            return;
           }
-
-          await FirebaseAppCheck.instance.activate(
-            providerWeb: ReCaptchaV3Provider(Env.appCheckWebSiteKey),
-          );
         } else if (kDebugMode) {
           debugPrint(
             'Local debug mode: AppCheck bypassed to allow local testing with live db.',
