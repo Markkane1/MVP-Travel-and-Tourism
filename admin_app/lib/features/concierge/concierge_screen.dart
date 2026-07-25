@@ -62,7 +62,7 @@ class _ConciergeScreenState extends ConsumerState<ConciergeScreen> {
                               final isSelected = thread.id == _selectedUserId;
                               return ListTile(
                                 title: Text(
-                                  'User ${thread.id.substring(0, 8)}...',
+                                  'User ${thread.id.length > 8 ? thread.id.substring(0, 8) : thread.id}...',
                                 ),
                                 subtitle: Text(
                                   thread.lastMessageText ?? 'No messages yet',
@@ -163,7 +163,7 @@ class _ConciergeThreadDetailState
           color: theme.colorScheme.surfaceContainerHighest,
           width: double.infinity,
           child: Text(
-            'Chat with User ${widget.userId.substring(0, 8)}...',
+            'Chat with User ${widget.userId.length > 8 ? widget.userId.substring(0, 8) : widget.userId}...',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),

@@ -16,6 +16,7 @@ Map<String, dynamic> _bookingJson(dynamic value) {
   final amount = json['totalAmount'] ?? json['totalPrice'] ?? 0;
   return {
     ...json,
+    'tourId': json['tourId'] ?? '',
     'status': (json['status'] ?? '').toString().toLowerCase(),
     'totalPrice': amount is num ? amount.toDouble() : 0.0,
     'bookingDate': json['bookingDate'] ?? json['createdAt'],

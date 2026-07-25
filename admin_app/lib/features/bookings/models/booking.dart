@@ -10,7 +10,7 @@ abstract class Booking with _$Booking {
   const factory Booking({
     @JsonKey(includeToJson: false) @Default('') String id,
     required String userId,
-    required String tourId,
+    @Default('') String tourId,
     required String status,
     required double totalPrice,
     @Default('USD') String currency,

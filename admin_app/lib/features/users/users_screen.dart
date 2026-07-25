@@ -153,7 +153,7 @@ class _UserDataSource extends DataTableSource {
         );
       },
       cells: [
-        DataCell(Text(u.id.substring(0, 8))),
+        DataCell(Text(u.id.length > 8 ? u.id.substring(0, 8) : u.id)),
         DataCell(Text(u.email)),
         DataCell(Text(u.displayName ?? '-')),
         DataCell(

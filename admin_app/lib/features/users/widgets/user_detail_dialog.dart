@@ -125,7 +125,7 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
     final u = widget.user;
 
     return AlertDialog(
-      title: Text('User ${u.id.substring(0, 8)}...'),
+      title: Text('User ${u.id.length > 8 ? u.id.substring(0, 8) : u.id}...'),
       content: SizedBox(
         width: 400,
         child: SingleChildScrollView(

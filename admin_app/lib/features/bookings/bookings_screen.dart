@@ -175,9 +175,9 @@ class _BookingDataSource extends DataTableSource {
         );
       },
       cells: [
-        DataCell(Text(b.id.substring(0, 8))),
-        DataCell(Text(b.userId.substring(0, 8))),
-        DataCell(Text(b.tourId.substring(0, 8))),
+        DataCell(Text(_shortId(b.id))),
+        DataCell(Text(_shortId(b.userId))),
+        DataCell(Text(b.tourId.isEmpty ? 'N/A' : _shortId(b.tourId))),
         DataCell(Text('${b.currency} ${b.totalPrice.toInt()}')),
         DataCell(
           Chip(
@@ -215,6 +215,11 @@ class _BookingDataSource extends DataTableSource {
         ),
       ],
     );
+  }
+
+  String _shortId(String id) {
+    if (id.length <= 8) return id;
+    return id.substring(0, 8);
   }
 
   @override

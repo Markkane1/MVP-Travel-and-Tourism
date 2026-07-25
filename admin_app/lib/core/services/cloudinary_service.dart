@@ -1,22 +1,14 @@
 import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 import 'api_client.dart';
-import '../config/env.dart';
 
 class CloudinaryService {
-  final FirebaseAuth _auth;
-  final http.Client _client;
-  final ApiClient? _api;
+  final ApiClient _api;
 
-  CloudinaryService({
-    FirebaseAuth? auth,
-    http.Client? client,
-    this._api,
-  })  : _auth = auth ?? FirebaseAuth.instance,
-        _client = client ?? http.Client();
+  CloudinaryService(this._api);
 
   Future<String> uploadImage({
     required List<int> bytes,
@@ -29,7 +21,7 @@ class CloudinaryService {
     final apiFolder = _apiFolderFor(safeFolder);
 
     try {
-      final data = await _postJson(
+      final data = await _api.postJson(
         '/media/upload-token',
         {'folder': apiFolder},
       );
@@ -61,7 +53,7 @@ class CloudinaryService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = jsonDecode(responseBody);
         final secureUrl = jsonResponse['secure_url'] as String;
-        await _postJson('/media/complete', {
+        await _api.postJson('/media/complete', {
           'publicId': jsonResponse['public_id'],
           'url': secureUrl,
           'resourceType': jsonResponse['resource_type'] ?? 'image',
@@ -79,49 +71,14 @@ class CloudinaryService {
     }
   }
 
-  Future<Map<String, dynamic>> _postJson(
-    String path,
-    Map<String, dynamic> body,
-  ) async {
-    final api = _api;
-    if (api != null) return api.postJson(path, body);
-
-    final accessToken = await _apiAccessToken();
-    final response = await _client.post(
-      Uri.parse('${Env.apiBaseUrl}$path'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-      body: jsonEncode(body),
-    );
-    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception(decoded['error'] ?? 'API request failed');
-    }
-    return decoded;
-  }
-
-  Future<String> _apiAccessToken() async {
-    final idToken = await _auth.currentUser?.getIdToken();
-    if (idToken == null) {
-      throw Exception('Sign in before uploading images.');
-    }
-    final response = await _client.post(
-      Uri.parse('${Env.apiBaseUrl}/auth/firebase'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'idToken': idToken}),
-    );
-    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception(decoded['error'] ?? 'API request failed');
-    }
-    return decoded['accessToken'] as String;
-  }
-
   String _apiFolderFor(String folder) {
     if (folder == 'services') return 'service-media';
     if (folder == 'tours' || folder.startsWith('tours/')) return 'tour-media';
     return folder;
   }
 }
+
+// Riverpod provider — uses ApiClient's cached JWT, no duplicate /auth/firebase.
+final cloudinaryServiceProvider = Provider<CloudinaryService>((ref) {
+  return CloudinaryService(ref.watch(apiClientProvider));
+});

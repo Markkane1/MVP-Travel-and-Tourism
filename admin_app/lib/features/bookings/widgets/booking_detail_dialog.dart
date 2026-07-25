@@ -61,7 +61,7 @@ class _BookingDetailDialogState extends ConsumerState<BookingDetailDialog> {
     final b = widget.booking;
 
     return AlertDialog(
-      title: Text('Booking ${b.id.substring(0, 8)}...'),
+      title: Text('Booking ${b.id.length > 8 ? b.id.substring(0, 8) : b.id}...'),
       content: SizedBox(
         width: 500,
         child: SingleChildScrollView(
